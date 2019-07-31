@@ -1,0 +1,12 @@
+{
+  "type": "local",
+  "remote": {
+    "url": "http://example.com",
+    "auth": {
+      "user": "username",
+      "pass": "password"
+    }
+  },
+  "local_file": "~/Downloads/Your_File",
+  "encryption_key": null
+}
