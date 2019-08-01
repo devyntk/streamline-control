@@ -1,27 +1,16 @@
-from PyQt5.QtWidgets import QApplication, QErrorMessage
-import sys
-import json
+# from streamline import app
+# import sys
+# from streamline.ConfigWindow import ConfigWindow
+#
+# cw = ConfigWindow()
+# sys.exit(app.exec())
 
-app = QApplication(sys.argv)
-try:
-    local_config = open('config.json')
-except FileNotFoundError:
-    config = {
-        "type": "local",
-        "remote": {
-            "url": "http://example.com",
-            "auth": {
-                "user": "username",
-                "pass": "password"
-            }
-        },
-        "local_file": "~/Downloads/Your_File",
-        "encryption_key": None
-    }
-    f = open('config.json', 'w+')
-    f.write(json.dumps(config))
-    f.close()
-    msg = QErrorMessage()
-    msg.showMessage('No config file found. Please edit "config.json" in the "streamline-control" folder to configure.')
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from streamline.MainWindow import MainWindow
 
-app.exec_()
+win = MainWindow()
+win.connect("destroy", Gtk.main_quit)
+win.show_all()
+Gtk.main()

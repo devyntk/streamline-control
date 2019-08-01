@@ -1,13 +1,8 @@
-from PyQt5.QtWidgets import QMainWindow, QPushButton
+from gi.repository import Gtk
 
 
-class MainWindow(QMainWindow):
+class MainWindow(Gtk.Window):
 
     def __init__(self):
-        super().__init__()
+        Gtk.Window.__init__(self, title="Streamline Control")
 
-        self.statusBar().showMessage('Ready')
-
-        self.setGeometry(300, 300, 300, 220)
-        self.setWindowTitle('Streamline Control')
-        self.show()
