@@ -1,10 +1,3 @@
-# from streamline import app
-# import sys
-# from streamline.ConfigWindow import ConfigWindow
-#
-# cw = ConfigWindow()
-# sys.exit(app.exec())
-
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk

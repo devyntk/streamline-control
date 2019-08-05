@@ -49,7 +49,7 @@ class ConfigWindow(Gtk.Window):
                         "pass": "password"
                     }
                 },
-                "local_file": "~/Downloads/Your_File",
+                "local_file": "~/Downloads/remote_config.json",
                 "encryption_key": None
             }
             f = open('config.json', 'w+')
@@ -62,7 +62,30 @@ class ConfigWindow(Gtk.Window):
         try:
             GLib.idle_add(self.append_text, "Decoding local config file\n")
             local_config = json.load(local_config_file)
+            local_config_file.close()
         except json.JSONDecodeError:
             GLib.idle_add(self.show_error, "Invalid JSON File", "Please either fix your JSON file or delete it and run "
                                                                 "this app again to regenerate a valid file.")
             return
+
+        if local_config['type'] == 'local':
+            try:
+                GLib.idle_add(self.append_text, "Opening local remote config file")
+                remote_config_file = open(local_config['local_file'], 'r')
+            except FileNotFoundError:
+                GLib.idle_add(self.show_error, "No local file found", f"No file found at {local_config['local_file']}. "
+                                                                      f"Try a different path.")
+                return
+        elif local_config['type'] == 'url':
+            raise Exception('TODO')  # TODO: add remote config (need a place to test first)
+
+        try:
+            GLib.idle_add(self.append_text, "Decoding local config file\n")
+            remote_config = json.load(remote_config_file)
+            remote_config_file.close()
+        except json.JSONDecodeError:
+            GLib.idle_add(self.show_error, "Invalid JSON File",
+                          "Please either fix your JSON file or delete it and run "
+                          "this app again to regenerate a valid file.")
+            return
+
