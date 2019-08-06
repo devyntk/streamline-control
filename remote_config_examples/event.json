@@ -1,5 +1,9 @@
 {
+  "type": "event",
+  "start_date": "2019-10-1",
+  "end_date": "2019-10-1",
   "event_code": "1920-ETC-ETC",
+  "event_name": "Out of Your League Meet 1",
   "downloads": {
     "scorekeeper": "https://github.com/FIRST-Tech-Challenge/scorekeeper/releases/download/v0.8.3/FIRST-Tech-Challenge-Live-0.8.3.zip",
     "autosync": "https://github.com/orange-alliance/TOA-DataSync/releases/download/1819-offseason/TOA-DataSync.jar"
