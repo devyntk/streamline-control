@@ -17,6 +17,9 @@ class Application(Gtk.Application):
         action.connect("activate", self.on_quit)
         self.add_action(action)
 
+        builder = Gtk.Builder.new_from_file("streamline/menu.xml")
+        self.set_app_menu(builder.get_object('app-menu'))
+
     def do_activate(self):
 
         self.main_window = ConfigWindow(application=self)

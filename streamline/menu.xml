@@ -1,0 +1,10 @@
+<interface>
+    <menu id="menubar">
+        <section>
+            <item>
+                <attribute name="action">app.quit</attribute>
+                <attribute name="label">_Quit</attribute>
+            </item>
+        </section>
+    </menu>
+</interface>
