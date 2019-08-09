@@ -1,7 +1,7 @@
 # Streamline-Control
 
 This is the main app developed for the StreamlineOS project, a project centered around automatic running of 
-[FIRST Tech Challenge](https://www.firstinspires.org/robotics/ftc) events. Written using Qt and PyQt5, it's designed to
+[FIRST Tech Challenge](https://www.firstinspires.org/robotics/ftc) events. Written using GTK and PyGObject, it's designed to
 work on Ubuntu, however will most likely work on other Linux distributions and Windows & macOS.
 
 # Running Streamline-Control

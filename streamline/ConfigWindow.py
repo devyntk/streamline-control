@@ -3,12 +3,13 @@ import threading
 import json
 import os
 import sys
+import requests
 
 
-class ConfigWindow(Gtk.Window):
+class ConfigWindow(Gtk.ApplicationWindow):
 
-    def __init__(self):
-        Gtk.Window.__init__(self, title="Streamline Config Setup")
+    def __init__(self, *args, **kwargs):
+        Gtk.ApplicationWindow.__init__(self, *args, title="Streamline Config Setup", **kwargs)
         self.set_border_width(10)
 
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
@@ -36,12 +37,12 @@ class ConfigWindow(Gtk.Window):
         msg.format_secondary_text(subtitle)
         msg.run()
         msg.destroy()
-        # Gtk.main_quit()
+        self.get_application().quit()
 
     def append_text(self, text, append="\n"):
         GLib.idle_add(self.append_text_async, f"{text}{append}")
 
-    def show_error(self, title, subtitle):
+    def show_error(self, title, subtitle=""):
         GLib.idle_add(self.show_error_async, title, subtitle)
 
     def load_config(self):
@@ -57,6 +58,8 @@ class ConfigWindow(Gtk.Window):
         elif "fatal: not a git repository" in branch:
             self.show_error("Incorrect install method", "The method of install is incorrect such that the app cannot "
                                                         "update. Contact the developers for assistance.")
+        elif len(branch.split()) > 1:
+            self.append_text("Unknown git output, please contact the developers:\n"+branch)
         else:
             self.append_text("Git output" + branch)
             self.append_text("Developer install detected. No updating.")
@@ -80,8 +83,8 @@ class ConfigWindow(Gtk.Window):
             f = open('config.json', 'w+')
             json.dump(config, f, indent=1)
             f.close()
-            self.show_error( "No config file", 'No config file found. Please edit "config.json" in the '
-                                               '"streamline-control" folder to configure.')
+            self.show_error("No config file", 'No config file found. Please edit "config.json" in the '
+                                              '"streamline-control" folder to configure.')
             return
 
         try:
@@ -101,15 +104,30 @@ class ConfigWindow(Gtk.Window):
                 self.show_error("No local file found", f"No file found at {local_config['local_file']}. Try a "
                                                        f"different path.")
                 return
-        elif local_config['type'] == 'url':
-            raise Exception('TODO')  # TODO: add remote config (need a place to test first)
 
-        try:
-            self.append_text("Decoding local config file")
-            remote_config = json.load(remote_config_file)
-            remote_config_file.close()
-        except json.JSONDecodeError:
-            self.show_error("Invalid JSON File", "Please either fix your JSON file or delete it and run this app again "
-                                                 "to regenerate a valid file.")
+            try:
+                self.append_text("Decoding local config file")
+                remote_config = json.load(remote_config_file)
+                remote_config_file.close()
+            except json.JSONDecodeError:
+                self.show_error("Invalid JSON File",
+                                "Please either fix your JSON file or delete it and run this app again "
+                                "to regenerate a valid file.")
+                return
+
+        elif local_config['type'] == 'url':
+            remote_details = local_config['remote']
+            r = requests.get(remote_details['url'], auth=(remote_details['auth']['user'],
+                                                          remote_details['auth']['pass']))
+            # TODO: make this more applicable to different auth kinds (or no auth)
+            try:
+                remote_config = r.json()
+            except ValueError:
+                self.show_error("Invalid JSON in remote file.")
+                return
+        else:
+            self.show_error("Unknown remote config destination type.")
             return
+
+
 
