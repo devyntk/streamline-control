@@ -24,6 +24,7 @@ class Application(Gtk.Application):
 
         self.main_window = ConfigWindow(application=self)
         self.main_window.present()
+        # TODO: put this all in the MainWindow, and have that window launch this one
 
     def on_quit(self):
         self.quit()

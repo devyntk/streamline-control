@@ -4,6 +4,7 @@ import json
 import os
 import sys
 import requests
+import urllib.request
 
 
 class ConfigWindow(Gtk.ApplicationWindow):
@@ -128,6 +129,26 @@ class ConfigWindow(Gtk.ApplicationWindow):
         else:
             self.show_error("Unknown remote config destination type.")
             return
+
+        if remote_config["type"] == "list":
+            pass
+            # TODO: Handle event lists
+        elif remote_config["type"] == "event":
+            self.load_event(remote_config)
+        else:
+            self.show_error("Unknown remote config type.")
+
+    def load_event(self, remote_config):
+        global config
+        cwd = os.getcwd()
+        os.mkdir(cwd+"/"+remote_config['event_code'])
+        for app, url in remote_config['downloads'].items():
+            os.mkdir(cwd + "/" + remote_config['event_code']+"/"+app)
+            r = requests.get(url)
+            with open(f"{cwd}/{remote_config['event_code']}/{app}/{app}.zip", 'wb') as f:
+                f.write(r.content)
+
+
 
 
 
