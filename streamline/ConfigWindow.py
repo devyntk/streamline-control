@@ -99,7 +99,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
         if local_config['type'] == 'local':
             try:
                 self.append_text("Opening local remote config file")
-                remote_config_file = open(local_config['local_file'], 'r')
+                remote_config_file = open(os.path.expanduser(local_config['local_file']), 'r')
             except FileNotFoundError:
                 self.show_error("No local file found", f"No file found at {local_config['local_file']}. Try a "
                                                        f"different path.")
@@ -129,5 +129,20 @@ class ConfigWindow(Gtk.ApplicationWindow):
             self.show_error("Unknown remote config destination type.")
             return
 
+        if remote_config["type"] == "list":
+            pass
+            # TODO: Handle event lists
+        elif remote_config["type"] == "event":
+            self.load_event(remote_config)
+        else:
+            self.show_error("Unknown remote config type.")
 
-
+    def load_event(self, remote_config):
+        global config
+        cwd = os.getcwd()
+        os.mkdir(cwd+"/"+remote_config['event_code'])
+        for app, url in remote_config['downloads'].items():
+            os.mkdir(cwd + "/" + remote_config['event_code']+"/"+app)
+            r = requests.get(url)
+            with open(f"{cwd}/{remote_config['event_code']}/{app}/{app}.zip", 'wb') as f:
+                f.write(r.content)
