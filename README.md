@@ -11,7 +11,8 @@ Streamline-Control is a python package, meaning that you can launch it with the 
     python -m streamline
     
 Make sure you've installed the requirements with `pip -Ur requirements.txt` before running the software. Everything else
-should either auto install itself on the client PC or will tell you need it installed (like OBS).
+should either auto install itself on the client PC or will tell you need it installed (like OBS). You may need to install additional
+system packages for GTK, such as Cairo. 
 
 # Remote Config Files
 
@@ -22,7 +23,10 @@ important keys that need to be kept secret, such as your twitch streaming key, y
 As such, it's recommended you configure your webserver to require a user and pass to access this file, which is supported
 in config.json. During testing, you can also point it to a local file.
 
-An example remote config file is included in the repository as `remote_config.json`.
+An example remote config file is included in the repository as `remote_config_examples/event.json`.
+
+To configure Streamline-Control for pulling remote files, change the `type` value in `config.json` to `"url"` and fill out the
+URL and auth parameters.
 
 # License
 
