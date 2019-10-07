@@ -1,7 +1,7 @@
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gio
-from streamline.ConfigWindow import ConfigWindow
+from streamline.MainWindow import MainWindow
 
 
 class Application(Gtk.Application):
@@ -17,14 +17,13 @@ class Application(Gtk.Application):
         action.connect("activate", self.on_quit)
         self.add_action(action)
 
-        builder = Gtk.Builder.new_from_file("streamline/menu.xml")
-        self.set_app_menu(builder.get_object('app-menu'))
+        # builder = Gtk.Builder.new_from_file("streamline/menu.xml")
+        # self.set_menubar(builder.get_object('menubar'))
 
     def do_activate(self):
 
-        self.main_window = ConfigWindow(application=self)
-        self.main_window.present()
-        # TODO: put this all in the MainWindow, and have that window launch this one
+        self.main_window = MainWindow(application=self)
+        self.main_window.show_all()
 
     def on_quit(self):
         self.quit()

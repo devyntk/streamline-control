@@ -1,10 +1,8 @@
 <interface>
-    <menu id="menubar">
-        <section>
-            <item>
+    <menubar id="menubar">
+        <menu action="'FileMenu">
                 <attribute name="action">app.quit</attribute>
                 <attribute name="label">_Quit</attribute>
-            </item>
-        </section>
-    </menu>
+        </menu>
+    </menubar>
 </interface>
