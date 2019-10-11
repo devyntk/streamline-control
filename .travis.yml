@@ -13,7 +13,7 @@ addons:
     - libcairo-gobject2
     - libcairo2-dev
     - libgirepository1.0-dev
-before_install: ./ci.sh
+before_install: travis_wait ./ci.sh
 install: pip install -Ur requirements.txt && pip install pyinstaller
 script: pyinstaller streamline/__main__.py -F
 deploy:
