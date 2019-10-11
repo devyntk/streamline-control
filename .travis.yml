@@ -15,7 +15,7 @@ addons:
     - libcairo2-dev
     - libgirepository1.0-dev
 language: python
-python: 3.6.8
+
 install: pip install -Ur requirements.txt && pip install pyinstaller
 script: pyinstaller streamline/__main__.py -F
 deploy:
