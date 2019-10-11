@@ -25,3 +25,4 @@ deploy:
   on:
     repo: tweirtx/streamline-control
     tags: true
+  skip_cleanup: true
