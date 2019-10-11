@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ '$TRAVIS_OSNAME' == 'macos' ];
+if [ "$TRAVIS_OSNAME" == 'osx' ];
 then
   curl pyenv.run | bash;
 else
