@@ -1,0 +1,27 @@
+os:
+  - osx
+  - linux
+
+addons:
+  homebrew:
+    update: true
+    packages:
+      - gtk+3
+      - pygobject3
+  apt:
+    update: true
+    packages:
+      - python3-gi-cairo
+      - libcairo-gobject2
+      - libcairo2-dev
+language: python
+python: 3.6
+
+install: pip install -Ur requirements.txt && pip install pyinstaller
+script: pyinstaller streamline/__main__.spec -F
+
+deploy:
+  provider: releases
+  skip_cleanup: true
+  file: dist/*
+  file_glob: true
