@@ -14,7 +14,7 @@ addons:
     - libcairo2-dev
     - libgirepository1.0-dev
 
-script: travis_wait ./ci.sh
+script: travis_wait 30 ./ci.sh
 
 deploy:
   provider: releases
