@@ -6,6 +6,7 @@ addons:
     packages:
     - gtk+3
     - pygobject3
+    - cairo
   apt:
     update: true
     packages:
