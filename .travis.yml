@@ -3,6 +3,7 @@ os:
 - linux
 addons:
   homebrew:
+    update: true
     packages:
     - gtk+3
     - pygobject3
