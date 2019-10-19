@@ -14,6 +14,8 @@ class Application(Gtk.Application):
         super().__init__(*args, application_id="org.theorangealliance.streamline", **kwargs)
         self.main_window = None
 
+        self.config = None
+
     def do_startup(self):
         Gtk.Application.do_startup(self)
 

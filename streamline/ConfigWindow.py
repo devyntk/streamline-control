@@ -5,6 +5,7 @@ import os
 import sys
 import requests
 import logging
+import zipfile
 
 logger = logging.getLogger()
 
@@ -172,7 +173,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
             logger.error("Unknown remote config type.")
 
     def load_event(self, remote_config):
-        global config
+        self.get_application().config = remote_config
         cwd = os.getcwd()
         try:
             os.mkdir(cwd+"/"+remote_config['event_code'])
@@ -209,4 +210,6 @@ class ConfigWindow(Gtk.ApplicationWindow):
             r = requests.get(url)
             with open(f"{cwd}/{remote_config['event_code']}/{app}/{app}.zip", 'wb') as f:
                 f.write(r.content)
+            with zipfile.ZipFile(f"{cwd}/{remote_config['event_code']}/{app}/{app}.zip", 'r') as zip_ref:
+                zip_ref.extractall(f"{cwd}/{remote_config['event_code']}/{app}/")
         logger.debug("Done downloading files.")
