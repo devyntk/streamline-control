@@ -21,6 +21,27 @@ class LogHandler(logging.Handler):
         GLib.idle_add(self.window.append_text_async, record.getMessage())
 
 
+class AlreadyExistsDialog(Gtk.Dialog):
+
+    def __init__(self, parent):
+        Gtk.Dialog.__init__(self, "Confirm Event Duplication", parent, 0,
+            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+             Gtk.STOCK_OK, Gtk.ResponseType.OK))
+
+        self.set_default_size(150, 100)
+        self.set_modal(True)
+
+        label = Gtk.Label("""An event with this code already exists in a streamline folder. By default, streamline will 
+rename this old folder and create a new one, starting the event from scratch. If you would
+like for this not to happen, and for streamline to continue with this folder as is, with
+it's scorekeeper, datasync and other applications already setup, press cancel. If you would
+like to rename this folder and re-download all of the required files, press 'OK'.""")
+
+        box = self.get_content_area()
+        box.add(label)
+        self.show_all()
+
+
 class ConfigWindow(Gtk.ApplicationWindow):
 
     def __init__(self, *args, **kwargs):
@@ -47,16 +68,16 @@ class ConfigWindow(Gtk.ApplicationWindow):
         thread.daemon = True  # Make sure program exits even if only this thread is still running
         thread.start()
 
+        self.response = None
+
     def append_text_async(self, text):
         buffer = self.textbox.get_buffer()
         buffer.set_text(text)
-    #
-    # def show_error_async(self, title, subtitle):
-    #     msg = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR, Gtk.ButtonsType.CLOSE, title)
-    #     msg.format_secondary_text(subtitle)
-    #     msg.run()
-    #     msg.destroy()
-    #     self.get_application().quit()
+
+    def show_already_exists(self):
+        dialog = AlreadyExistsDialog(self)
+        self.response = dialog.run()
+        dialog.destroy()
 
     def load_config(self):
         branch = os.popen("git branch | grep \* | cut -d ' ' -f2").read()
@@ -157,7 +178,31 @@ class ConfigWindow(Gtk.ApplicationWindow):
             os.mkdir(cwd+"/"+remote_config['event_code'])
         except FileExistsError:
             logger.error("Event folder already exists!")
-            return  # TODO: make this actually prompt the user somehow rather than fail silently
+            GLib.idle_add(self.show_already_exists)
+            while not self.response:
+                pass
+
+            if self.response == Gtk.ResponseType.OK:
+                # rename folder, create anew
+                current_name = cwd+"/"+remote_config['event_code']
+                new_name = f"{current_name}-old"
+                logger.debug("renaming folder {} to {}".format(current_name, new_name))
+                while True:
+                    try:
+                        os.rename(current_name, new_name)
+                        break
+                    except OSError:
+                        new_name += "-old"
+                        logging.info("-old folder already exists, renaming to {}".format(new_name))
+
+                os.mkdir(cwd + "/" + remote_config['event_code'])
+
+            elif self.response == Gtk.ResponseType.CANCEL:
+                # keep folder as is
+                logger.debug("Kept folder as is, ignore")
+
+            self.response = None
+
         for app, url in remote_config['downloads'].items():
             logger.debug("downloading {} from {}".format(app, url))
             os.mkdir(cwd + "/" + remote_config['event_code']+"/"+app)

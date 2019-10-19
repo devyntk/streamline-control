@@ -6,7 +6,7 @@
   "event_name": "Out of Your League Meet 1",
   "downloads": {
     "scorekeeper": "https://github.com/FIRST-Tech-Challenge/scorekeeper/releases/download/v1.0.0/FIRST-Tech-Challenge-Live-1.0.0.zip",
-    "autosync": "https://github.com/orange-alliance/TOA-DataSync/archive/v3.0.0.zip"
+    "autosync": "https://github.com/orange-alliance/TOA-DataSync/archive/3.0.2.zip"
   },
   "toa_api_key": "insert-here",
   "twitch_key": "insert-here",
