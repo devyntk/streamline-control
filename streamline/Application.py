@@ -2,6 +2,10 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gio
 from streamline.MainWindow import MainWindow
+import logging
+import sys
+
+logger = logging.getLogger()
 
 
 class Application(Gtk.Application):
@@ -13,9 +17,14 @@ class Application(Gtk.Application):
     def do_startup(self):
         Gtk.Application.do_startup(self)
 
-        action = Gio.SimpleAction.new("quit", None)
-        action.connect("activate", self.on_quit)
-        self.add_action(action)
+        logger.setLevel(logging.DEBUG)
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(logging.DEBUG)
+        logger.addHandler(ch)
+
+        # action = Gio.SimpleAction.new("quit", None)
+        # action.connect("activate", self.on_quit)
+        # self.add_action(action)
 
         # builder = Gtk.Builder.new_from_file("streamline/menu.xml")
         # self.set_menubar(builder.get_object('menubar'))
