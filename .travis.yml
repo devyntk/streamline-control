@@ -1,3 +1,4 @@
+language: shell
 
 addons:
   homebrew:
@@ -19,10 +20,10 @@ addons:
 script: travis_wait 30 ./ci.sh
 
 jobs:
-  allow_failures:
-    - os: windows
   include:
     - os: linux
+    - os: linux
+      arch: arm64
     - os: osx
     
 
