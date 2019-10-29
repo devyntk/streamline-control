@@ -1,6 +1,7 @@
 #!/bin/bash
 brew upgrade pyenv || echo "Not macOS"
 (cd /opt/pyenv/plugins/python-build/../.. && git pull origin master && cd - && export PATH="/opt/pyenv/bin:$PATH") || echo "Not Ubuntu"
+echo $PATH
 pyenv install 3.6.8
 pyenv global 3.6.8
 pip3 install pycairo
