@@ -26,7 +26,8 @@ jobs:
     - os: osx
     - os: windows
       language: shell
-      script: ci.bat
+      install: curl https://pyenv.run | bash
+      script: ./ci.si
 
 
 
