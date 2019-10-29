@@ -1,6 +1,4 @@
-os:
-- osx
-- linux
+
 addons:
   homebrew:
     update: true
@@ -19,6 +17,18 @@ addons:
     - libgtk-3-0
 
 script: travis_wait 30 ./ci.sh
+
+jobs:
+  allow_failures:
+    - os: windows
+  include:
+    - os: linux
+    - os: osx
+    - os: windows
+      language: shell
+      script: ci.bat
+
+
 
 deploy:
   provider: releases
