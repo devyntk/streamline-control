@@ -24,17 +24,7 @@ jobs:
   include:
     - os: linux
     - os: osx
-    - os: windows
-      language: shell
-      install:
-        - curl https://pyenv.run | bash
-        - export PATH="/c/Users/travis/.pyenv/bin:$PATH"
-        - eval "$(pyenv init -)"
-        - eval "$(pyenv virtualenv-init -)"
-      before_script: find / | grep "ci.sh"
-      script: ./ci.si
-
-
+    
 
 deploy:
   provider: releases
