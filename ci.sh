@@ -10,4 +10,4 @@ pip3 install pycairo
 pip3 install -Ur requirements.txt
 pip3 install pyinstaller
 pyinstaller streamline/__main__.py -F
-mv dist/* "dist/streamline-control-$TRAVIS_OS_NAME"
+mv dist/* "dist/streamline-control-$BUILDOS"
