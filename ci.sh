@@ -4,7 +4,7 @@ brew upgrade pyenv || echo "Not macOS"
 export PATH="/opt/pyenv/bin:$PATH"
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
-pyenv install 3.6.8
+env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.6.8
 pyenv global 3.6.8
 pip3 install pycairo
 pip3 install -Ur requirements.txt
