@@ -23,12 +23,15 @@ script: travis_wait 30 ./ci.sh
 jobs:
   include:
     - os: linux
-      env: BUILDOS = "linux"
+      env:
+        - BUILDOS=linux
     - os: linux
-      env: BUILDOS = "pi"
+      env:
+        - BUILDOS=pi
       arch: arm64
     - os: osx
-      env: BUILDOS = "mac"
+      env:
+        - BUILDOS=mac
 
 
 deploy:
