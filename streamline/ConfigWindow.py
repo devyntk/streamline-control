@@ -19,24 +19,47 @@ class LogHandler(logging.Handler):
         self.window = window
 
     def emit(self, record):
-        GLib.idle_add(self.window.append_text_async, record.getMessage())
+        GLib.idle_add(self.window.append_text_async, record.getMessage()[:120])
 
 
 class AlreadyExistsDialog(Gtk.Dialog):
 
     def __init__(self, parent):
         Gtk.Dialog.__init__(self, "Confirm Event Duplication", parent, 0,
+                            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                             Gtk.STOCK_OK, Gtk.ResponseType.OK))
+
+        self.set_default_size(200, 100)
+        self.set_resizable(False)
+
+        self.set_modal(True)
+
+        label = Gtk.Label("""An event with this code already exists in a streamline folder. By default, streamline will\
+rename this old folder and create a new one, starting the event from scratch. If you would\
+like for this not to happen, and for streamline to continue with this folder as is, with\
+it's scorekeeper, datasync and other applications already setup, press cancel. If you would\
+like to rename this folder and re-download all of the required files, press 'OK'.""")
+        label.set_line_wrap(True)
+
+        box = self.get_content_area()
+        box.add(label)
+        self.show_all()
+
+
+class ConfirmCloseDialog(Gtk.Dialog):
+
+    def __init__(self, parent):
+        Gtk.Dialog.__init__(self, "Confirm Setup Cancellation", parent, 0,
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
              Gtk.STOCK_OK, Gtk.ResponseType.OK))
 
-        self.set_default_size(150, 100)
+        self.set_default_size(200, 100)
+        self.set_resizable(False)
         self.set_modal(True)
 
-        label = Gtk.Label("""An event with this code already exists in a streamline folder. By default, streamline will 
-rename this old folder and create a new one, starting the event from scratch. If you would
-like for this not to happen, and for streamline to continue with this folder as is, with
-it's scorekeeper, datasync and other applications already setup, press cancel. If you would
-like to rename this folder and re-download all of the required files, press 'OK'.""")
+        label = Gtk.Label("""The setup process for this event is still ongoing. If you cancel now, Streamline will \
+continue with a partially setup event. Press 'Cancel' to continue event setup.""")
+        label.set_line_wrap(True)
 
         box = self.get_content_area()
         box.add(label)
@@ -48,6 +71,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
     def __init__(self, *args, **kwargs):
         Gtk.ApplicationWindow.__init__(self, *args, title="Streamline Config Setup", **kwargs)
         self.set_border_width(10)
+        self.set_default_size(300,100)
 
         self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.add(self.vbox)
@@ -55,6 +79,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
         self.textbox = Gtk.TextView()
         self.textbox.set_editable(False)
         self.textbox.set_cursor_visible(False)
+        self.textbox.set_wrap_mode(Gtk.WrapMode.WORD)
         self.vbox.pack_start(self.textbox, True, True, 0)
 
         self.spinner = Gtk.Spinner()
@@ -65,11 +90,23 @@ class ConfigWindow(Gtk.ApplicationWindow):
         self.loghandler = LogHandler(self.textbox.get_buffer(), self)
         logger.addHandler(self.loghandler)
 
-        thread = threading.Thread(target=self.load_config)
-        thread.daemon = True  # Make sure program exits even if only this thread is still running
-        thread.start()
+        self.thread = threading.Thread(target=self.load_config)
+        self.thread.daemon = True  # Make sure program exits even if only this thread is still running
+        self.thread.start()
 
         self.response = None
+
+        self.connect('delete-event', self.delete_attempt)
+
+    def delete_attempt(self, *args):
+        dialog = ConfirmCloseDialog(self)
+        response = dialog.run()
+        dialog.destroy()
+        if response == Gtk.ResponseType.CANCEL:
+            self.get_application().main_window.destroy()
+            return True
+        elif response == Gtk.ResponseType.OK:
+            return False
 
     def append_text_async(self, text):
         buffer = self.textbox.get_buffer()
@@ -206,10 +243,16 @@ class ConfigWindow(Gtk.ApplicationWindow):
 
         for app, url in remote_config['downloads'].items():
             logger.debug("downloading {} from {}".format(app, url))
-            os.mkdir(cwd + "/" + remote_config['event_code']+"/"+app)
+            try:
+                os.mkdir(cwd + "/" + remote_config['event_code']+"/"+app)
+            except FileExistsError:
+                logger.info("{} folder already exists, ignoring download".format(app))
+                continue
             r = requests.get(url)
             with open(f"{cwd}/{remote_config['event_code']}/{app}/{app}.zip", 'wb') as f:
                 f.write(r.content)
             with zipfile.ZipFile(f"{cwd}/{remote_config['event_code']}/{app}/{app}.zip", 'r') as zip_ref:
                 zip_ref.extractall(f"{cwd}/{remote_config['event_code']}/{app}/")
         logger.debug("Done downloading files.")
+
+

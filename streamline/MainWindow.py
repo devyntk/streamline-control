@@ -14,8 +14,40 @@ class MainWindow(Gtk.ApplicationWindow):
         hb.props.title = "Streamline Control"
         self.set_titlebar(hb)
 
-        self.add(Gtk.TextView())
+        self.hbox = Gtk.Box(spacing=0,orientation=Gtk.Orientation.HORIZONTAL)
+
+        self.stack = Gtk.Stack()
+        self.stack.set_transition_type(Gtk.StackTransitionType.SLIDE_UP_DOWN)
+        self.stack.set_transition_duration(1000)
+        self.hbox.add(self.stack)
+
+        self.music = self.music_stack()
+        self.stack.add_titled(self.music, "music", "Music")
+
+        self.streaming = self.streaming_stack()
+        self.stack.add_titled(self.streaming, "streaming", "Streaming")
+
+        self.sk = self.scorekeeper_stack()
+        self.stack.add_titled(self.sk, "sk", "Scorekeeping")
+
+        self.sidebar = Gtk.StackSidebar()
+        self.sidebar.set_stack(self.stack)
+        self.hbox.add(self.sidebar)
+
+        self.add(self.hbox)
         self.present()
 
         self.ConfigWindow = ConfigWindow(application=self.get_application())
         self.ConfigWindow.present()
+
+    def music_stack(self):
+        vbox = Gtk.Box(spacing = 5, orientation= Gtk.Orientation.HORIZONTAL)
+        return vbox
+
+    def streaming_stack(self):
+        vbox = Gtk.Box(spacing=5, orientation=Gtk.Orientation.HORIZONTAL)
+        return vbox
+
+    def scorekeeper_stack(self):
+        vbox = Gtk.Box(spacing=5, orientation=Gtk.Orientation.HORIZONTAL)
+        return vbox
