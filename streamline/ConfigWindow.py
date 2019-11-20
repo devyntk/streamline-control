@@ -1,5 +1,6 @@
 from gi.repository import Gtk, GLib
 import threading
+import time
 import json
 import os
 import sys
@@ -101,7 +102,6 @@ class ConfigWindow(Gtk.ApplicationWindow):
         self.response = None
 
         self.connect('delete-event', self.delete_attempt)
-
 
     def delete_attempt(self, *args):
         dialog = ConfirmCloseDialog(self)
@@ -215,7 +215,11 @@ class ConfigWindow(Gtk.ApplicationWindow):
             logger.error("Unknown remote config type.")
 
     def load_event(self, input_config):
-        remote_config = self.get_config(input_config)
+        remote_config = GLib.idle_add(self.get_config, input_config)
+        # remote_config = self.get_config(input_config)
+        while not self.config_finalized:
+            time.sleep(1)
+            pass
         self.get_application().config = remote_config
         cwd = os.getcwd()
         try:
@@ -266,11 +270,11 @@ class ConfigWindow(Gtk.ApplicationWindow):
         for config_item in config:
             buf = Gtk.TextBuffer()
             if str(config_item) is not None:
+                print("Doing the thing")
                 buf.set_text(str(config_item))
-                text_box = Gtk.TextView.new_with_buffer(buf)
+                text_box = Gtk.TextView.new()
+                text_box.set_buffer(buf)
                 self.vbox.pack_end(text_box, expand=True, fill=True, padding=0)
-
-        while not self.config_finalized:
-            pass
+        self.vbox.show_all()
 
         return self.final_config
