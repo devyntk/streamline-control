@@ -66,33 +66,6 @@ continue with a partially setup event. Press 'Cancel' to continue event setup.""
         self.show_all()
 
 
-class ConfigEdit(Gtk.Dialog):
-
-    def __init__(self, config, *args, **kwargs):
-        Gtk.Dialog.__init__(self, *args, title="Config Editor", **kwargs)
-        self.set_border_width(10)
-        self.set_default_size(300, 100)
-
-        self.final_config = []
-        self.config_complete = False
-
-        self.ok_button = Gtk.Button("OK", self.finalize)
-        self.add(self.ok_button)
-        for config_item in config:
-            text_box = Gtk.TextView()
-
-        self.show_all()
-
-    def wait_for_final(self):
-        while not self.config_complete:
-            pass
-        return self.final_config
-
-    def finalize(self):
-        for item in self.__dict__:
-            if type(item) == Gtk.TextView:
-                self.final_config.append(item)
-
 class ConfigWindow(Gtk.ApplicationWindow):
 
     def __init__(self, *args, **kwargs):
@@ -114,6 +87,10 @@ class ConfigWindow(Gtk.ApplicationWindow):
         self.vbox.pack_end(self.spinner, True, True, 0)
         self.show_all()
 
+        self.initial_config = None
+        self.config_finalized = False
+        self.final_config = []
+
         self.loghandler = LogHandler(self.textbox.get_buffer(), self)
         logger.addHandler(self.loghandler)
 
@@ -124,6 +101,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
         self.response = None
 
         self.connect('delete-event', self.delete_attempt)
+
 
     def delete_attempt(self, *args):
         dialog = ConfirmCloseDialog(self)
@@ -237,7 +215,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
             logger.error("Unknown remote config type.")
 
     def load_event(self, input_config):
-        remote_config = GLib.idle_add(ConfigEdit(input_config).wait_for_final())
+        remote_config = self.get_config(input_config)
         self.get_application().config = remote_config
         cwd = os.getcwd()
         try:
@@ -283,4 +261,16 @@ class ConfigWindow(Gtk.ApplicationWindow):
                 zip_ref.extractall(f"{cwd}/{remote_config['event_code']}/{app}/")
         logger.debug("Done downloading files.")
 
+    def get_config(self, config):
+        self.initial_config = config
+        for config_item in config:
+            buf = Gtk.TextBuffer()
+            if str(config_item) is not None:
+                buf.set_text(str(config_item))
+                text_box = Gtk.TextView.new_with_buffer(buf)
+                self.vbox.pack_end(text_box, expand=True, fill=True, padding=0)
 
+        while not self.config_finalized:
+            pass
+
+        return self.final_config
