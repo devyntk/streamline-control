@@ -267,14 +267,20 @@ class ConfigWindow(Gtk.ApplicationWindow):
 
     def get_config(self, config):
         self.initial_config = config
+        for item in config:
+            if type(config[item]) == dict:
+                for subitem in config[item]:
+                    config += config[item][subitem] # TODO figure out how to actually add
+                config.delete(item) # TODO figure out how to actually delete
         for config_item in config:
             buf = Gtk.TextBuffer()
             if str(config_item) is not None:
-                print("Doing the thing")
-                buf.set_text(str(config_item))
+                buf.set_text(str(config[config_item]))
+                label = Gtk.Label(str(config_item))
                 text_box = Gtk.TextView.new()
                 text_box.set_buffer(buf)
-                self.vbox.pack_end(text_box, expand=True, fill=True, padding=0)
+                self.vbox.pack_end(label, expand=True, fill=True, padding=5)
+                self.vbox.pack_end(text_box, expand=True, fill=True, padding=5)
         self.vbox.show_all()
 
         return self.final_config
