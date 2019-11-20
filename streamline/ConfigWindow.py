@@ -34,10 +34,10 @@ class AlreadyExistsDialog(Gtk.Dialog):
 
         self.set_modal(True)
 
-        label = Gtk.Label("""An event with this code already exists in a streamline folder. By default, streamline will\
-rename this old folder and create a new one, starting the event from scratch. If you would\
-like for this not to happen, and for streamline to continue with this folder as is, with\
-it's scorekeeper, datasync and other applications already setup, press cancel. If you would\
+        label = Gtk.Label("""An event with this code already exists in a streamline folder. By default, streamline will \
+rename this old folder and create a new one, starting the event from scratch. If you would \
+like for this not to happen, and for streamline to continue with this folder as is, with \
+its scorekeeper, datasync and other applications already setup, press cancel. If you would \
 like to rename this folder and re-download all of the required files, press 'OK'.""")
         label.set_line_wrap(True)
 
@@ -66,16 +66,43 @@ continue with a partially setup event. Press 'Cancel' to continue event setup.""
         self.show_all()
 
 
+class ConfigEdit(Gtk.Dialog):
+
+    def __init__(self, config, *args, **kwargs):
+        Gtk.Dialog.__init__(self, *args, title="Config Editor", **kwargs)
+        self.set_border_width(10)
+        self.set_default_size(300, 100)
+
+        self.final_config = []
+        self.config_complete = False
+
+        self.ok_button = Gtk.Button("OK", self.finalize)
+        self.add(self.ok_button)
+        for config_item in config:
+            text_box = Gtk.TextView()
+
+        self.show_all()
+
+    def wait_for_final(self):
+        while not self.config_complete:
+            pass
+        return self.final_config
+
+    def finalize(self):
+        for item in self.__dict__:
+            if type(item) == Gtk.TextView:
+                self.final_config.append(item)
+
 class ConfigWindow(Gtk.ApplicationWindow):
 
     def __init__(self, *args, **kwargs):
         Gtk.ApplicationWindow.__init__(self, *args, title="Streamline Config Setup", **kwargs)
         self.set_border_width(10)
-        self.set_default_size(300,100)
+        self.set_default_size(300, 100)
 
         self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.add(self.vbox)
-
+        self.pause_for_debug = True
         self.textbox = Gtk.TextView()
         self.textbox.set_editable(False)
         self.textbox.set_cursor_visible(False)
@@ -209,7 +236,8 @@ class ConfigWindow(Gtk.ApplicationWindow):
         else:
             logger.error("Unknown remote config type.")
 
-    def load_event(self, remote_config):
+    def load_event(self, input_config):
+        remote_config = GLib.idle_add(ConfigEdit(input_config).wait_for_final())
         self.get_application().config = remote_config
         cwd = os.getcwd()
         try:
