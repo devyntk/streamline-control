@@ -1,9 +1,10 @@
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk, Gio, GLib
 from streamline.ConfigWindow import ConfigWindow
 import logging
 import sys
+import time
 
 logger = logging.getLogger()
 
@@ -33,9 +34,9 @@ class Application(Gtk.Application):
 
     def do_activate(self):
 
-        self.config_window = ConfigWindow(application=self)
+        self.main_window = ConfigWindow(application=self)
         print("Config window inited")
-        self.config_window.show_all()
+        self.main_window.show_all()
         print("Showing all")
 
     def on_quit(self):

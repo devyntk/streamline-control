@@ -71,9 +71,9 @@ continue with a partially setup event. Press 'Cancel' to continue event setup.""
 
 class ConfigWindow(Gtk.ApplicationWindow):
 
-    def __init__(self, application, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         Gtk.ApplicationWindow.__init__(self, *args, title="Streamline Config Setup", **kwargs)
-        self.application = application
+        self.application = kwargs['application']
         self.set_border_width(10)
         self.set_default_size(300, 100)
 
@@ -93,7 +93,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
 
         self.initial_config = None
         self.config_finalized = False
-        self.final_config = []
+        self.final_config = None
 
         self.loghandler = LogHandler(self.textbox.get_buffer(), self)
         logger.addHandler(self.loghandler)
@@ -101,7 +101,6 @@ class ConfigWindow(Gtk.ApplicationWindow):
         self.thread = threading.Thread(target=self.load_config)
         self.thread.daemon = True  # Make sure program exits even if only this thread is still running
         self.thread.start()
-
         self.response = None
 
         self.connect('delete-event', self.delete_attempt)
@@ -126,8 +125,8 @@ class ConfigWindow(Gtk.ApplicationWindow):
         dialog.destroy()
 
     def load_config(self):
-        branch = os.popen("git branch | grep \* | cut -d ' ' -f2").read()
-        print("beyond popen")
+        #branch = os.popen("git branch | grep \* | cut -d ' ' -f2").read()
+        branch = "master"
         if "master" in branch:
             logger.info("Checking for updates")
             update = os.popen("git pull").read()
@@ -239,6 +238,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
         self.destroy()
 
     def load_event(self, input_config):
+        print("load_event")
         remote_config = GLib.idle_add(self.get_config, input_config)
         # remote_config = self.get_config(input_config)
         while not self.config_finalized:

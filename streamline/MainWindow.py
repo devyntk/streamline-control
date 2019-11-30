@@ -3,10 +3,11 @@ from gi.repository import Gtk, Gio
 
 class MainWindow(Gtk.ApplicationWindow):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, config, *args, **kwargs):
         Gtk.ApplicationWindow.__init__(self, *args, title="Streamline Control", **kwargs)
         self.set_border_width(10)
         self.set_default_size(600, 400)
+        self.config = config
 
         hb = Gtk.HeaderBar()
         hb.set_show_close_button(True)
