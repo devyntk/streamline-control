@@ -214,6 +214,9 @@ class ConfigWindow(Gtk.ApplicationWindow):
         else:
             logger.error("Unknown remote config type.")
 
+    def finalize_config(self, second_arg):
+        print("TODO implement config dumping to self.final_config", second_arg)
+
     def load_event(self, input_config):
         remote_config = GLib.idle_add(self.get_config, input_config)
         # remote_config = self.get_config(input_config)
@@ -267,20 +270,36 @@ class ConfigWindow(Gtk.ApplicationWindow):
 
     def get_config(self, config):
         self.initial_config = config
+        processed_config = []
         for item in config:
             if type(config[item]) == dict:
                 for subitem in config[item]:
-                    config += config[item][subitem] # TODO figure out how to actually add
-                config.delete(item) # TODO figure out how to actually delete
-        for config_item in config:
+                    processed_config.append(ConfigItem(subitem, config[item][subitem])) # TODO figure out how to actually add
+            else:
+                processed_config.append(ConfigItem(item, config[item]))
+        for config_item in processed_config:
             buf = Gtk.TextBuffer()
             if str(config_item) is not None:
-                buf.set_text(str(config[config_item]))
-                label = Gtk.Label(str(config_item))
+                buf.set_text(str(config_item.value))
+                label = Gtk.Label(str(config_item.name))
                 text_box = Gtk.TextView.new()
                 text_box.set_buffer(buf)
-                self.vbox.pack_end(label, expand=True, fill=True, padding=5)
-                self.vbox.pack_end(text_box, expand=True, fill=True, padding=5)
+                self.vbox.pack_end(text_box, expand=False, fill=False, padding=5)
+                self.vbox.pack_end(label, expand=False, fill=False, padding=5)
+
+        continue_button = Gtk.Button.new_with_label("Continue")
+        continue_button.connect("clicked", self.finalize_config)
+
+        use_external_sk = Gtk.CheckButton.new_with_label("Use external Scorekeeper")
+        self.vbox.pack_end(use_external_sk, False, False, 5)
+
+        self.vbox.pack_end(continue_button, expand=False, fill=False, padding=5)
         self.vbox.show_all()
 
         return self.final_config
+
+
+class ConfigItem:
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
