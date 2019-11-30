@@ -7,6 +7,8 @@ import sys
 import requests
 import logging
 import zipfile
+from streamline.MainWindow import MainWindow
+
 
 logger = logging.getLogger()
 
@@ -69,8 +71,9 @@ continue with a partially setup event. Press 'Cancel' to continue event setup.""
 
 class ConfigWindow(Gtk.ApplicationWindow):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, application, *args, **kwargs):
         Gtk.ApplicationWindow.__init__(self, *args, title="Streamline Config Setup", **kwargs)
+        self.application = application
         self.set_border_width(10)
         self.set_default_size(300, 100)
 
@@ -124,6 +127,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
 
     def load_config(self):
         branch = os.popen("git branch | grep \* | cut -d ' ' -f2").read()
+        print("beyond popen")
         if "master" in branch:
             logger.info("Checking for updates")
             update = os.popen("git pull").read()
@@ -141,7 +145,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
         else:
             logger.warning("Git output" + branch)
             logger.warning("Developer install detected. No updating.")
-
+        print("beyond git")
         try:
             logger.info("Reading local config file")
             local_config_file = open('config.json')
@@ -164,7 +168,6 @@ class ConfigWindow(Gtk.ApplicationWindow):
             logger.error('No config file found. Please edit "config.json" in the "streamline-control" folder '
                          'to configure.')
             return
-
         try:
             logger.info("Decoding local config file")
             local_config = json.load(local_config_file)
@@ -210,12 +213,30 @@ class ConfigWindow(Gtk.ApplicationWindow):
             pass
             # TODO: Handle event lists
         elif remote_config["type"] == "event":
+            print("Loading event")
             self.load_event(remote_config)
         else:
             logger.error("Unknown remote config type.")
 
-    def finalize_config(self, second_arg):
-        print("TODO implement config dumping to self.final_config", second_arg)
+    def finalize_config(self, *args):
+        elements = [element for element in self.vbox]
+        formed_elements = []
+        use_external_sk = False
+        count = 0
+        while count < len(elements):
+            if type(elements[count]) == Gtk.Label:
+                label_text = elements[count].get_text()
+                if ("scorekeeper" in label_text) and use_external_sk:
+                    count += 1
+                    continue
+                formed_elements.append(ConfigItem(label_text, elements[count + 1]))
+                count += 1
+            elif type(elements[count]) == Gtk.CheckButton:
+                use_external_sk = elements[count].get_active()
+            count += 1
+        main_window = MainWindow(application=self.application, config=formed_elements)
+        main_window.show_all()
+        self.destroy()
 
     def load_event(self, input_config):
         remote_config = GLib.idle_add(self.get_config, input_config)
@@ -274,7 +295,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
         for item in config:
             if type(config[item]) == dict:
                 for subitem in config[item]:
-                    processed_config.append(ConfigItem(subitem, config[item][subitem])) # TODO figure out how to actually add
+                    processed_config.append(ConfigItem(f"{item}_{subitem}", config[item][subitem])) # TODO figure out how to actually add
             else:
                 processed_config.append(ConfigItem(item, config[item]))
         for config_item in processed_config:
@@ -295,7 +316,6 @@ class ConfigWindow(Gtk.ApplicationWindow):
 
         self.vbox.pack_end(continue_button, expand=False, fill=False, padding=5)
         self.vbox.show_all()
-
         return self.final_config
 
 

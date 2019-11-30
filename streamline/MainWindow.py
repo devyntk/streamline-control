@@ -1,5 +1,4 @@
 from gi.repository import Gtk, Gio
-from streamline.ConfigWindow import ConfigWindow
 
 
 class MainWindow(Gtk.ApplicationWindow):
@@ -37,8 +36,8 @@ class MainWindow(Gtk.ApplicationWindow):
         self.add(self.hbox)
         self.present()
 
-        self.ConfigWindow = ConfigWindow(application=self.get_application())
-        self.ConfigWindow.present()
+       # self.ConfigWindow = ConfigWindow(application=self.get_application())
+        #self.ConfigWindow.present()
 
     def music_stack(self):
         vbox = Gtk.Box(spacing = 5, orientation= Gtk.Orientation.HORIZONTAL)
