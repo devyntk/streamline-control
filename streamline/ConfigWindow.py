@@ -94,6 +94,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
         self.initial_config = None
         self.config_finalized = False
         self.final_config = None
+        self.event_ready = False
 
         self.loghandler = LogHandler(self.textbox.get_buffer(), self)
         logger.addHandler(self.loghandler)
@@ -233,6 +234,11 @@ class ConfigWindow(Gtk.ApplicationWindow):
             elif type(elements[count]) == Gtk.CheckButton:
                 use_external_sk = elements[count].get_active()
             count += 1
+        self.final_config = formed_elements
+        self.config_finalized = True
+        while not self.event_ready:
+            time.sleep(1)
+            pass
         main_window = MainWindow(application=self.application, config=formed_elements)
         main_window.show_all()
         self.destroy()
@@ -244,10 +250,18 @@ class ConfigWindow(Gtk.ApplicationWindow):
         while not self.config_finalized:
             time.sleep(1)
             pass
+        remote_config = self.final_config
         self.get_application().config = remote_config
         cwd = os.getcwd()
+        event_code = ""
+        for config_item in remote_config:
+            if config_item.name == "event_code":
+                buf = config_item.value.get_buffer()
+                start_iter = buf.get_iter_at_line(0)
+                end_iter = buf.get_iter_at_line(1)
+                event_code = buf.get_text(start_iter, end_iter, False)
         try:
-            os.mkdir(cwd+"/"+remote_config['event_code'])
+            os.mkdir(cwd+"/"+event_code)
         except FileExistsError:
             logger.error("Event folder already exists!")
             GLib.idle_add(self.show_already_exists)
@@ -256,7 +270,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
 
             if self.response == Gtk.ResponseType.OK:
                 # rename folder, create anew
-                current_name = cwd+"/"+remote_config['event_code']
+                current_name = cwd+"/"+event_code
                 new_name = f"{current_name}-old"
                 logger.debug("renaming folder {} to {}".format(current_name, new_name))
                 while True:
@@ -267,7 +281,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
                         new_name += "-old"
                         logging.info("-old folder already exists, renaming to {}".format(new_name))
 
-                os.mkdir(cwd + "/" + remote_config['event_code'])
+                os.mkdir(cwd + "/" + event_code)
 
             elif self.response == Gtk.ResponseType.CANCEL:
                 # keep folder as is
@@ -278,16 +292,17 @@ class ConfigWindow(Gtk.ApplicationWindow):
         for app, url in remote_config['downloads'].items():
             logger.debug("downloading {} from {}".format(app, url))
             try:
-                os.mkdir(cwd + "/" + remote_config['event_code']+"/"+app)
+                os.mkdir(cwd + "/" + event_code+"/"+app)
             except FileExistsError:
                 logger.info("{} folder already exists, ignoring download".format(app))
                 continue
             r = requests.get(url)
-            with open(f"{cwd}/{remote_config['event_code']}/{app}/{app}.zip", 'wb') as f:
+            with open(f"{cwd}/{event_code}/{app}/{app}.zip", 'wb') as f:
                 f.write(r.content)
-            with zipfile.ZipFile(f"{cwd}/{remote_config['event_code']}/{app}/{app}.zip", 'r') as zip_ref:
-                zip_ref.extractall(f"{cwd}/{remote_config['event_code']}/{app}/")
+            with zipfile.ZipFile(f"{cwd}/{event_code}/{app}/{app}.zip", 'r') as zip_ref:
+                zip_ref.extractall(f"{cwd}/{event_code}/{app}/")
         logger.debug("Done downloading files.")
+        self.event_ready = True
 
     def get_config(self, config):
         self.initial_config = config
