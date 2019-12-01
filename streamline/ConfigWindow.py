@@ -234,7 +234,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
                 buf = elements[count + 1].get_buffer()
                 start_iter = buf.get_iter_at_line(0)
                 end_iter = buf.get_iter_at_line(1)
-                val = buf.get_text(start_iter, end_iter, False)#.format()
+                val = buf.get_text(start_iter, end_iter, False)
                 formed_elements.append(ConfigItem(label_text, val))
                 count += 1
             elif type(elements[count]) == Gtk.CheckButton:
