@@ -289,7 +289,14 @@ class ConfigWindow(Gtk.ApplicationWindow):
 
             self.response = None
 
-        for app, url in remote_config['downloads'].items():
+        downloads = [download for download in self.final_config if "download" in download.name]
+
+        for download in downloads:
+            app = download.name
+            buf = download.value.get_buffer()
+            start_iter = buf.get_iter_at_line(0)
+            end_iter = buf.get_iter_at_line(1)
+            url = buf.get_text(start_iter, end_iter, False)
             logger.debug("downloading {} from {}".format(app, url))
             try:
                 os.mkdir(cwd + "/" + event_code+"/"+app)
