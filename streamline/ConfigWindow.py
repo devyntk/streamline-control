@@ -3,6 +3,7 @@ import threading
 import time
 import json
 import os
+import subprocess
 import sys
 import requests
 import logging
@@ -61,7 +62,7 @@ class ConfirmCloseDialog(Gtk.Dialog):
         self.set_modal(True)
 
         label = Gtk.Label("""The setup process for this event is still ongoing. If you cancel now, Streamline will \
-continue with a partially setup event. Press 'Cancel' to continue event setup.""")
+exit immediately. Press 'Cancel' to continue event setup.""")
         label.set_line_wrap(True)
 
         box = self.get_content_area()
@@ -122,12 +123,13 @@ class ConfigWindow(Gtk.ApplicationWindow):
 
     def show_already_exists(self):
         dialog = AlreadyExistsDialog(self)
+        print('showing_already_exits')
         self.response = dialog.run()
+        print("showed_already_exists")
         dialog.destroy()
 
     def load_config(self):
-        #branch = os.popen("git branch | grep \* | cut -d ' ' -f2").read()
-        branch = "master"
+        branch = os.popen("git branch | grep \* | cut -d ' ' -f2").read()
         if "master" in branch:
             logger.info("Checking for updates")
             update = os.popen("git pull").read()
@@ -232,7 +234,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
                 buf = elements[count + 1].get_buffer()
                 start_iter = buf.get_iter_at_line(0)
                 end_iter = buf.get_iter_at_line(1)
-                val = buf.get_text(start_iter, end_iter, False)
+                val = buf.get_text(start_iter, end_iter, False)#.format()
                 formed_elements.append(ConfigItem(label_text, val))
                 count += 1
             elif type(elements[count]) == Gtk.CheckButton:
@@ -248,7 +250,6 @@ class ConfigWindow(Gtk.ApplicationWindow):
         self.destroy()
 
     def load_event(self, input_config):
-        print("load_event")
         remote_config = GLib.idle_add(self.get_config, input_config)
         # remote_config = self.get_config(input_config)
         while not self.config_finalized:
@@ -267,6 +268,8 @@ class ConfigWindow(Gtk.ApplicationWindow):
             logger.error("Event folder already exists!")
             GLib.idle_add(self.show_already_exists)
             while not self.response:
+                time.sleep(1)
+                logger.debug("awaiting response")
                 pass
 
             if self.response == Gtk.ResponseType.OK:
@@ -306,7 +309,10 @@ class ConfigWindow(Gtk.ApplicationWindow):
                 f.write(r.content)
             with zipfile.ZipFile(f"{cwd}/{event_code}/{app}/{app}.zip", 'r') as zip_ref:
                 zip_ref.extractall(f"{cwd}/{event_code}/{app}/")
-        logger.debug("Done downloading files.")
+        logger.debug("Done downloading files. Running start commands...")
+        start_commands = [command for command in self.final_config if "start_command" in command.name]
+        for command in start_commands:
+            subprocess.Popen(command.value, shell=True)
         self.event_ready = True
 
     def get_config(self, config):
