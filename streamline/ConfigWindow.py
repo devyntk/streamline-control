@@ -229,7 +229,11 @@ class ConfigWindow(Gtk.ApplicationWindow):
                 if ("scorekeeper" in label_text) and use_external_sk:
                     count += 1
                     continue
-                formed_elements.append(ConfigItem(label_text, elements[count + 1]))
+                buf = elements[count + 1].get_buffer()
+                start_iter = buf.get_iter_at_line(0)
+                end_iter = buf.get_iter_at_line(1)
+                val = buf.get_text(start_iter, end_iter, False)
+                formed_elements.append(ConfigItem(label_text, val))
                 count += 1
             elif type(elements[count]) == Gtk.CheckButton:
                 use_external_sk = elements[count].get_active()
@@ -256,10 +260,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
         event_code = ""
         for config_item in remote_config:
             if config_item.name == "event_code":
-                buf = config_item.value.get_buffer()
-                start_iter = buf.get_iter_at_line(0)
-                end_iter = buf.get_iter_at_line(1)
-                event_code = buf.get_text(start_iter, end_iter, False)
+                event_code = config_item.value
         try:
             os.mkdir(cwd+"/"+event_code)
         except FileExistsError:
@@ -293,10 +294,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
 
         for download in downloads:
             app = download.name
-            buf = download.value.get_buffer()
-            start_iter = buf.get_iter_at_line(0)
-            end_iter = buf.get_iter_at_line(1)
-            url = buf.get_text(start_iter, end_iter, False)
+            url = download.value
             logger.debug("downloading {} from {}".format(app, url))
             try:
                 os.mkdir(cwd + "/" + event_code+"/"+app)

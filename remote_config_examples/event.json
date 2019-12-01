@@ -12,5 +12,6 @@
   "start_commands": {
     "scorekeeper": "./FIRST-Tech-Challenge-Live-UNIX",
     "autosync": "xdg-open http://upload.theorangealliance.org?api_key={toa_api_key}&scoring-ip={sk_ip}&event-key={event_code}"
-  }
+  },
+  "scorekeeper_ip": "127.0.0.1:80"
 }
