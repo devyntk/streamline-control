@@ -1,4 +1,6 @@
+import _thread
 from gi.repository import Gtk, Gio
+from .OBSWebsocket import OBSWebsocket
 
 
 class MainWindow(Gtk.ApplicationWindow):
@@ -35,10 +37,18 @@ class MainWindow(Gtk.ApplicationWindow):
         self.hbox.add(self.sidebar)
 
         self.add(self.hbox)
-        self.present()
 
-       # self.ConfigWindow = ConfigWindow(application=self.get_application())
-        #self.ConfigWindow.present()
+        event_code = ""
+        sk_host = ""
+
+        for config_item in config:
+            if config_item.name == "event_code":
+                event_code = config_item.value
+            elif config_item.name == "scorekeeper_ip":
+                sk_host = config_item.value
+        self.obs_ws = OBSWebsocket(event_key=event_code, host=sk_host)
+        _thread.start_new_thread(self.obs_ws.scorekeeper_replay_buffer_trigger, ())
+        self.present()
 
     def music_stack(self):
         vbox = Gtk.Box(spacing = 5, orientation= Gtk.Orientation.HORIZONTAL)

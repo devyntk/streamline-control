@@ -147,7 +147,6 @@ class ConfigWindow(Gtk.ApplicationWindow):
         else:
             logger.warning("Git output" + branch)
             logger.warning("Developer install detected. No updating.")
-        print("beyond git")
         try:
             logger.info("Reading local config file")
             local_config_file = open('config.json')
@@ -228,7 +227,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
         while count < len(elements):
             if type(elements[count]) == Gtk.Label:
                 label_text = elements[count].get_text()
-                if ("scorekeeper" in label_text) and use_external_sk:
+                if ("scorekeeper" in label_text) and use_external_sk and label_text != "scorekeeper_ip":
                     count += 1
                     continue
                 buf = elements[count + 1].get_buffer()
