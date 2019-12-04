@@ -2,4 +2,4 @@ requests
 pycairo
 PyGObject
 websocket-client
-obs-ws-rc
+obs-websocket-py
