@@ -10,3 +10,4 @@ pip3 install -Ur requirements.txt
 pip3 install pyinstaller
 pyinstaller streamline/__main__.py -F
 mv dist/* "dist/streamline-control-$BUILDOS"
+python3 obswebsockettesting.py
