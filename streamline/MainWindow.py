@@ -11,12 +11,14 @@ class MainWindow(Gtk.ApplicationWindow):
         self.set_default_size(600, 400)
         self.config = config
 
+        self.obs_ws = OBSWebsocket(config=config)
+
         hb = Gtk.HeaderBar()
         hb.set_show_close_button(True)
         hb.props.title = "Streamline Control"
         self.set_titlebar(hb)
 
-        self.hbox = Gtk.Box(spacing=0,orientation=Gtk.Orientation.HORIZONTAL)
+        self.hbox = Gtk.Box(spacing=0, orientation=Gtk.Orientation.HORIZONTAL)
 
         self.stack = Gtk.Stack()
         self.stack.set_transition_type(Gtk.StackTransitionType.SLIDE_UP_DOWN)
@@ -38,15 +40,6 @@ class MainWindow(Gtk.ApplicationWindow):
 
         self.add(self.hbox)
 
-        event_code = ""
-        sk_host = ""
-
-        for config_item in config:
-            if config_item.name == "event_code":
-                event_code = config_item.value
-            elif config_item.name == "scorekeeper_ip":
-                sk_host = config_item.value
-        self.obs_ws = OBSWebsocket(event_key=event_code, host=sk_host)
         _thread.start_new_thread(self.obs_ws.scorekeeper_replay_buffer_trigger, ())
         self.present()
 
@@ -57,8 +50,11 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def streaming_stack(self):
         vbox = Gtk.Box(spacing=5, orientation=Gtk.Orientation.VERTICAL)
+
         vbox.add(Gtk.Label("Configure your scenes in OBS, then press the start button"))
-        vbox.add(Gtk.Button("Start (TODO)"))
+        go_live_button = Gtk.Button("Start")
+        go_live_button.connect("clicked", self.obs_ws.go_live)
+        vbox.add(go_live_button)
         vbox.add(Gtk.Button("Switch Scenes (TODO)"))
         vbox.add(Gtk.Label("Upload to YouTube in real time (TODO)"))
         vbox.add(Gtk.Switch())

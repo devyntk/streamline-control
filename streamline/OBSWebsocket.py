@@ -7,9 +7,21 @@ from obswebsocket import obsws, requests
 
 
 class OBSWebsocket:
-    def __init__(self, host, event_key):
+    def __init__(self, config):
+        event_key = ""
+        host = ""
+        twitch_key = ""
+
+        for config_item in config:
+            if config_item.name == "event_code":
+                event_key = config_item.value
+            elif config_item.name == "scorekeeper_ip":
+                host = config_item.value
+            elif config_item.name == "twitch_key":
+                twitch_key = config_item.value
         sk_url = f"ws://{host}/api/v2/stream/?code={event_key}"
         self.sk_websocket = websocket.create_connection(sk_url)
+        self.twitch_key = twitch_key
         self.obs_websocket = obsws('localhost', 4444, "orangealliance")
         self.obs_websocket.connect()
         self.event_key = event_key
@@ -19,6 +31,14 @@ class OBSWebsocket:
             return str(number)
         else:
             return f"0{number}"
+
+    def go_live(self, second_arg_so_gtk_is_happy):
+        calls = [requests.SetRecordingFolder(os.getcwd()),
+                 requests.StartReplayBuffer(),
+                 requests.StartRecording(),
+                 requests.StartStreaming(stream_settings_key=self.twitch_key)]
+        for call in calls:
+            self.obs_websocket.call(call)
 
     def trigger_replay_save(self, name):
         bufsave_call = requests.SaveReplayBuffer()
