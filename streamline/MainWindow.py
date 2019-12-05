@@ -51,13 +51,20 @@ class MainWindow(Gtk.ApplicationWindow):
         self.present()
 
     def music_stack(self):
-        vbox = Gtk.Box(spacing = 5, orientation= Gtk.Orientation.HORIZONTAL)
+        vbox = Gtk.Box(spacing=5, orientation=Gtk.Orientation.HORIZONTAL)
+        vbox.add(Gtk.Label("Spotify controls coming soon"))
         return vbox
 
     def streaming_stack(self):
-        vbox = Gtk.Box(spacing=5, orientation=Gtk.Orientation.HORIZONTAL)
+        vbox = Gtk.Box(spacing=5, orientation=Gtk.Orientation.VERTICAL)
+        vbox.add(Gtk.Label("Configure your scenes in OBS, then press the start button"))
+        vbox.add(Gtk.Button("Start (TODO)"))
+        vbox.add(Gtk.Button("Switch Scenes (TODO)"))
+        vbox.add(Gtk.Label("Upload to YouTube in real time (TODO)"))
+        vbox.add(Gtk.Switch())
         return vbox
 
     def scorekeeper_stack(self):
         vbox = Gtk.Box(spacing=5, orientation=Gtk.Orientation.HORIZONTAL)
+        vbox.add(Gtk.Label("Not really sure what goes here"))
         return vbox
