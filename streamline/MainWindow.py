@@ -55,7 +55,9 @@ class MainWindow(Gtk.ApplicationWindow):
         go_live_button = Gtk.Button("Start")
         go_live_button.connect("clicked", self.obs_ws.go_live)
         vbox.add(go_live_button)
-        vbox.add(Gtk.Button("Switch Scenes (TODO)"))
+        switch_button = Gtk.Button("Switch Scenes")
+        switch_button.connect("clicked", self.obs_ws.switch_scenes)
+        vbox.add(switch_button)
         vbox.add(Gtk.Label("Upload to YouTube in real time (TODO)"))
         vbox.add(Gtk.Switch())
         return vbox

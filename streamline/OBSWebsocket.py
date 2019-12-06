@@ -32,6 +32,9 @@ class OBSWebsocket:
         else:
             return f"0{number}"
 
+    def switch_scenes(self, second_arg_so_gtk_is_happy=None):
+        self.obs_websocket.call(requests.TransitionToProgram("cut"))
+
     def go_live(self, second_arg_so_gtk_is_happy):
         calls = [requests.SetRecordingFolder(os.getcwd()),
                  requests.StartReplayBuffer(),

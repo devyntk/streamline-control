@@ -1,7 +1,10 @@
+from streamline.ConfigWindow import ConfigItem
 from streamline.OBSWebsocket import OBSWebsocket
 
-obs_ws = OBSWebsocket("127.0.0.1:80", "ratelimittest")
+config = [ConfigItem("event_code", "ratelimittest"), ConfigItem("scorekeeper_ip", "127.0.0.1:80"), ConfigItem("twitch_key", "blahblah")]
 
-obs_ws.trigger_replay_save("Debug")
+obs_ws = OBSWebsocket(config)
 
-print("Save triggered!")
+obs_ws.switch_scenes()
+
+print("Scenes switched!")
