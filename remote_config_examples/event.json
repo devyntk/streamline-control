@@ -13,5 +13,6 @@
     "scorekeeper": "./FIRST-Tech-Challenge-Live-UNIX",
     "autosync": "xdg-open http://upload.theorangealliance.org"
   },
-  "scorekeeper_ip": "127.0.0.1:80"
+  "scorekeeper_ip": "127.0.0.1:80",
+  "obs_port": 4444
 }

@@ -11,6 +11,7 @@ class OBSWebsocket:
         event_key = ""
         host = ""
         twitch_key = ""
+        obs_port = 4444
 
         for config_item in config:
             if config_item.name == "event_code":
@@ -19,10 +20,12 @@ class OBSWebsocket:
                 host = config_item.value
             elif config_item.name == "twitch_key":
                 twitch_key = config_item.value
+            elif config_item.name == "obs_port":
+                obs_port = config_item.value
         sk_url = f"ws://{host}/api/v2/stream/?code={event_key}"
         self.sk_websocket = websocket.create_connection(sk_url)
         self.twitch_key = twitch_key
-        self.obs_websocket = obsws('localhost', 4444, "orangealliance")
+        self.obs_websocket = obsws('localhost', obs_port, "orangealliance")
         self.obs_websocket.connect()
         self.event_key = event_key
 
