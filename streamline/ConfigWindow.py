@@ -1,11 +1,15 @@
 from gi.repository import Gtk, GLib
 import threading
+import time
 import json
 import os
+import subprocess
 import sys
 import requests
 import logging
 import zipfile
+from streamline.MainWindow import MainWindow
+
 
 logger = logging.getLogger()
 
@@ -34,10 +38,10 @@ class AlreadyExistsDialog(Gtk.Dialog):
 
         self.set_modal(True)
 
-        label = Gtk.Label("""An event with this code already exists in a streamline folder. By default, streamline will\
-rename this old folder and create a new one, starting the event from scratch. If you would\
-like for this not to happen, and for streamline to continue with this folder as is, with\
-it's scorekeeper, datasync and other applications already setup, press cancel. If you would\
+        label = Gtk.Label("""An event with this code already exists in a streamline folder. By default, streamline will \
+rename this old folder and create a new one, starting the event from scratch. If you would \
+like for this not to happen, and for streamline to continue with this folder as is, with \
+its scorekeeper, datasync and other applications already setup, press cancel. If you would \
 like to rename this folder and re-download all of the required files, press 'OK'.""")
         label.set_line_wrap(True)
 
@@ -58,7 +62,7 @@ class ConfirmCloseDialog(Gtk.Dialog):
         self.set_modal(True)
 
         label = Gtk.Label("""The setup process for this event is still ongoing. If you cancel now, Streamline will \
-continue with a partially setup event. Press 'Cancel' to continue event setup.""")
+exit immediately. Press 'Cancel' to continue event setup.""")
         label.set_line_wrap(True)
 
         box = self.get_content_area()
@@ -70,12 +74,13 @@ class ConfigWindow(Gtk.ApplicationWindow):
 
     def __init__(self, *args, **kwargs):
         Gtk.ApplicationWindow.__init__(self, *args, title="Streamline Config Setup", **kwargs)
+        self.application = kwargs['application']
         self.set_border_width(10)
-        self.set_default_size(300,100)
+        self.set_default_size(300, 100)
 
         self.vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.add(self.vbox)
-
+        self.pause_for_debug = True
         self.textbox = Gtk.TextView()
         self.textbox.set_editable(False)
         self.textbox.set_cursor_visible(False)
@@ -87,13 +92,17 @@ class ConfigWindow(Gtk.ApplicationWindow):
         self.vbox.pack_end(self.spinner, True, True, 0)
         self.show_all()
 
+        self.initial_config = None
+        self.config_finalized = False
+        self.final_config = None
+        self.event_ready = False
+
         self.loghandler = LogHandler(self.textbox.get_buffer(), self)
         logger.addHandler(self.loghandler)
 
         self.thread = threading.Thread(target=self.load_config)
         self.thread.daemon = True  # Make sure program exits even if only this thread is still running
         self.thread.start()
-
         self.response = None
 
         self.connect('delete-event', self.delete_attempt)
@@ -114,7 +123,9 @@ class ConfigWindow(Gtk.ApplicationWindow):
 
     def show_already_exists(self):
         dialog = AlreadyExistsDialog(self)
+        print('showing_already_exits')
         self.response = dialog.run()
+        print("showed_already_exists")
         dialog.destroy()
 
     def load_config(self):
@@ -136,7 +147,6 @@ class ConfigWindow(Gtk.ApplicationWindow):
         else:
             logger.warning("Git output" + branch)
             logger.warning("Developer install detected. No updating.")
-
         try:
             logger.info("Reading local config file")
             local_config_file = open('config.json')
@@ -159,7 +169,6 @@ class ConfigWindow(Gtk.ApplicationWindow):
             logger.error('No config file found. Please edit "config.json" in the "streamline-control" folder '
                          'to configure.')
             return
-
         try:
             logger.info("Decoding local config file")
             local_config = json.load(local_config_file)
@@ -205,24 +214,66 @@ class ConfigWindow(Gtk.ApplicationWindow):
             pass
             # TODO: Handle event lists
         elif remote_config["type"] == "event":
+            print("Loading event")
             self.load_event(remote_config)
         else:
             logger.error("Unknown remote config type.")
 
-    def load_event(self, remote_config):
+    def finalize_config(self, *args):
+        elements = [element for element in self.vbox]
+        formed_elements = []
+        use_external_sk = False
+        count = 0
+        while count < len(elements):
+            if type(elements[count]) == Gtk.Label:
+                label_text = elements[count].get_text()
+                if ("scorekeeper" in label_text) and use_external_sk and label_text != "scorekeeper_ip":
+                    count += 1
+                    continue
+                buf = elements[count + 1].get_buffer()
+                start_iter = buf.get_iter_at_line(0)
+                end_iter = buf.get_iter_at_line(1)
+                val = buf.get_text(start_iter, end_iter, False)
+                formed_elements.append(ConfigItem(label_text, val))
+                count += 1
+            elif type(elements[count]) == Gtk.CheckButton:
+                use_external_sk = elements[count].get_active()
+            count += 1
+        self.final_config = formed_elements
+        self.config_finalized = True
+        while not self.event_ready:
+            time.sleep(1)
+            pass
+        main_window = MainWindow(application=self.application, config=formed_elements)
+        main_window.show_all()
+        self.destroy()
+
+    def load_event(self, input_config):
+        remote_config = GLib.idle_add(self.get_config, input_config)
+        # remote_config = self.get_config(input_config)
+        while not self.config_finalized:
+            time.sleep(1)
+            pass
+        remote_config = self.final_config
         self.get_application().config = remote_config
         cwd = os.getcwd()
+        event_code = ""
+        for config_item in remote_config:
+            if config_item.name == "event_code":
+                event_code = config_item.value
         try:
-            os.mkdir(cwd+"/"+remote_config['event_code'])
+            os.mkdir(cwd+"/"+event_code)
         except FileExistsError:
             logger.error("Event folder already exists!")
             GLib.idle_add(self.show_already_exists)
             while not self.response:
+                time.sleep(1)
+                logger.debug("awaiting response")
                 pass
 
             if self.response == Gtk.ResponseType.OK:
                 # rename folder, create anew
-                current_name = cwd+"/"+remote_config['event_code']
+                current_name = cwd+"/"+event_code
                 new_name = f"{current_name}-old"
                 logger.debug("renaming folder {} to {}".format(current_name, new_name))
                 while True:
@@ -233,7 +284,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
                         new_name += "-old"
                         logging.info("-old folder already exists, renaming to {}".format(new_name))
 
-                os.mkdir(cwd + "/" + remote_config['event_code'])
+                os.mkdir(cwd + "/" + event_code)
 
             elif self.response == Gtk.ResponseType.CANCEL:
                 # keep folder as is
@@ -241,18 +292,59 @@ class ConfigWindow(Gtk.ApplicationWindow):
 
             self.response = None
 
-        for app, url in remote_config['downloads'].items():
+        downloads = [download for download in self.final_config if "download" in download.name]
+
+        for download in downloads:
+            app = download.name
+            url = download.value
             logger.debug("downloading {} from {}".format(app, url))
             try:
-                os.mkdir(cwd + "/" + remote_config['event_code']+"/"+app)
+                os.mkdir(cwd + "/" + event_code+"/"+app)
             except FileExistsError:
                 logger.info("{} folder already exists, ignoring download".format(app))
                 continue
             r = requests.get(url)
-            with open(f"{cwd}/{remote_config['event_code']}/{app}/{app}.zip", 'wb') as f:
+            with open(f"{cwd}/{event_code}/{app}/{app}.zip", 'wb') as f:
                 f.write(r.content)
-            with zipfile.ZipFile(f"{cwd}/{remote_config['event_code']}/{app}/{app}.zip", 'r') as zip_ref:
-                zip_ref.extractall(f"{cwd}/{remote_config['event_code']}/{app}/")
-        logger.debug("Done downloading files.")
+            with zipfile.ZipFile(f"{cwd}/{event_code}/{app}/{app}.zip", 'r') as zip_ref:
+                zip_ref.extractall(f"{cwd}/{event_code}/{app}/")
+        logger.debug("Done downloading files. Running start commands...")
+        start_commands = [command for command in self.final_config if "start_command" in command.name]
+        for command in start_commands:
+            subprocess.Popen(command.value, shell=True)
+        self.event_ready = True
+
+    def get_config(self, config):
+        self.initial_config = config
+        processed_config = []
+        for item in config:
+            if type(config[item]) == dict:
+                for subitem in config[item]:
+                    processed_config.append(ConfigItem(f"{item}_{subitem}", config[item][subitem])) # TODO figure out how to actually add
+            else:
+                processed_config.append(ConfigItem(item, config[item]))
+        for config_item in processed_config:
+            buf = Gtk.TextBuffer()
+            if str(config_item) is not None:
+                buf.set_text(str(config_item.value))
+                label = Gtk.Label(str(config_item.name))
+                text_box = Gtk.TextView.new()
+                text_box.set_buffer(buf)
+                self.vbox.pack_end(text_box, expand=False, fill=False, padding=5)
+                self.vbox.pack_end(label, expand=False, fill=False, padding=5)
+
+        continue_button = Gtk.Button.new_with_label("Continue")
+        continue_button.connect("clicked", self.finalize_config)
+
+        use_external_sk = Gtk.CheckButton.new_with_label("Use external Scorekeeper")
+        self.vbox.pack_end(use_external_sk, False, False, 5)
+
+        self.vbox.pack_end(continue_button, expand=False, fill=False, padding=5)
+        self.vbox.show_all()
+        return self.final_config
 
 
+class ConfigItem:
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value

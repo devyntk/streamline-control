@@ -5,13 +5,14 @@
   "event_code": "1920-ETC-ETC",
   "event_name": "Out of Your League Meet 1",
   "downloads": {
-    "scorekeeper": "https://github.com/FIRST-Tech-Challenge/scorekeeper/releases/download/v1.0.0/FIRST-Tech-Challenge-Live-1.0.0.zip",
-    "autosync": "https://github.com/orange-alliance/TOA-DataSync/archive/3.0.2.zip"
+    "scorekeeper": "https://github.com/FIRST-Tech-Challenge/scorekeeper/releases/download/v1.2.1/FIRST-Tech-Challenge-Live-1.2.1.zip"
   },
   "toa_api_key": "insert-here",
   "twitch_key": "insert-here",
   "start_commands": {
-    "scorekeeper": "./FIRST-Tech-Challenge-Live -d",
-    "autosync": "npm install; npm start"
-  }
+    "scorekeeper": "./FIRST-Tech-Challenge-Live-UNIX",
+    "autosync": "xdg-open http://upload.theorangealliance.org"
+  },
+  "scorekeeper_ip": "127.0.0.1:80",
+  "obs_port": 4444
 }
