@@ -31,9 +31,6 @@ class MainWindow(Gtk.ApplicationWindow):
         self.streaming = self.streaming_stack()
         self.stack.add_titled(self.streaming, "streaming", "Streaming")
 
-        self.sk = self.scorekeeper_stack()
-        self.stack.add_titled(self.sk, "sk", "Scorekeeping")
-
         self.sidebar = Gtk.StackSidebar()
         self.sidebar.set_stack(self.stack)
         self.hbox.add(self.sidebar)
@@ -60,9 +57,4 @@ class MainWindow(Gtk.ApplicationWindow):
         vbox.add(switch_button)
         vbox.add(Gtk.Label("Upload to YouTube in real time (TODO)"))
         vbox.add(Gtk.Switch())
-        return vbox
-
-    def scorekeeper_stack(self):
-        vbox = Gtk.Box(spacing=5, orientation=Gtk.Orientation.HORIZONTAL)
-        vbox.add(Gtk.Label("Not really sure what goes here"))
         return vbox

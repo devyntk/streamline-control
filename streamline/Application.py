@@ -35,9 +35,9 @@ class Application(Gtk.Application):
     def do_activate(self):
 
         self.main_window = ConfigWindow(application=self)
-        print("Config window inited")
+        logger.debug("Config window inited")
         self.main_window.show_all()
-        print("Showing all")
+        logger.debug("Showing all")
 
     def on_quit(self):
         self.quit()
