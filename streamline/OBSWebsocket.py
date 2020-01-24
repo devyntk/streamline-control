@@ -53,7 +53,6 @@ class OBSWebsocket:
         # Filename: Replay 2019-12-04 13-56-27.mkv
         formed_string = f"Replay {now.year}-{self.two_digit_date(now.month)}-{self.two_digit_date(now.day)} " \
                         f"{self.two_digit_date(now.hour)}-{self.two_digit_date(now.minute)}-{self.two_digit_date(now.second + 1)}.mkv"
-        print(formed_string)
         os.system(f'mv "{formed_string}" "{self.event_key}/{self.event_key}-{name}.mkv"')
 
     def scorekeeper_replay_buffer_trigger(self):

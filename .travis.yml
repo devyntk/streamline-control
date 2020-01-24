@@ -26,10 +26,6 @@ jobs:
     - os: linux
       env:
         - BUILDOS=linux
-    - os: linux
-      env:
-        - BUILDOS=pi
-      arch: arm64
     - os: osx
       env:
         - BUILDOS=mac

@@ -123,9 +123,9 @@ class ConfigWindow(Gtk.ApplicationWindow):
 
     def show_already_exists(self):
         dialog = AlreadyExistsDialog(self)
-        print('showing_already_exits')
+        logger.debug('showing_already_exists')
         self.response = dialog.run()
-        print("showed_already_exists")
+        logger.debug("showed_already_exists")
         dialog.destroy()
 
     def load_config(self):
@@ -214,7 +214,7 @@ class ConfigWindow(Gtk.ApplicationWindow):
             pass
             # TODO: Handle event lists
         elif remote_config["type"] == "event":
-            print("Loading event")
+            logger.debug("Loading event")
             self.load_event(remote_config)
         else:
             logger.error("Unknown remote config type.")
@@ -222,22 +222,16 @@ class ConfigWindow(Gtk.ApplicationWindow):
     def finalize_config(self, *args):
         elements = [element for element in self.vbox]
         formed_elements = []
-        use_external_sk = False
         count = 0
         while count < len(elements):
             if type(elements[count]) == Gtk.Label:
                 label_text = elements[count].get_text()
-                if ("scorekeeper" in label_text) and use_external_sk and label_text != "scorekeeper_ip":
-                    count += 1
-                    continue
                 buf = elements[count + 1].get_buffer()
                 start_iter = buf.get_iter_at_line(0)
                 end_iter = buf.get_iter_at_line(1)
                 val = buf.get_text(start_iter, end_iter, False)
                 formed_elements.append(ConfigItem(label_text, val))
                 count += 1
-            elif type(elements[count]) == Gtk.CheckButton:
-                use_external_sk = elements[count].get_active()
             count += 1
         self.final_config = formed_elements
         self.config_finalized = True
@@ -335,9 +329,6 @@ class ConfigWindow(Gtk.ApplicationWindow):
 
         continue_button = Gtk.Button.new_with_label("Continue")
         continue_button.connect("clicked", self.finalize_config)
-
-        use_external_sk = Gtk.CheckButton.new_with_label("Use external Scorekeeper")
-        self.vbox.pack_end(use_external_sk, False, False, 5)
 
         self.vbox.pack_end(continue_button, expand=False, fill=False, padding=5)
         self.vbox.show_all()
