@@ -1,8 +1,0 @@
-<interface>
-    <menubar id="menubar">
-        <menu action="'FileMenu">
-                <attribute name="action">app.quit</attribute>
-                <attribute name="label">_Quit</attribute>
-        </menu>
-    </menubar>
-</interface>

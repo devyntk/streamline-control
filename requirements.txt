@@ -1,5 +1,0 @@
-requests
-pycairo
-PyGObject
-websocket-client
-obs-websocket-py
