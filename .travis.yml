@@ -3,7 +3,7 @@ jobs:
   - os: windows
     before_install: pacman -S mingw-w64-x86_64-gtk3
   - os: linux
-    before_install: sudo apt install gtk+3.0 librust-pangocairo-dev -y
+    before_install: sudo apt update && sudo apt install gtk+3.0 librust-pangocairo-dev -y
   - os: osx
     before_install: brew install gtk+3
 script: cargo build --release
