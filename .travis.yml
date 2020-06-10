@@ -21,7 +21,7 @@ jobs:
             export MAKE=mingw32-make  # so that Autotools can find it
             ;;
         esac
-        mingw pacman -S mingw-w64-x86_64-gtk3
+        pacman -S mingw-w64-x86_64-gtk3
 
     before_cache:
     - |-
