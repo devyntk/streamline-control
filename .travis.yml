@@ -1,10 +1,10 @@
 language: rust
 jobs:
   - os: windows
-    before_install: pacman -S mingw-w64-x86_64-gtk3
+    before_install: choco install msys2-installer && pacman -S mingw-w64-x86_64-gtk3
   - os: linux
     dist: bionic
-    before_install: sudo apt update && sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-0 -y
+    before_install: sudo apt update && sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-dev -y
   - os: osx
     before_install: brew install gtk+3
 script: cargo build --release
