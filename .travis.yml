@@ -1,5 +1,8 @@
 language: rust
-os:
-  - windows
-  - linux
-  - osx
+jobs:
+  - os: windows
+    before_install: pacman -S mingw-w64-x86_64-gtk3
+  - os: linux
+    before_install: sudo apt install gtk+3.0
+  - os: osx
+    before_install: brew install gtk+3
