@@ -1,2 +1,10 @@
 install: choco install rust-ms
 build_script: cargo build --release
+
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: lKctvDKACzTGHSP5hxJyRd1COC84HMk8MyOeE/TKd0Pg1nUWaVkgJD1T9ac9K1Oj
+  artifact: target/release/streamline-control.exe
+  on:
+    APPVEYOR_REPO_TAG: true        # deploy on tag push only
