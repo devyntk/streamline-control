@@ -41,7 +41,7 @@ jobs:
 - os: osx
   before_install: brew install gtk+3
   after_success: zip streamline-control-mac.zip target/release/streamline-control
-script: cargo build --release --static
+script: cargo build --release
 after_success: mv target/release/streamline-control "target/release/streamline-control-$TRAVIS_OS_NAME"
 deploy:
   provider: releases
