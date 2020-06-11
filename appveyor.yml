@@ -1,0 +1,3 @@
+before_install: choco install rustup 
+install: rustup install stable
+script: cargo build --release
