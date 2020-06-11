@@ -40,7 +40,7 @@ jobs:
 - os: osx
   before_install: brew install gtk+3
 script: cargo build --release
-after_success: mv dist/streamline-control "dist/streamline-control-$TRAVIS_OS_NAME"
+after_success: mv target/release/streamline-control "target/release/streamline-control-$TRAVIS_OS_NAME"
 deploy:
   provider: releases
   api_key:
