@@ -1,34 +1,19 @@
-extern crate gio;
-extern crate gtk;
+// For the `cargo_crate_version!` macro
+#[macro_use]
+extern crate self_update;
 
-use gio::prelude::*;
-use gtk::prelude::*;
+use iui::prelude::*;
 
-use std::env::args;
-
-fn build_ui(application: &gtk::Application) {
-    let window = gtk::ApplicationWindow::new(application);
-
-    window.set_title("First GTK+ Program");
-    window.set_border_width(10);
-    window.set_position(gtk::WindowPosition::Center);
-    window.set_default_size(350, 70);
-
-    let button = gtk::Button::new_with_label("Click me!");
-
-    window.add(&button);
-
-    window.show_all();
-}
+mod gui;
+mod update;
 
 fn main() {
-    let application =
-        gtk::Application::new(Some("com.github.gtk-rs.examples.basic"), Default::default())
-            .expect("Initialization failed...");
+    // Initialize the UI library
+    let ui = UI::init().expect("Couldn't initialize UI library");
+    // Create a window into which controls can be placed
 
-    application.connect_activate(|app| {
-        build_ui(app);
-    });
+    gui::build_ui(&ui);
 
-    application.run(&args().collect::<Vec<_>>());
+    // Run the application
+    ui.main();
 }

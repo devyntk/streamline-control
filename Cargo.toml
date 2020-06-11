@@ -5,5 +5,6 @@ authors = ["bkeeneykid <bkeeneykid@me.com>"]
 edition = "2018"
 
 [dependencies]
-gio = "0.8.1"
-gtk = "0.8.1"
+iui = "0.3"
+self_update = "0.16"
+webbrowser = "0.5.4"
