@@ -29,7 +29,7 @@ jobs:
         $msys2 pacman --sync --clean --noconfirm
         ;;
     esac
-  after_success: 7z a streamline-control.zip target/release/depends/*.dll target/release/streamline-control.exe
+  after_success: 7z a streamline-control.zip target/release/deps/*.dll target/release/streamline-control.exe
   cache:
     directories:
     - "$HOME/AppData/Local/Temp/chocolatey"
