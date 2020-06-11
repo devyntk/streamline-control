@@ -1,3 +1,2 @@
-init: choco install rustup.install
-install: rustup install stable
+install: choco install rust
 build_script: cargo build --release
