@@ -5,6 +5,6 @@ authors = ["bkeeneykid <bkeeneykid@me.com>"]
 edition = "2018"
 
 [dependencies]
-iui = "0.3"
+druid = "0.6.0"
 self_update = "0.16"
 webbrowser = "0.5.4"
