@@ -1,0 +1,15 @@
+install: choco install rust-ms
+build_script: cargo build --release
+
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: X+gpBHIzQp32WcCgCExZOElE64PvA/yvpvM0rTP/P13ysjcXVdl8j29IIM3fmuCm
+  artifact: StreamlineControl
+  on:
+    APPVEYOR_REPO_TAG: true        # deploy on tag push only
+  force_update: true
+  
+artifacts:
+  - path: "target/release/streamline-control.exe"
+    name: "StreamlineControl"
