@@ -10,6 +10,6 @@ deploy:
     APPVEYOR_REPO_TAG: true        # deploy on tag push only
   force_update: true
   
-  artifacts:
-    - path: target/release/streamline-control.exe
-      name: "StreamlineControl"
+artifacts:
+  - path: "target/release/streamline-control.exe"
+    name: "StreamlineControl"
