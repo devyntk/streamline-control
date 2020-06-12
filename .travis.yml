@@ -6,7 +6,6 @@ jobs:
     libgtk-3-dev -y
 - os: osx
    after_success: mv target/release/streamline-control . && ./mackage.sh && ls
-#  after_success: zip streamline-control-mac.zip target/release/streamline-control
 script: cargo build --release
 after_success: mv target/release/streamline-control "target/release/streamline-control-$TRAVIS_OS_NAME"
 deploy:
