@@ -14,13 +14,6 @@ mkdir -p $MACOS_APP_DIR/Contents/MacOS
 echo "Copying frameworks"
 cp -r $MACOS_FRAMEWORKS $MACOS_APP_DIR/Contents
 
-cargo rustc \
-    --verbose \
-    --release \
-    --features use_sdl2_mac_framework \
-    -- \
-    -Clink-args="-Wl,-F,$MACOS_FRAMEWORKS"
-
 echo "Copying binary"
 MACOS_APP_BIN=$MACOS_APP_DIR/Contents/MacOS/$MACOS_BIN_NAME
 cp target/release/$APP_NAME $MACOS_APP_BIN
