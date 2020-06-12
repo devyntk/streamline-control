@@ -18,6 +18,7 @@ echo "Copying binary"
 MACOS_APP_BIN=$MACOS_APP_DIR/Contents/MacOS/$MACOS_BIN_NAME
 echo $MACOS_BIN_NAME $MACOS_APP_BIN
 cp target/release/$MACOS_BIN_NAME $MACOS_APP_BIN
+echo "Binary copied"
 
 echo "Linking binary with frameworks"
 for old in `otool -L $MACOS_APP_BIN | grep @rpath | cut -f2 | cut -d' ' -f1`; do
