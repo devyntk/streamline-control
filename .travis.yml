@@ -7,7 +7,7 @@ jobs:
   - os: osx
     before_install: cargo install cargo-bundle
     script: cargo bundle --release
-    after_success: zip streamline.zip "target/release/bundle/osx/Streamline Control.app"
+    after_success: mv "target/release/bundle/osx/Streamline Control.app" . && zip -r streamline-control.zip "Streamline Control.app"
 script: cargo build --release
 after_success: mv target/release/streamline-control "target/release/streamline-control-$TRAVIS_OS_NAME"
 deploy:
