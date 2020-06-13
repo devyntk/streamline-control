@@ -38,9 +38,10 @@ done
 echo "Copying launcher"
 echo '
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-BIN=howl-bin
+BIN=streamline-control
 
 $DIR/$BIN' > $MACOS_APP_DIR/Contents/MacOS/$MACOS_APP_NAME
+chmod +x $MACOS_APP_DIR/Contents/MacOS/$MACOS_APP_NAME
 
 echo "Creating dmg"
 mkdir "$MACOS_APP_NAME"
