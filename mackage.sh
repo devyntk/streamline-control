@@ -48,5 +48,5 @@ mv "$MACOS_APP_DIR" "$MACOS_APP_NAME"
 ln -s /Applications "$MACOS_APP_NAME/Applications"
 rm -rf "$MACOS_APP_NAME/.Trashes"
 
-hdiutil create uploads/"$MACOS_APP_NAME.dmg" -srcfolder "$MACOS_APP_NAME" -ov
+hdiutil create "uploads/$MACOS_APP_NAME.dmg" -srcfolder "$MACOS_APP_NAME" -ov
 rm -rf "$MACOS_APP_NAME"
