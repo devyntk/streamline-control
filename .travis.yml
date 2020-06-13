@@ -5,7 +5,9 @@ jobs:
     before_install: sudo apt update && sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-dev
       libgtk-3-dev -y
   - os: osx
-    after_success: mv target/release/streamline-control . && ./mackage.sh
+    before_install: cargo install cargo-bundle
+    script: cargo bundle --release
+    after_success: zip streamline.zip target/release/bundle/osx/StreamlineControl.app
 script: cargo build --release
 after_success: mv target/release/streamline-control "target/release/streamline-control-$TRAVIS_OS_NAME"
 deploy:
@@ -14,7 +16,7 @@ deploy:
     secure: OxK0jGxxczo4x6JXsMgqI5vyTi22eyybzi9ZIdvLWIhd7tvEHuHmmMFUjsmKPRYkcMFF1Uq5r7AhH1CE9itpHYRn0DDglXpPs1lQqszNmV3cb7QkBcTyYYBPqVw6yydhSBl0bdAUuiAOoaTR+6HXXfb4Ljfq3T1ZJZ/HcO8bihx2vmbmNYW9HuCzdPZgWJjSwPB49gE91+Mjg9nnQD+O8CwioYuH1YBV5LKqiasvpSZjA21w0DLTV//dYdts1sVDNtB9tOu3nL72L/GfmGkcN9kWY533PPYmBQw+xu5ChIB2V4qXkvfKiKUvggjz2IoFMGb7nVNLFihMguVPomjYXP0nc8UV/vIQ3luWv0kbpmpeNSbn6snBLYM+Vd0IzZPkugL7eRicyWOhMdMKgxz7QAznQff+CNHzA/YxZGB7rOAeQTMU11oImYPvwS51c9edzawmVzQ/6cnpx5+Mkue6dtnmuRRgfhKkO1f3vndt8KT3dcgPbVHCChJUBwPRckZ4+hEj+4zOwpDaRhRzsoh4s/xAjooHWr1bc5GGthuf9azDfsgBSaCNKh5tuVSJcx1Qwo+UcFGaPy+hZ+ld2emUPPpDPY4M+3t0oCAJfD/UuqOYSamJLOJZcqVRH/fABMu0S6bxDV6BzFsoyoV4kCz4DHghvYMgx9Wh4v64dGLkLUw=
   file: 
     - target/release/streamline-control-*
-    - streamline.dmg
+    - streamline.zip
   file_glob: true
   on:
     repo: bkeeneykid/streamline-control
