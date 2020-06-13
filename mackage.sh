@@ -11,9 +11,9 @@ echo "Creating app directory structure"
 rm -rf $MACOS_APP_DIR
 mkdir -p $MACOS_APP_DIR/Contents/MacOS
 
-echo "Copying frameworks"
-echo $MACOS_FRAMEWORKS
-cp -r "$MACOS_FRAMEWORKS" "$MACOS_APP_DIR/Contents"
+# echo "Copying frameworks"
+#echo $MACOS_FRAMEWORKS
+# cp -r "$MACOS_FRAMEWORKS" "$MACOS_APP_DIR/Contents"
 
 echo "Copying binary"
 MACOS_APP_BIN=$MACOS_APP_DIR/Contents/MacOS/$MACOS_BIN_NAME
