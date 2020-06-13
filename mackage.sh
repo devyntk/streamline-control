@@ -30,22 +30,23 @@ for old in `otool -L $MACOS_APP_BIN | grep @rpath | cut -f2 | cut -d' ' -f1`; do
 done
 
 echo "Copying resources directory"
-cp -r $RESOURCES $MACOS_APP_DIR/Contents/MacOS
+echo $RESOURCES
+cp -r "$RESOURCES" "$MACOS_APP_DIR/Contents/MacOS"
 echo "Copying user directory"
-cp -r $USER $MACOS_APP_DIR/Contents/MacOS
-
-$MACOS_APP_BIN --help
+cp -r "$USER" "$MACOS_APP_DIR/Contents/MacOS"
 
 echo "Copying launcher"
-cp scripts/macos_launch.sh $MACOS_APP_DIR/Contents/MacOS/$MACOS_APP_NAME
+echo '
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+BIN=howl-bin
+
+$DIR/$BIN' > $MACOS_APP_DIR/Contents/MacOS/$MACOS_APP_NAME
 
 echo "Creating dmg"
-mkdir $MACOS_APP_NAME
-mv $MACOS_APP_DIR $MACOS_APP_NAME
-ln -s /Applications $MACOS_APP_NAME/Applications
-rm -rf $MACOS_APP_NAME/.Trashes
+mkdir "$MACOS_APP_NAME"
+mv "$MACOS_APP_DIR" "$MACOS_APP_NAME"
+ln -s /Applications "$MACOS_APP_NAME/Applications"
+rm -rf "$MACOS_APP_NAME/.Trashes"
 
-FULL_NAME=$APP_NAME-$OS-$MACHINE-$SUFFIX
-
-hdiutil create uploads/$FULL_NAME.dmg -srcfolder $MACOS_APP_NAME -ov
-rm -rf $MACOS_APP_NAME
+hdiutil create uploads/"$MACOS_APP_NAME.dmg" -srcfolder "$MACOS_APP_NAME" -ov
+rm -rf "$MACOS_APP_NAME"
