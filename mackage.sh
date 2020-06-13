@@ -29,11 +29,11 @@ for old in `otool -L $MACOS_APP_BIN | grep @rpath | cut -f2 | cut -d' ' -f1`; do
     install_name_tool -change $old $new $MACOS_APP_BIN
 done
 
-echo "Copying resources directory"
-echo $RESOURCES
-cp -r "$RESOURCES" "$MACOS_APP_DIR/Contents/MacOS"
-echo "Copying user directory"
-cp -r "$USER" "$MACOS_APP_DIR/Contents/MacOS"
+#echo "Copying resources directory"
+#echo $RESOURCES
+#cp -r "$RESOURCES" "$MACOS_APP_DIR/Contents/MacOS"
+#echo "Copying user directory"
+#cp -r "$USER" "$MACOS_APP_DIR/Contents/MacOS"
 
 echo "Copying launcher"
 echo '
