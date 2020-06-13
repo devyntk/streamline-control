@@ -3,6 +3,11 @@ name = "streamline-control"
 version = "0.1.0"
 authors = ["bkeeneykid <bkeeneykid@me.com>"]
 edition = "2018"
+description = "An event management system for FIRST Tech Challenge Events"
+
+[package.metadata.bundle]
+name = "Streamline Control"
+identifier = "com.github.streamline-control"
 
 [dependencies]
 druid = "0.6.0"
