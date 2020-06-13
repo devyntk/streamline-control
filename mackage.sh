@@ -12,6 +12,7 @@ rm -rf $MACOS_APP_DIR
 mkdir -p $MACOS_APP_DIR/Contents/MacOS
 
 echo "Copying frameworks"
+echo $MACOS_FRAMEWORKS
 cp -r "$MACOS_FRAMEWORKS" "$MACOS_APP_DIR/Contents"
 
 echo "Copying binary"
