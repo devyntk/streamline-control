@@ -44,11 +44,11 @@ $DIR/$BIN' > $MACOS_APP_DIR/Contents/MacOS/$MACOS_APP_NAME
 
 echo "Creating dmg"
 mkdir "$MACOS_APP_NAME"
-mv "$MACOS_APP_DIR" "$MACOS_APP_NAME"
+# mv "$MACOS_APP_DIR" "$MACOS_APP_NAME"
 ln -s /Applications "$MACOS_APP_NAME/Applications"
 rm -rf "$MACOS_APP_NAME/.Trashes"
 
-pip install dmgbuild
+pip3 install dmgbuild
 dmgbuild -s dmgset.py "Streamline Control" streamline.dmg
 #hdiutil create "uploads/$MACOS_APP_NAME.dmg" -srcfolder "$MACOS_APP_NAME" -ov
 rm -rf "$MACOS_APP_NAME"
