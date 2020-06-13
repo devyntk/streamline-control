@@ -4,7 +4,7 @@ set -e
 
 
 MACOS_BIN_NAME="streamline-control"
-MACOS_APP_NAME="Streamline Control"
+MACOS_APP_NAME="StreamlineControl"
 MACOS_APP_DIR=$MACOS_APP_NAME.app
 
 echo "Creating app directory structure"
