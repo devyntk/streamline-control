@@ -1,11 +1,11 @@
-use self_update::update::{Release};
+use self_update::update::Release;
 
-pub enum UpdateStatus{
+pub enum ReleaseStatus {
     NewVersion(Release),
-    UpToDate
+    UpToDate,
 }
 
-pub fn fetch_is_new<'a>() -> Result<UpdateStatus, Box<dyn (::std::error::Error)>>{
+pub fn fetch_is_new<'a>() -> Result<ReleaseStatus, Box<dyn (::std::error::Error)>> {
     let releases = self_update::backends::github::ReleaseList::configure()
         .repo_owner("bkeeneykid")
         .repo_name("streamline-control")
@@ -15,17 +15,26 @@ pub fn fetch_is_new<'a>() -> Result<UpdateStatus, Box<dyn (::std::error::Error)>
     println!("{:#?}\n", releases);
 
     if releases.len() == 0 {
-        return Ok(UpdateStatus::UpToDate)
+        return Ok(ReleaseStatus::UpToDate);
     }
 
     let latest_release = &releases[0];
 
-    let is_new = self_update::version::bump_is_greater(cargo_crate_version!(),
-                                                       &latest_release.version)?;
+    let is_new =
+        self_update::version::bump_is_greater(cargo_crate_version!(), &latest_release.version)?;
 
     if is_new {
-        Ok(UpdateStatus::NewVersion(latest_release.clone()))
+        Ok(ReleaseStatus::NewVersion(latest_release.clone()))
     } else {
-        Ok(UpdateStatus::UpToDate)
+        Ok(ReleaseStatus::UpToDate)
     }
+}
+
+pub fn do_update() -> Result<(), Box<dyn (::std::error::Error)>> {
+    self_update::backends::github::Update::configure()
+        .repo_owner("bkeeneykid")
+        .repo_name("streamline-control")
+        .build()?
+        .update()?;
+    Ok(())
 }
