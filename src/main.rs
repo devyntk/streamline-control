@@ -4,6 +4,7 @@ extern crate self_update;
 
 mod gui;
 mod update;
+mod server;
 
 fn main() {
     gui::run_ui();

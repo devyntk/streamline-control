@@ -9,8 +9,13 @@ description = "An event management system for FIRST Tech Challenge Events"
 name = "Streamline Control"
 identifier = "com.github.streamline-control"
 
+[build-dependencies]
+cargo-bundle = "0.4.0"
+
 [dependencies]
 druid = "0.6.0"
 self_update = "0.16"
 webbrowser = "0.5.4"
-cargo-bundle = "0.4.0"
+tokio = { version = "0.2", features = ["macros", "sync"] }
+warp = "0.2"
+sqlx = { version = "0.3", default-features = false, features = [ "runtime-tokio", "macros", "sqlite" ] }

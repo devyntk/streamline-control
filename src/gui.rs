@@ -8,7 +8,10 @@ use druid::{
 use webbrowser;
 
 use crate::update::{do_update, fetch_is_new, ReleaseStatus};
+use crate::server::start_server;
+
 use std::thread;
+use tokio::sync::oneshot::Receiver;
 
 const START_UPDATE_CHECK: Selector = Selector::new("streamline-control.start-check");
 const UPDATE_FOUND: Selector<String> = Selector::new("streamline-control.update-found");
@@ -38,7 +41,10 @@ pub fn run_ui() {
     let delegate = Delegate {
         eventsink: app.get_external_handle(),
         main_window: main_window_id,
+        shutdown_signal: None,
     };
+
+    thread::spawn(start_server);
 
     app.delegate(delegate)
         .launch(inital_state)
@@ -64,7 +70,7 @@ fn ui_builder() -> impl Widget<GUIState> {
         Button::new("Quit")
             .padding(5.0)
             .on_click(|ctx, _data: &mut GUIState, _env| {
-                let cmd = Command::new(OPEN_QUIT_CONFIRM, ());
+                let cmd = Command::new(QUIT_APP, ());
                 ctx.submit_command(cmd, None);
             });
 
@@ -107,6 +113,7 @@ fn quit_confirm_ui() -> impl Widget<GUIState> {
 struct Delegate {
     eventsink: ExtEventSink,
     main_window: WindowId,
+    shutdown_signal: Option<Receiver<()>>
 }
 
 impl AppDelegate<GUIState> for Delegate {
