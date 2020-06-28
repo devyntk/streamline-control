@@ -11,7 +11,8 @@ use crate::update::{do_update, fetch_is_new, ReleaseStatus};
 use crate::server::start_server;
 
 use std::thread;
-use tokio::sync::oneshot::Receiver;
+use async_std::task;
+use tokio::sync::oneshot::{channel, Sender};
 
 const START_UPDATE_CHECK: Selector = Selector::new("streamline-control.start-check");
 const UPDATE_FOUND: Selector<String> = Selector::new("streamline-control.update-found");
@@ -21,12 +22,16 @@ const UPDATE_FINISHED: Selector = Selector::new("streamline-control.update-finis
 const UPDATE_ERROR: Selector<String> = Selector::new("streamline-control.update-error");
 const OPEN_QUIT_CONFIRM: Selector = Selector::new("streamline-control.quit-confirm-open");
 
+pub const RECV_QUIT_SENDER: Selector<Sender<()>> = Selector::new("streamline-control.recv-quit-sender");
+
 pub fn run_ui() {
     let main_window_id = WindowId::next();
     let mut main_window = WindowDesc::new(ui_builder)
         .window_size((300.0, 160.0))
         .title("Streamline Server Control");
     main_window.id = main_window_id;
+
+    let (tx, rx) = channel();
 
     let inital_state = GUIState {
         status: "Server Not Running".into(),
@@ -38,13 +43,16 @@ pub fn run_ui() {
 
     let app = AppLauncher::with_window(main_window).use_simple_logger();
 
+    let sink = app.get_external_handle().clone();
+    thread::spawn(move || {
+        start_server(sink, rx)
+    });
+
     let delegate = Delegate {
         eventsink: app.get_external_handle(),
         main_window: main_window_id,
-        shutdown_signal: None,
+        shutdown_signal: Some(tx),
     };
-
-    thread::spawn(start_server);
 
     app.delegate(delegate)
         .launch(inital_state)
@@ -70,7 +78,7 @@ fn ui_builder() -> impl Widget<GUIState> {
         Button::new("Quit")
             .padding(5.0)
             .on_click(|ctx, _data: &mut GUIState, _env| {
-                let cmd = Command::new(QUIT_APP, ());
+                let cmd = Command::new(OPEN_QUIT_CONFIRM, ());
                 ctx.submit_command(cmd, None);
             });
 
@@ -113,7 +121,7 @@ fn quit_confirm_ui() -> impl Widget<GUIState> {
 struct Delegate {
     eventsink: ExtEventSink,
     main_window: WindowId,
-    shutdown_signal: Option<Receiver<()>>
+    shutdown_signal: Option<Sender<()>>
 }
 
 impl AppDelegate<GUIState> for Delegate {
@@ -143,10 +151,10 @@ impl AppDelegate<GUIState> for Delegate {
         } else if cmd.is(UPDATE_FINISHED) {
             data.feedback = "Update Finished. Please restart the app. ".into();
         } else if cmd.is(OPEN_QUIT_CONFIRM) {
-            let quit_confirm_window = WindowDesc::new(quit_confirm_ui)
-                .window_size((150.0, 125.0))
-                .title("Confirm Quitting Streamline Control");
-            ctx.new_window(quit_confirm_window)
+            let tx = self.shutdown_signal.take();
+            tx.unwrap().send(());
+            let new_cmd = Command::new(QUIT_APP, ());
+            ctx.submit_command(new_cmd, None);
         } else if cmd.is(CLOSE_WINDOW) {
             // TODO: This doesn't work. Try a workaround later.
             if Target::Window(self.main_window) == target {
@@ -157,8 +165,8 @@ impl AppDelegate<GUIState> for Delegate {
         }
         true
     }
-}
 
+}
 fn check_updates(sink: ExtEventSink) {
     thread::spawn(move || {
         let up_to_date = fetch_is_new();

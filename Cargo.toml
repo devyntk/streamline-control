@@ -17,5 +17,6 @@ druid = "0.6.0"
 self_update = "0.16"
 webbrowser = "0.5.4"
 tokio = { version = "0.2", features = ["macros", "sync"] }
+async-std = "1.6"
 warp = "0.2"
 sqlx = { version = "0.3", default-features = false, features = [ "runtime-tokio", "macros", "sqlite" ] }
