@@ -1,8 +1,11 @@
-use warp::Filter;
+use warp::{Filter, Error};
 use druid::ExtEventSink;
-use tokio::sync::oneshot::{channel, Receiver};
-
-use crate::gui::RECV_QUIT_SENDER;
+use tokio::sync::oneshot::Receiver;
+use std::net::SocketAddr;
+use tokio::macros::support::Future;
+use crate::gui::SERVER_START;
+use std::thread::JoinHandle;
+use port_scanner::local_ports_available;
 
 #[tokio::main]
 pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
@@ -10,13 +13,27 @@ pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
     let hello = warp::path!("hello" / String)
         .map(|name| format!("Hello, {}!", name));
 
-    let port = 8080;
+    let ports: Vec<u16> = vec![3030,8080,80];
+    let mut ports: Vec<u16> = local_ports_available(ports);
+    println!("{:#?}", ports);
 
-    let (addr, server) = warp::serve(hello)
-        .bind_with_graceful_shutdown(([127, 0, 0, 1], port), async {
+    let server_result = warp::serve(hello)
+        .try_bind_with_graceful_shutdown(
+            ([127, 0, 0, 1], ports.pop().expect("No socket address to bind to")), async {
             rx.await.ok();
         });
 
-    // Spawn the server into a runtime
-    tokio::task::spawn(server);
+    let mut server_handle = None;
+    match server_result {
+        Ok((addr, future)) => {
+            server_handle = Some(tokio::task::spawn(future));
+            sink.submit_command(SERVER_START, addr, None);
+        }
+        Err(error) => {
+
+        }
+    }
+
+    server_handle.expect("No server future found").await;
+
 }

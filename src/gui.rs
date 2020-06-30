@@ -11,8 +11,8 @@ use crate::update::{do_update, fetch_is_new, ReleaseStatus};
 use crate::server::start_server;
 
 use std::thread;
-use async_std::task;
 use tokio::sync::oneshot::{channel, Sender};
+use std::net::SocketAddr;
 
 const START_UPDATE_CHECK: Selector = Selector::new("streamline-control.start-check");
 const UPDATE_FOUND: Selector<String> = Selector::new("streamline-control.update-found");
@@ -21,8 +21,7 @@ const START_DO_UPDATE: Selector = Selector::new("streamline-control.do-updates")
 const UPDATE_FINISHED: Selector = Selector::new("streamline-control.update-finished");
 const UPDATE_ERROR: Selector<String> = Selector::new("streamline-control.update-error");
 const OPEN_QUIT_CONFIRM: Selector = Selector::new("streamline-control.quit-confirm-open");
-
-pub const RECV_QUIT_SENDER: Selector<Sender<()>> = Selector::new("streamline-control.recv-quit-sender");
+pub const SERVER_START: Selector<SocketAddr> = Selector::new("streamline-control.server-start");
 
 pub fn run_ui() {
     let main_window_id = WindowId::next();
@@ -114,10 +113,6 @@ fn ui_builder() -> impl Widget<GUIState> {
         .with_child(quit_button)
 }
 
-fn quit_confirm_ui() -> impl Widget<GUIState> {
-    Flex::column()
-}
-
 struct Delegate {
     eventsink: ExtEventSink,
     main_window: WindowId,
@@ -152,9 +147,12 @@ impl AppDelegate<GUIState> for Delegate {
             data.feedback = "Update Finished. Please restart the app. ".into();
         } else if cmd.is(OPEN_QUIT_CONFIRM) {
             let tx = self.shutdown_signal.take();
-            tx.unwrap().send(());
+            tx.unwrap().send(()).expect("Error when sending shutdown signal");
             let new_cmd = Command::new(QUIT_APP, ());
             ctx.submit_command(new_cmd, None);
+        } else if let Some(addr) = cmd.get(SERVER_START) {
+            data.status = format!("Server started on port {}", addr.port());
+            data.url = Some(format!("http://localhost:{}/", addr.port()));
         } else if cmd.is(CLOSE_WINDOW) {
             // TODO: This doesn't work. Try a workaround later.
             if Target::Window(self.main_window) == target {
