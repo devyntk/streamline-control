@@ -1,4 +1,4 @@
-init: iwr -useb get.scoop.sh | iex
+init: Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
 install: scoop install rustup && cargo install cargo-make
 #install: choco install rust-ms && cargo install cargo-make
 build_script: cargo make build_release
