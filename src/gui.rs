@@ -13,6 +13,7 @@ use crate::server::start_server;
 use std::thread;
 use tokio::sync::oneshot::{channel, Sender};
 use std::net::SocketAddr;
+use log::debug;
 
 const START_UPDATE_CHECK: Selector = Selector::new("streamline-control.start-check");
 const UPDATE_FOUND: Selector<String> = Selector::new("streamline-control.update-found");
@@ -22,6 +23,7 @@ const UPDATE_FINISHED: Selector = Selector::new("streamline-control.update-finis
 const UPDATE_ERROR: Selector<String> = Selector::new("streamline-control.update-error");
 const OPEN_QUIT_CONFIRM: Selector = Selector::new("streamline-control.quit-confirm-open");
 pub const SERVER_START: Selector<SocketAddr> = Selector::new("streamline-control.server-start");
+pub const UPDATE_STATUS: Selector<String> = Selector::new("streamline-control.update-status");
 
 pub fn run_ui() {
     let main_window_id = WindowId::next();
@@ -40,7 +42,7 @@ pub fn run_ui() {
         url: None,
     };
 
-    let app = AppLauncher::with_window(main_window).use_simple_logger();
+    let app = AppLauncher::with_window(main_window);
 
     let sink = app.get_external_handle().clone();
     thread::spawn(move || {
@@ -128,7 +130,7 @@ impl AppDelegate<GUIState> for Delegate {
         data: &mut GUIState,
         _env: &Env,
     ) -> bool {
-        println!("{:?}, {:?}", cmd, target);
+        debug!("{:?}, {:?}", cmd, target);
         if cmd.is(START_UPDATE_CHECK) {
             data.feedback = "Checking For Updates...".into();
             check_updates(self.eventsink.clone())
