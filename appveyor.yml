@@ -1,4 +1,6 @@
-install: choco install rust-ms && cargo install cargo-make
+init: iwr -useb get.scoop.sh | iex
+install: scoop install rustup && cargo install cargo-make
+#install: choco install rust-ms && cargo install cargo-make
 build_script: cargo make build_release
 
 deploy:
