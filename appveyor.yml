@@ -1,5 +1,5 @@
-install: choco install rust-ms
-build_script: cargo build --release
+install: choco install rust-ms && cargo install cargo-make
+build_script: cargo make build_release
 
 deploy:
   provider: GitHub

@@ -64,7 +64,7 @@ async fn static_file(name: String) -> Result<impl Reply, Rejection> {
 /// Home page handler; just render a template with some arguments.
 async fn home_page() -> Result<impl Reply, Rejection> {
     Response::builder().html(|o| {
-        templates::index(o, &[("first", 3), ("second", 7), ("third", 2)])
+        templates::index(o)
     })
 }
 

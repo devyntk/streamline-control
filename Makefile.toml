@@ -1,0 +1,33 @@
+[tasks.run]
+command = "cargo"
+args = ["run"]
+dependencies = ["build_frontend"]
+
+[tasks.build]
+command = "cargo"
+args = ["build"]
+dependencies = ["build_frontend"]
+
+[tasks.build_frontend]
+description = "Build with wasm-pack"
+install_crate = { crate_name = "wasm-pack", binary = "wasm-pack", test_arg = "-V" }
+command = "wasm-pack"
+args = ["build", "--target", "web", "--out-name", "package", "--dev", "frontend/"]
+
+[tasks.build_release]
+command = "cargo"
+args = ["build", "--release"]
+dependencies = ["build_frontend_release"]
+
+[tasks.build_frontend_release]
+description = "Build with wasm-pack"
+install_crate = { crate_name = "wasm-pack", binary = "wasm-pack", test_arg = "-V" }
+command = "wasm-pack"
+args = ["build", "--target", "web", "--out-name", "package", "frontend/"]
+
+[tasks.package]
+description = "Package for release using cargo-bundle"
+install_crate = { crate_name = "cargo-bundle", binary = "cargo bundle", test_arg = "-h" }
+command = "cargo"
+args = ["bundle", "--release"]
+dependencies = ["build_frontend_release"]

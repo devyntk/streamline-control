@@ -3,12 +3,12 @@ jobs:
   - os: linux
     dist: bionic
     before_install: sudo apt update && sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-dev
-      libgtk-3-dev -y
+      libgtk-3-dev -y && cargo install cargo-make
   - os: osx
-    before_install: cargo install cargo-bundle
-    script: cargo bundle --release
+    before_install: cargo install cargo-make
+    script: cargo make package
     after_success: mv "target/release/bundle/osx/Streamline Control.app" . && zip -r streamline-control-mac.zip "Streamline Control.app"
-script: cargo build --release
+script: cargo make build_release
 after_success: mv target/release/streamline-control "target/release/streamline-control-$TRAVIS_OS_NAME"
 deploy:
   provider: releases
