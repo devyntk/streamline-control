@@ -1,4 +1,4 @@
-init: wget https://static.rust-lang.org/rustup/dist/i686-pc-windows-gnu/rustup-init.exe && rustup-init --help
+init: curl --url https://static.rust-lang.org/rustup/dist/i686-pc-windows-gnu/rustup-init.exe --output rustup-init.exe && rustup-init --help
 install: rustup install stable && cargo install cargo-make
 #install: choco install rust-ms && cargo install cargo-make
 build_script: cargo make build_release
