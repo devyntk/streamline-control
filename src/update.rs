@@ -5,16 +5,14 @@ pub enum ReleaseStatus {
     UpToDate,
 }
 
-pub fn fetch_is_new<'a>() -> Result<ReleaseStatus, Box<dyn (::std::error::Error)>> {
+pub fn fetch_is_new() -> Result<ReleaseStatus, Box<dyn (::std::error::Error)>> {
     let releases = self_update::backends::github::ReleaseList::configure()
         .repo_owner("bkeeneykid")
         .repo_name("streamline-control")
         .build()?
         .fetch()?;
-    println!("found releases:");
-    println!("{:#?}\n", releases);
 
-    if releases.len() == 0 {
+    if releases.is_empty() {
         return Ok(ReleaseStatus::UpToDate);
     }
 

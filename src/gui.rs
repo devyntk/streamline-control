@@ -5,8 +5,6 @@ use druid::{
     Target, Widget, WidgetExt, WindowDesc, WindowId,
 };
 
-use webbrowser;
-
 use crate::update::{do_update, fetch_is_new, ReleaseStatus};
 use crate::server::start_server;
 
@@ -43,10 +41,10 @@ pub fn run_ui() {
     };
 
     let app = AppLauncher::with_window(main_window);
+    let handle = app.get_external_handle();
 
-    let sink = app.get_external_handle().clone();
     thread::spawn(move || {
-        start_server(sink, rx)
+        start_server(handle, rx)
     });
 
     let delegate = Delegate {
@@ -71,9 +69,9 @@ struct GUIState {
 
 fn ui_builder() -> impl Widget<GUIState> {
     let status_label =
-        Label::new(|data: &GUIState, _env: &Env| format!("{}", data.status)).padding(5.0);
+        Label::new(|data: &GUIState, _env: &Env| data.status.to_string()).padding(5.0);
 
-    let feedback_label = Label::new(|data: &GUIState, _env: &Env| format!("{}", data.feedback));
+    let feedback_label = Label::new(|data: &GUIState, _env: &Env| data.feedback.to_string());
 
     let quit_button =
         Button::new("Quit")
@@ -83,7 +81,7 @@ fn ui_builder() -> impl Widget<GUIState> {
                 ctx.submit_command(cmd, None);
             });
 
-    let check_button = Button::new(|data: &GUIState, _env: &Env| format!("{}", data.update_button))
+    let check_button = Button::new(|data: &GUIState, _env: &Env| data.update_button.to_string())
         .on_click(|ctx, data: &mut GUIState, _env| {
             if data.found_update {
                 let cmd = Command::new(START_DO_UPDATE, ());
@@ -98,7 +96,7 @@ fn ui_builder() -> impl Widget<GUIState> {
     let open_button = Button::new("Open Browser")
         .on_click(move |_ctx, data: &mut GUIState, _env| match &data.url {
             Some(url) => {
-                if webbrowser::open(url.as_str()).is_err() == true {
+                if webbrowser::open(url.as_str()).is_err(){
                     data.feedback = "Unable to Open Browser".into();
                 }
             }
@@ -173,7 +171,7 @@ fn check_updates(sink: ExtEventSink) {
         match up_to_date {
             Ok(ReleaseStatus::UpToDate) => sink.submit_command(NO_UPDATE, (), None),
             Ok(ReleaseStatus::NewVersion(release)) => {
-                sink.submit_command(UPDATE_FOUND, String::from(release.version), None)
+                sink.submit_command(UPDATE_FOUND, release.version, None)
             }
             Err(err) => sink.submit_command(UPDATE_ERROR, err.to_string(), None),
         }

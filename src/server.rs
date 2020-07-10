@@ -1,4 +1,4 @@
-use warp::{Filter, path, Reply, Rejection};
+use warp::{Filter, path, Reply, Rejection, http::Uri};
 use druid::ExtEventSink;
 use tokio::sync::oneshot::Receiver;
 use crate::gui::{SERVER_START, UPDATE_STATUS};
@@ -15,9 +15,14 @@ pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
     let hello = warp::path!("hello" / String)
         .map(|name| format!("Hello, {}!", name));
 
-    let index = path::end().and_then(home_page);
+    let index = warp::path::end()
+        .map(|| {
+            warp::redirect(Uri::from_static("/app"))
+        });
 
-    let routes = static_route.or(hello).or(index);
+    let app = warp::path("app").and_then(home_page);
+
+    let routes = static_route.or(hello).or(index).or(app);
 
     let mut ports: Vec<u16> = local_ports_available(vec![3030,8080,80]);
 
@@ -27,7 +32,7 @@ pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
             rx.await.ok();
         });
 
-    let mut server_handle = None;
+    let server_handle;
     match server_result {
         Ok((addr, future)) => {
             server_handle = Some(tokio::task::spawn(future));
@@ -59,9 +64,9 @@ async fn static_file(name: String) -> Result<impl Reply, Rejection> {
         println!("Static file {} not found", name);
         Err(warp::reject::not_found())
     }
+
 }
 
-/// Home page handler; just render a template with some arguments.
 async fn home_page() -> Result<impl Reply, Rejection> {
     Response::builder().html(|o| {
         templates::index(o)

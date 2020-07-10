@@ -22,7 +22,8 @@ webbrowser = "0.5"
 tokio = { version = "0.2", features = ["macros", "sync", "rt-core"] }
 async-std = "1.6"
 warp = "0.2"
-sqlx = { version = "0.3", default-features = false, features = [ "runtime-tokio", "macros", "sqlite" ] }
+diesel = { version = "1.4", features = ["sqlite"] }
+diesel_migrations = "1.4"
 port_scanner = "0.1"
 app_dirs2 = "2"
 flexi_logger = "0.15"
