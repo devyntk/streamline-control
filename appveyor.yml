@@ -1,4 +1,9 @@
-install: choco install rust-ms && cargo install cargo-make
+
+install: 
+  - curl --url https://win.rustup.rs/x86_64 --output rustup-init.exe
+  - rustup-init -y -t wasm32-unknown-unknown --default-toolchain stable-x86_64-pc-windows-msvc
+  - RefreshEnv
+  - cargo install cargo-make
 build_script: cargo make build_release
 
 deploy:
