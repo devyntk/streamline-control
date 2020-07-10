@@ -1,3 +1,5 @@
-/target
-/frontend/pkg
-/frontend/target
+target/
+debug/
+pkg/
+
+Cargo.lock
