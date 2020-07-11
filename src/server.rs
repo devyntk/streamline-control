@@ -1,16 +1,17 @@
-use warp::{Filter, path, Reply, Rejection, http::Uri};
+use warp::{Filter, path, Reply, Rejection, http::Uri, path::Tail};
 use druid::ExtEventSink;
 use tokio::sync::oneshot::Receiver;
 use crate::gui::{SERVER_START, UPDATE_STATUS};
 use port_scanner::local_ports_available;
-use templates::{statics::StaticFile, RenderRucte};
-use warp::http::{Response, StatusCode};
+use warp::http::{Response, header::HeaderValue};
+use rust_embed::RustEmbed;
 
 #[tokio::main]
 pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
 
     // GET /hello/warp => 200 OK with body "Hello,include!(concat!(env!("OUT_DIR"), "/templates.rs")); warp!"
-    let static_route = path("static").and(path::param()).and_then(static_file);
+    let static_route = path("static").and(path::tail()).and_then(static_serve);
+    let dist_route = path("dist").and(path::tail()).and_then(dist_serve);
 
     let hello = warp::path!("hello" / String)
         .map(|name| format!("Hello, {}!", name));
@@ -20,11 +21,11 @@ pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
             warp::redirect(Uri::from_static("/app"))
         });
 
-    let app = warp::path("app").and_then(home_page);
+    let app = warp::path("app").and_then(serve_index);
 
-    let routes = static_route.or(hello).or(index).or(app);
+    let routes = static_route.or(dist_route).or(hello).or(index).or(app);
 
-    let mut ports: Vec<u16> = local_ports_available(vec![3030,8080,80]);
+    let mut ports: Vec<u16> = local_ports_available(vec![3030,8888,8080,80]);
 
     let server_result = warp::serve(routes)
         .try_bind_with_graceful_shutdown(
@@ -51,26 +52,36 @@ pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
 
 }
 
-/// Handler for static files.
-/// Create a response from the file data with a correct content type
-/// and a far expires header (or a 404 if the file does not exist).
-async fn static_file(name: String) -> Result<impl Reply, Rejection> {
-    if let Some(data) = StaticFile::get(&name) {
-        Ok(Response::builder()
-            .status(StatusCode::OK)
-            .header("content-type", data.mime.as_ref())
-            .body(data.content))
-    } else {
-        println!("Static file {} not found", name);
-        Err(warp::reject::not_found())
-    }
+#[derive(RustEmbed)]
+#[folder = "static/"]
+struct Asset;
 
+#[derive(RustEmbed)]
+#[folder = "frontend/pkg/"]
+struct Dist;
+
+async fn dist_serve(path: Tail) -> Result<impl Reply, Rejection> {
+    let asset = Dist::get(path.as_str()).ok_or_else(warp::reject::not_found)?;
+    let mime = mime_guess::from_path(path.as_str()).first_or_octet_stream();
+
+    let mut res: Response<std::borrow::Cow<'_, [u8]>> = Response::new(asset.into());
+    res.headers_mut().insert("content-type", HeaderValue::from_str(mime.as_ref()).unwrap());
+    Ok(res)
 }
 
-async fn home_page() -> Result<impl Reply, Rejection> {
-    Response::builder().html(|o| {
-        templates::index(o)
-    })
+async fn serve_index() -> Result<impl Reply, Rejection> {
+    serve_impl("index.html")
 }
 
-include!(concat!(env!("OUT_DIR"), "/templates.rs"));
+async fn static_serve(path: Tail) -> Result<impl Reply, Rejection> {
+    serve_impl(path.as_str())
+}
+
+fn serve_impl(path: &str) -> Result<impl Reply, Rejection> {
+    let asset = Asset::get(path).ok_or_else(warp::reject::not_found)?;
+    let mime = mime_guess::from_path(path).first_or_octet_stream();
+
+    let mut res: Response<std::borrow::Cow<'_, [u8]>> = Response::new(asset.into());
+    res.headers_mut().insert("content-type", HeaderValue::from_str(mime.as_ref()).unwrap());
+    Ok(res)
+}

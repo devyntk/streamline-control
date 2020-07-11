@@ -5,15 +5,9 @@ authors = ["bkeeneykid <bkeeneykid@me.com>"]
 edition = "2018"
 description = "An event management system for FIRST Tech Challenge Events"
 
-build = "src/build.rs"
-
 [package.metadata.bundle]
 name = "Streamline Control"
 identifier = "com.github.streamline-control"
-
-[build-dependencies]
-cargo-bundle = "0.4"
-ructe = {version = "0.11", features = ["warp02", "sass"]}
 
 [dependencies]
 druid = "0.6"
@@ -22,6 +16,8 @@ async-std = "1.6"
 warp = "0.2"
 diesel = { version = "1.4", features = ["sqlite"] }
 
+rust-embed="5.5"
+mime_guess = "2"
 self_update = "0.16"
 webbrowser = "0.5"
 diesel_migrations = "1.4"
