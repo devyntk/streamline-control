@@ -1,11 +1,16 @@
 language: rust
+cache: cargo
 jobs:
   - os: linux
     dist: bionic
-    before_install: sudo apt update && sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-dev
-      libgtk-3-dev -y && cargo install cargo-make
+    before_install:
+      - sudo apt update
+      - sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-dev libgtk-3-dev -y
+      - which cargo-make || cargo install cargo-make
   - os: osx
-    before_install: cargo install cargo-make
+    before_install:
+      - which cargo-make || cargo install cargo-make
+      - which cargo-bundle || cargo install cargo-bundle
     script: cargo make package
     after_success: mv "target/release/bundle/osx/Streamline Control.app" . && zip -r streamline-control-mac.zip "Streamline Control.app"
 script: cargo make build_release

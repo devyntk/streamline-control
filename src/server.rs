@@ -72,7 +72,7 @@ pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
 struct Asset;
 
 #[derive(RustEmbed)]
-#[folder = "frontend/pkg/"]
+#[folder = "frontend/dist/"]
 struct Dist;
 
 async fn dist_serve(path: Tail) -> Result<impl Reply, Rejection> {

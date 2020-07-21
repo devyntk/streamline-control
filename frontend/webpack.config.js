@@ -1,7 +1,7 @@
 const path = require("path");
 const WasmPackPlugin = require("@wasm-tool/wasm-pack-plugin");
 
-const dist = path.resolve(__dirname, "dist");
+const dist = path.resolve("dist");
 
 module.exports = {
     mode: "production",
@@ -9,15 +9,13 @@ module.exports = {
         index: "./js/index.js"
     },
     output: {
+        publicPath: '/dist/',
         path: dist,
         filename: "[name].js"
     },
-    devServer: {
-        contentBase: dist,
-    },
     plugins: [
         new WasmPackPlugin({
-            crateDirectory: __dirname,
+            crateDirectory: path.resolve(__dirname, ".")
         }),
     ]
 };
