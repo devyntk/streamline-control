@@ -4,6 +4,7 @@ environment:
 install: 
   - curl --url https://win.rustup.rs/x86_64 --output rustup-init.exe
   - rustup-init -y -t wasm32-unknown-unknown --default-toolchain stable-x86_64-pc-windows-msvc
+  - ps: Install-Product node $env:nodejs_version
   - choco install yarn
   - RefreshEnv
   - cargo install cargo-make
