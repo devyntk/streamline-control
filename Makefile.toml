@@ -10,7 +10,11 @@ dependencies = ["build_frontend"]
 
 [tasks.update_yarn]
 description = "Run initial yarn update/inistall"
-command = "yarn install"
+script = [
+'''
+cd frontend
+yarn install
+''']
 
 [tasks.build_frontend]
 description = "Build with wasm-pack"
