@@ -4,6 +4,8 @@ install:
   - rustup-init -y -t wasm32-unknown-unknown --default-toolchain stable-x86_64-pc-windows-msvc
   - RefreshEnv
   - cargo install cargo-make
+  - nvm install 10
+  - nvm use 10
 build_script: cargo make build_release
 
 deploy:
