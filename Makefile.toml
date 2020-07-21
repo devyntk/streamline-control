@@ -14,7 +14,7 @@ script_runner = "@shell"
 script = [
 '''
 cd frontend
-npm run build
+yarn run build
 ''']
 
 [tasks.build_release]
@@ -28,7 +28,7 @@ script_runner = "@shell"
 script = [
 '''
 cd frontend
-npm run build
+yarn run build
 ''']
 
 [tasks.package]
