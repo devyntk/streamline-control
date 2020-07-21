@@ -8,6 +8,7 @@ jobs:
     before_install:
       - sudo apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg
       - echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+      - curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
       - sudo apt update
       - sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-dev libgtk-3-dev nodejs-dev node-gyp libssl1.0-dev -y
       - sudo apt install npm -y
@@ -37,3 +38,4 @@ addons:
   homebrew:
     packages:
     - yarn
+    update: true
