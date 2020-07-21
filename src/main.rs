@@ -9,7 +9,7 @@ mod gui;
 mod update;
 mod server;
 
-const APP_INFO: AppInfo = AppInfo{name: "Streamline Control", author: "bkeeneykid"};
+pub const APP_INFO: AppInfo = AppInfo{name: "Streamline Control", author: "bkeeneykid"};
 
 fn main() {
 

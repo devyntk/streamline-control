@@ -10,9 +10,12 @@ dependencies = ["build_frontend"]
 
 [tasks.build_frontend]
 description = "Build with wasm-pack"
-install_crate = { crate_name = "wasm-pack", binary = "wasm-pack", test_arg = "-V" }
-command = "wasm-pack"
-args = ["build", "--target", "web", "--out-name", "package", "--dev", "frontend/"]
+script_runner = "@shell"
+script = [
+'''
+cd frontend
+npm run build
+''']
 
 [tasks.build_release]
 command = "cargo"
@@ -21,9 +24,12 @@ dependencies = ["build_frontend_release"]
 
 [tasks.build_frontend_release]
 description = "Build with wasm-pack"
-install_crate = { crate_name = "wasm-pack", binary = "wasm-pack", test_arg = "-V" }
-command = "wasm-pack"
-args = ["build", "--target", "web", "--out-name", "package", "frontend/"]
+script_runner = "@shell"
+script = [
+'''
+cd frontend
+npm run build
+''']
 
 [tasks.package]
 description = "Package for release using cargo-bundle"
