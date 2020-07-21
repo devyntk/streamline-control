@@ -8,6 +8,10 @@ command = "cargo"
 args = ["build"]
 dependencies = ["build_frontend"]
 
+[tasks.update_yarn]
+description = "Run initial yarn update/inistall"
+command = "yarn"
+
 [tasks.build_frontend]
 description = "Build with wasm-pack"
 script_runner = "@shell"
@@ -16,6 +20,7 @@ script = [
 cd frontend
 yarn run build
 ''']
+dependencies = ["update_yarn"]
 
 [tasks.build_release]
 command = "cargo"
@@ -30,6 +35,7 @@ script = [
 cd frontend
 yarn run build
 ''']
+dependencies = ["update_yarn"]
 
 [tasks.package]
 description = "Package for release using cargo-bundle"
