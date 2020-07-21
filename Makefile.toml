@@ -14,7 +14,6 @@ command = "yarn install"
 
 [tasks.build_frontend]
 description = "Build with wasm-pack"
-script_runner = "@shell"
 script = [
 '''
 cd frontend
@@ -29,7 +28,6 @@ dependencies = ["build_frontend_release"]
 
 [tasks.build_frontend_release]
 description = "Build with wasm-pack"
-script_runner = "@shell"
 script = [
 '''
 cd frontend
