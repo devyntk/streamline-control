@@ -1,32 +1,8 @@
 # Streamline-Control
 
-This is the main app developed for the StreamlineOS project, a project centered around automatic running of 
-[FIRST Tech Challenge](https://www.firstinspires.org/robotics/ftc) events. Written using GTK and PyGObject, it's designed to
-work on Ubuntu, however will most likely work on other Linux distributions and Windows & macOS.
+[![Build Status](https://travis-ci.com/bkeeneykid/streamline-control.svg?branch=rust)](https://travis-ci.com/bkeeneykid/streamline-control) [![Build status](https://ci.appveyor.com/api/projects/status/vylmh5r4xser5psh?svg=true)](https://ci.appveyor.com/project/bkeeneykid/streamline-control) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/bkeeneykid/streamline-control) [![GitHub license](https://img.shields.io/github/license/bkeeneykid/streamline-control)](https://github.com/bkeeneykid/streamline-control/blob/rust/LICENSE)
 
-# Running Streamline-Control
-
-Streamline-Control is a python package, meaning that you can launch it with the following syntax:
-
-    python -m streamline
-    
-Make sure you've installed the requirements with `pip -Ur requirements.txt` before running the software. Everything else
-should either auto install itself on the client PC or will tell you need it installed (like OBS). You may need to install additional
-system packages for GTK, such as Cairo. 
-
-# Remote Config Files
-
-The majority of the way Streamline works is to pull from a online config file for that week's event and automatically
-configure everything in the system based off of that online config file. The local config file (config.json) specifies 
-the online URL for this remote config file, as well as any authentication for it. This config file contains several
-important keys that need to be kept secret, such as your twitch streaming key, your TOA DataSync key, and potentially more.
-As such, it's recommended you configure your webserver to require a user and pass to access this file, which is supported
-in config.json. During testing, you can also point it to a local file.
-
-An example remote config file is included in the repository as `remote_config_examples/event.json`.
-
-To configure Streamline-Control for pulling remote files, change the `type` value in `config.json` to `"url"` and fill out the
-URL and auth parameters.
+Streamline Control is designed to be the perfect companion for your FIRST Tech Challenge event. Manage Spotify, OBS, and more. 
 
 # License
 
