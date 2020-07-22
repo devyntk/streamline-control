@@ -1,10 +1,16 @@
 language: rust
 cache: 
-  - cargo
-  - yarn
+  directories:
+    - $HOME/Library/Caches/Homebrew
+    - $HOME/.cache/yarn
+    - $HOME/.cargo
+    - $TRAVIS_BUILD_DIR/target
+    - $TRAVIS_BUILD_DIR/frontend/target
+    - $TRAVIS_BUILD_DIR/frontend/node_modules
+before_cache:
+  - brew cleanup
 env:
   global:
-  - NVS_VERSION=1.2.0
   - NODEJS_VERSION=10
 jobs:
   - os: linux
@@ -15,17 +21,12 @@ jobs:
       - curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
       - sudo apt update
       - sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-dev libgtk-3-dev nodejs libssl1.0-dev -y
-      - export NVS_HOME="$HOME/.nvs"
-      - git clone --branch v$NVS_VERSION --depth 1 https://github.com/jasongin/nvs ~/.nvs
-      - . ~/.nvs/nvs.sh
-      - nvs --version
-      - nvs add $NODEJS_VERSION
-      - nvs use $NODEJS_VERSION
+      - nvm install $NODEJS_VERSION
+      - nvm use $NODEJS_VERSION
       - which cargo-make || cargo install cargo-make
   - os: osx
     before_install:
       - which cargo-make || cargo install cargo-make
-      - which cargo-bundle || cargo install cargo-bundle
       - nvm install $NODEJS_VERSION
       - nvm use $NODEJS_VERSION
     script: cargo make package
