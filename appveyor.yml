@@ -24,6 +24,6 @@ cache:
   - C:\ProgramData\chocolatey\bin -> appveyor.yml
   - C:\ProgramData\chocolatey\lib -> appveyor.yml
   - frontend/node_modules                        # local npm modules
-  - %USERPROFILE%\.cargo
+  - '%USERPROFILE%\.cargo'
   - target
   - frontend/target
