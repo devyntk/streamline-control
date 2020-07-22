@@ -11,8 +11,9 @@ jobs:
       - curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
       - sudo apt update
       - sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-dev libgtk-3-dev nodejs libssl1.0-dev -y
-      - git clone --branch v$NVS_VERSION --depth 1 https://github.com/jasongin/nvs ~/.nvs
-      - . ~/.nvs/nvs.sh
+      - export NVS_HOME="$HOME/.nvs"
+      - git clone https://github.com/jasongin/nvs "$NVS_HOME"
+      - . "$NVS_HOME/nvs.sh" install
       - nvs install 10
       - nvs use 10
       - which cargo-make || cargo install cargo-make
