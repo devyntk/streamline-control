@@ -3,7 +3,9 @@ install:
   - rustup-init -y -t wasm32-unknown-unknown --default-toolchain stable-x86_64-pc-windows-msvc
   - choco install yarn nodejs
   - RefreshEnv
-  - cargo install cargo-make
+  - cargo install cargo-make  
+  - rustup target add wasm32-unknown-unknown
+  - cargo install wasm-bindgen-cli
 build_script: cargo make build_release
 
 deploy:
