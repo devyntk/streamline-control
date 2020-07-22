@@ -19,3 +19,11 @@ deploy:
 artifacts:
   - path: "target/release/streamline-control.exe"
     name: "StreamlineControl"
+
+cache: 
+  - C:\ProgramData\chocolatey\bin -> appveyor.yml
+  - C:\ProgramData\chocolatey\lib -> appveyor.yml
+  - frontend/node_modules                        # local npm modules
+  - $HOME/.cargo
+  - target
+  - frontend/target
