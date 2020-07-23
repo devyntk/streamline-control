@@ -16,9 +16,11 @@ druid = "0.6"
 tokio = { version = "0.2", features = ["macros", "sync", "rt-core"] }
 async-std = "1.6"
 warp = "0.2"
-sqlx = { version = "0.3.5", default-features = false, features = [ "runtime-tokio", "macros" , "sqlite"] }
+# sqlx version 0.3.5 is broken with refinery, re-enable once they update the rusqlite dependency
+#sqlx = { version = "0.3.5", default-features = false, features = [ "runtime-tokio", "macros" , "sqlite"] }
 
-refinery = { version = "0.2.1", features = ["rusqlite"]}
+refinery = { version = "0.3", features = ["rusqlite"] }
+rusqlite = "0.23.1"
 rust-embed="5.5"
 mime_guess = "2"
 self_update = "0.16"

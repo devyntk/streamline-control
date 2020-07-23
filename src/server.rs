@@ -5,14 +5,15 @@ use crate::gui::{SERVER_START, UPDATE_STATUS};
 use port_scanner::local_ports_available;
 use warp::http::{Response, header::HeaderValue};
 use rust_embed::RustEmbed;
-use refinery::{Config, ConfigDbType, embed_migrations, migrate_from_config};
 use app_dirs2::{app_root, AppDataType};
+use rusqlite::Connection;
 use crate::APP_INFO;
 
 mod embedded {
     use refinery::embed_migrations;
     embed_migrations!();
 }
+
 #[tokio::main]
 pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
 
@@ -20,9 +21,8 @@ pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
         .expect("Unable to get DB location");
     db_url.push("streamline.db");
 
-    let mut db_config = Config::new(ConfigDbType::Sqlite)
-        .set_db_path(db_url.as_os_str().to_str().expect("Unable to parse DB string"));
-    // migrate_from_config(&db_config, false, true, true, migrations::runner);
+    let mut db_config = Connection::open(db_url).expect("Unable to open database");
+    embedded::migrations::runner().run(&mut db_config).expect("Unable to migrate DB");
 
     // GET /hello/warp => 200 OK with body "Hello,include!(concat!(env!("OUT_DIR"), "/templates.rs")); warp!"
     let static_route = path("static").and(path::tail()).and_then(static_serve);
