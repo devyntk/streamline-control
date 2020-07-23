@@ -41,7 +41,7 @@ dependencies = ["update_yarn"]
 
 [tasks.package]
 description = "Package for release using cargo-bundle"
-install_crate = { crate_name = "cargo-bundle", binary = "cargo bundle", test_arg = "-h" }
+install_crate = { crate_name = "cargo-bundle", binary = "cargo-bundle", test_arg = "-h" }
 command = "cargo"
 args = ["bundle", "--release"]
 dependencies = ["build_frontend_release"]
