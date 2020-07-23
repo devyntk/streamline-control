@@ -2,6 +2,7 @@
   "author": "Devin Keeney <bkeeneykid@me.com>",
   "name": "streamline-control",
   "version": "0.1.0",
+  "license": "MIT",
   "scripts": {
     "build": "rimraf dist pkg && webpack",
     "test": "cargo test && wasm-pack test --headless",

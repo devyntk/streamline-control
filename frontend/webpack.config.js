@@ -17,5 +17,9 @@ module.exports = {
         new WasmPackPlugin({
             crateDirectory: path.resolve(__dirname, ".")
         }),
-    ]
+    ],
+    performance: {
+        // Don't break compilation because of WASM file bigger than 244 KB.
+        hints: false
+    },
 };
