@@ -27,6 +27,7 @@ jobs:
   - os: osx
     before_install:
       - which cargo-make || cargo install cargo-make
+      - curl -o- -L https://yarnpkg.com/install.sh | bash
       - nvm install $NODEJS_VERSION
       - nvm use $NODEJS_VERSION
     script: cargo make package
@@ -45,9 +46,3 @@ deploy:
     repo: bkeeneykid/streamline-control
     tags: true
   skip_cleanup: 'true'
-addons:
-  homebrew:
-    packages:
-    - yarn
-    - nvm
-    update: true
