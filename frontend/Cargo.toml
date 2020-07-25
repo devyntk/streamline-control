@@ -3,6 +3,9 @@ name = "frontend"
 version = "0.1.0"
 authors = ["bkeeneykid <bkeeneykid@me.com>"]
 edition = "2018"
+description = "Front end web crate for Streamline-Control"
+license = "MIT"
+repository = "https://github.com/bkeeneykid/streamline-control/"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

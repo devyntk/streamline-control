@@ -4,6 +4,8 @@ version = "0.0.13"
 authors = ["bkeeneykid <bkeeneykid@me.com>"]
 edition = "2018"
 description = "An event management system for FIRST Tech Challenge Events"
+license = "MIT"
+repository = "https://github.com/bkeeneykid/streamline-control/"
 
 [package.metadata.bundle]
 name = "Streamline Control"
