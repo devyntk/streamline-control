@@ -16,8 +16,6 @@ crate-type = ["cdylib"]
 wasm-bindgen-test = "0.3.13"
 
 [dependencies]
-# This commit points to Seed 0.7.0 with important fixes.
-# Replace with `seed = "0.8.0"` (or newer) once released.
 seed = { version = "0.7" }
 
 shared = { path = "../shared" }
