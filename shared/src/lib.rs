@@ -1,7 +1,10 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize)]
+#[allow(dead_code)]
+pub struct LoggedUser {
+    id: usize,
+    email: String,
+    username: String,
+    token: String,
 }
