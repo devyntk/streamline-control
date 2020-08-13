@@ -1,14 +1,37 @@
 language: rust
+cache: 
+  directories:
+    - $HOME/Library/Caches/Homebrew
+    - $HOME/.cache/yarn
+    - $HOME/.cargo
+    - $TRAVIS_BUILD_DIR/target
+    - $TRAVIS_BUILD_DIR/frontend/target
+    - $TRAVIS_BUILD_DIR/frontend/node_modules
+env:
+  global:
+  - NODEJS_VERSION=10
 jobs:
   - os: linux
     dist: bionic
-    before_install: sudo apt update && sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-dev
-      libgtk-3-dev -y
+    before_install:
+      - sudo apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg
+      - echo "deb http://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+      - curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+      - sudo apt update
+      - sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-dev libgtk-3-dev nodejs libssl1.0-dev -y
+      - nvm install $NODEJS_VERSION
+      - nvm use $NODEJS_VERSION
+      - which cargo-make || cargo install cargo-make
   - os: osx
-    before_install: cargo install cargo-bundle
-    script: cargo bundle --release
+    before_install:
+      - which cargo-make || cargo install cargo-make
+      - curl -o- -L https://yarnpkg.com/install.sh | bash
+      - export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+      - nvm install $NODEJS_VERSION
+      - nvm use $NODEJS_VERSION
+    script: cargo make package
     after_success: mv "target/release/bundle/osx/Streamline Control.app" . && zip -r streamline-control-mac.zip "Streamline Control.app"
-script: cargo build --release
+script: cargo make build_release
 after_success: mv target/release/streamline-control "target/release/streamline-control-$TRAVIS_OS_NAME"
 deploy:
   provider: releases

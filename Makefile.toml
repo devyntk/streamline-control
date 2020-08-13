@@ -1,0 +1,50 @@
+[config]
+default_to_workspace = false
+
+[tasks.run]
+command = "cargo"
+args = ["run"]
+dependencies = ["build_frontend"]
+
+[tasks.build]
+command = "cargo"
+args = ["build"]
+dependencies = ["build_frontend"]
+
+[tasks.update_yarn]
+description = "Run initial yarn update/inistall"
+script = [
+'''
+cd frontend
+yarn install
+''']
+
+[tasks.build_frontend]
+description = "Build with wasm-pack"
+script = [
+'''
+cd frontend
+yarn run build
+''']
+dependencies = ["update_yarn"]
+
+[tasks.build_release]
+command = "cargo"
+args = ["build", "--release"]
+dependencies = ["build_frontend_release"]
+
+[tasks.build_frontend_release]
+description = "Build with wasm-pack"
+script = [
+'''
+cd frontend
+yarn run build
+''']
+dependencies = ["update_yarn"]
+
+[tasks.package]
+description = "Package for release using cargo-bundle"
+install_crate = { crate_name = "cargo-bundle", binary = "cargo-bundle", test_arg = "-h" }
+command = "cargo"
+args = ["bundle", "--release"]
+dependencies = ["build_frontend_release"]

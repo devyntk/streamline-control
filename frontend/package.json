@@ -1,0 +1,20 @@
+{
+  "author": "Devin Keeney <bkeeneykid@me.com>",
+  "name": "streamline-control",
+  "version": "0.1.0",
+  "license": "MIT",
+  "scripts": {
+    "build": "rimraf dist pkg && webpack",
+    "test": "cargo test && wasm-pack test --headless",
+    "generate:css_classes": "webpack --config webpack.css_classes.config --mode=development"
+  },
+  "devDependencies": {
+    "@wasm-tool/wasm-pack-plugin": "^1.1.0",
+    "copy-webpack-plugin": "^5.0.3",
+    "rimraf": "^3.0.0",
+    "tailwindcss": "^1.4.6",
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.7.1"
+  }
+}
