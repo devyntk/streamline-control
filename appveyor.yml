@@ -3,7 +3,7 @@ install:
   - rustup-init -y -t wasm32-unknown-unknown --default-toolchain stable-x86_64-pc-windows-msvc
   - choco install yarn nodejs
   - RefreshEnv
-  - curl %bonjour_download% -o bonjoursetupsdk.exe
+  - curl %BONJOURDOWN% -o bonjoursetupsdk.exe
   - bonjoursdksetup.exe /passive
   - cargo install cargo-make  
   - cargo install wasm-pack
@@ -32,6 +32,6 @@ cache:
 
 
 environment:
-  bonjour_download:
+  BONJOURDOWN:
     secure: FGUW+24q1dSEZfsrV0p8QFADfnmfH2db1+kG6qsTUSL81iK8ihmnqLHc9wcMG1ISRKwsE5GuXZ46py67MXbxBWZCdQcT61NZgg9yuN6hjfZKdUOCXq1/0DddggvLxOrLCJPQmmpevOs+lOTCJW5pDg==
 
