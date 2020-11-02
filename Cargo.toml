@@ -39,7 +39,6 @@ simple_logger = "1.6.0"
 mime = "0.3.0"
 webbrowser = "0.5.4"
 cargo-bundle = "0.4.0"
-astro-dnssd = "0.1.3"
 
 [dependencies.rusqlite]
 version = "0.23"
