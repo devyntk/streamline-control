@@ -30,3 +30,5 @@ cache:
 image: Visual Studio 2019
 # build_cloud: TRAVIS-WINVM
 # image: Windows
+environment:
+  nodejs_version: "Current"
