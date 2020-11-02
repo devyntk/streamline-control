@@ -21,10 +21,12 @@ artifacts:
     name: "StreamlineControl"
 
 cache: 
-  # - frontend/node_modules                        # local npm modules
-  # - '%LOCALAPPDATA%\Yarn'
-  # - '%USERPROFILE%\.cargo'
-  # - target
-  # - frontend/target
+   - frontend/node_modules                        # local npm modules
+   - '%LOCALAPPDATA%\Yarn'
+   - '%USERPROFILE%\.cargo'
+   - target
+   - frontend/target
+
+image: Visual Studio 2019
 # build_cloud: TRAVIS-WINVM
 # image: Windows
