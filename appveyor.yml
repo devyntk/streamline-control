@@ -1,10 +1,10 @@
-#install: 
-#  - curl --url https://win.rustup.rs/x86_64 --output rustup-init.exe
-#  - rustup-init -y -t wasm32-unknown-unknown --default-toolchain stable-x86_64-pc-windows-msvc
-#  - choco install yarn nodejs
-#  - RefreshEnv
-#  - cargo install cargo-make  
-#  - cargo install wasm-pack
+install:
+  - curl --url https://win.rustup.rs/x86_64 --output rustup-init.exe
+  - rustup-init -y -t wasm32-unknown-unknown --default-toolchain stable-x86_64-pc-windows-msvc
+  - choco install yarn nodejs
+  - RefreshEnv
+  - cargo install cargo-make
+  - cargo install wasm-pack
 build_script: cargo make build_release
 
 deploy:
@@ -26,5 +26,5 @@ cache:
   - '%USERPROFILE%\.cargo'
   - target
   - frontend/target
-build_cloud: TRAVIS-WINVM
-image: Windows
+# build_cloud: TRAVIS-WINVM
+# image: Windows
