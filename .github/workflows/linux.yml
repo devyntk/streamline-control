@@ -14,7 +14,8 @@ jobs:
               sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-dev libgtk-3-dev libssl1.0-dev -y
               which cargo-make || cargo install cargo-make
 
+      - name: Build frontend
+        run: cargo make build_frontend_release
+
       - name: Build
-        run: |
-          cargo build --verbose
-          cargo make build_release
+        run: cargo make build_release
