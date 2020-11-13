@@ -1,0 +1,47 @@
+name: Build
+
+on: [ push, pull_request ]
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+              sudo apt update
+              sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-dev libgtk-3-dev libssl1.0-dev -y
+              which cargo-make || cargo install cargo-make
+              cargo install wasm-pack
+
+      - name: Build
+        run: cargo make build_release
+        
+  mac:
+    runs-on: macos-latest
+      steps:
+          - uses: actions/checkout@v2
+
+            - name: Install
+              run: which cargo-make || cargo install cargo-make
+
+            - name: Build
+              run: cargo make package
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          curl --url https://win.rustup.rs/x86_64 --output rustup-init.exe
+          .\rustup-init.exe -y -t wasm32-unknown-unknown --default-toolchain stable-x86_64-pc-windows-msvc
+          RefreshEnv
+          cargo install cargo-make
+          cargo install wasm-pack
+
+      - name: Build release
+        run: cargo make build_release
+
