@@ -1,0 +1,15 @@
+name: Mac
+
+on: [ push, pull_request ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install
+        run: which cargo-make || cargo install cargo-make
+
+      - name: Build
+        run: cargo make package
