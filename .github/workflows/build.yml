@@ -23,11 +23,11 @@ jobs:
     steps:
         - uses: actions/checkout@v2
 
-          - name: Install
-            run: which cargo-make || cargo install cargo-make
+        - name: Install
+          run: which cargo-make || cargo install cargo-make
 
-          - name: Build
-            run: cargo make package
+        - name: Build
+          run: cargo make package
 
   windows:
     runs-on: windows-latest
