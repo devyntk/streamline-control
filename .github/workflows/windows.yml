@@ -11,7 +11,7 @@ jobs:
       - name: Install dependencies
         run: |
           curl --url https://win.rustup.rs/x86_64 --output rustup-init.exe
-          rustup-init -y -t wasm32-unknown-unknown --default-toolchain stable-x86_64-pc-windows-msvc
+          .\rustup-init.exe -y -t wasm32-unknown-unknown --default-toolchain stable-x86_64-pc-windows-msvc
           RefreshEnv
           cargo install cargo-make
           cargo install wasm-pack
