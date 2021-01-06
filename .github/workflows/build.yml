@@ -12,12 +12,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Cargo Cache
-        uses: actions/cache@v2
-        with:
-          path: |
-                ~/.cargo/
-                target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        uses: Swatinem/rust-cache@v1
 
       - name: Yarn Cache
         uses: actions/cache@v2
@@ -74,12 +69,7 @@ jobs:
         - uses: actions/checkout@v2
 
         - name: Cargo Cache
-          uses: actions/cache@v2
-          with:
-            path: |
-                  ~/.cargo/
-                  target
-            key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          uses: Swatinem/rust-cache@v1
 
         - name: Yarn Cache
           uses: actions/cache@v2
@@ -105,7 +95,7 @@ jobs:
             use-tool-cache: true
 
         - name: Build
-          run: cargo make build_release
+          run: cargo make package
 
         - name: Zip App
           run: mv "target/release/bundle/osx/Streamline Control.app" . && zip -r streamline-control-mac.zip "Streamline Control.app"
@@ -140,12 +130,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Cargo Cache
-        uses: actions/cache@v2
-        with:
-          path: |
-                ~/.cargo/
-                target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        uses: Swatinem/rust-cache@v1
 
       - name: Yarn Cache
         uses: actions/cache@v2
