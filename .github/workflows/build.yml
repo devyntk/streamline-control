@@ -24,7 +24,7 @@ jobs:
         with:
           path: |
             frontend/node_modules
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/frontend/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/frontend/yarn.lock') }}
 
       - name: Install dependencies
         run: |
@@ -82,12 +82,15 @@ jobs:
               target
             key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
+        - name: Clear Target (testing)
+          run: rm -rf target
+
         - name: Yarn Cache
           uses: actions/cache@v2
           with:
             path: |
               frontend/node_modules
-            key: ${{ runner.os }}-cargo-${{ hashFiles('**/frontend/yarn.lock') }}
+            key: ${{ runner.os }}-yarn-${{ hashFiles('**/frontend/yarn.lock') }}
 
         - name: Install Cargo-Make
           uses: davidB/rust-cargo-make@v1
@@ -147,7 +150,7 @@ jobs:
         with:
           path: |
             frontend/node_modules
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/frontend/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/frontend/yarn.lock') }}
 
       - name: Install dependencies
         run: |
