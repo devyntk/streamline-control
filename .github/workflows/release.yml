@@ -11,11 +11,11 @@ jobs:
       - uses: actions/checkout@v2
 
       - uses: actions/cache@v2
-      with:
-        path: |
-          ~/.cargo/
-          target
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        with:
+          path: |
+            ~/.cargo/
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install dependencies
         run: |
