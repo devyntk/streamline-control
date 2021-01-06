@@ -25,10 +25,24 @@ jobs:
       - name: Build
         run: cargo make build_release
 
+      - name: Upload binary
+        uses: actions/upload-artifact@v2
+        with:
+          asset_path: target/release/streamline-control
+          asset_name: streamline-control-linux
+
+
   mac:
     runs-on: macos-latest
     steps:
         - uses: actions/checkout@v2
+
+        - uses: actions/cache@v2
+          with:
+            path: |
+              ~/.cargo/
+              target
+            key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
         - name: Install
           run: which cargo-make || cargo install cargo-make
@@ -36,10 +50,26 @@ jobs:
         - name: Build
           run: cargo make package
 
+        - name: Zip App
+          run: mv "target/release/bundle/osx/Streamline Control.app" . && zip -r streamline-control-mac.zip "Streamline Control.app"
+
+        - name: Upload binary
+          uses: actions/upload-artifact@v2
+          with:
+            asset_path: streamline-control-mac.zip
+            asset_name: streamline-control-mac.zip
+
   windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install dependencies
         run: |
@@ -52,3 +82,8 @@ jobs:
       - name: Build release
         run: cargo make build_release
 
+      - name: Upload binary
+        uses: actions/upload-artifact@v2
+        with:
+          asset_path: target/release/streamline-control.exe
+          asset_name: streamline-control.exe
