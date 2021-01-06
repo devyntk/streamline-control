@@ -5,7 +5,6 @@ authors = ["bkeeneykid <bkeeneykid@me.com>"]
 edition = "2018"
 description = "Front end web crate for Streamline-Control"
 license = "MIT"
-license-file = "../LICENSE"
 repository = "https://github.com/bkeeneykid/streamline-control/"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

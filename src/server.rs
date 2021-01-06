@@ -1,5 +1,5 @@
 use warp::{Filter, path, Reply, Rejection, http::Uri, path::Tail};
-use druid::ExtEventSink;
+use druid::{ExtEventSink, Target};
 use tokio::sync::oneshot::Receiver;
 use crate::gui::{SERVER_START, UPDATE_STATUS};
 use port_scanner::local_ports_available;
@@ -52,11 +52,11 @@ pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
     match server_result {
         Ok((addr, future)) => {
             server_handle = Some(tokio::task::spawn(future));
-            sink.submit_command(SERVER_START, addr, None)
+            sink.submit_command(SERVER_START, addr, Target::Auto)
                 .expect("Error sending GUI update");
         }
         Err(error) => {
-            sink.submit_command(UPDATE_STATUS, error.to_string(), None)
+            sink.submit_command(UPDATE_STATUS, error.to_string(), Target::Auto)
                 .expect("Error sending GUI update");
             return;
         }

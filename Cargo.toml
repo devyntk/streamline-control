@@ -20,15 +20,15 @@ identifier = "com.github.streamline-control"
 [dependencies]
 shared = { path = "shared" }
 
-druid = "0.6"
+druid = "0.7"
 tokio = { version = "0.2", features = ["macros", "sync", "rt-threaded"] }
 async-std = "1.6"
 warp = "0.2"
 # sqlx version 0.3.5 is broken with refinery, re-enable once they update the rusqlite dependency
 #sqlx = { version = "0.3.5", default-features = false, features = [ "runtime-tokio", "macros" , "sqlite"] }
 
-refinery = { version = "0.3", features = ["rusqlite"] }
-rust-embed="5.5"
+refinery = { version = "0.5", features = ["rusqlite"] }
+rust-embed="5.7"
 mime_guess = "2"
 self_update = "0.16"
 webbrowser = "0.5"
@@ -38,7 +38,8 @@ flexi_logger = "0.15"
 log = "0.4"
 simple_logger = "1.6.0"
 mime = "0.3.0"
+syn = "=1.0.57" # temporary pin so rust-embed can compile
 
 [dependencies.rusqlite]
-version = "0.23"
+version = "0.24"
 features = ["bundled"]

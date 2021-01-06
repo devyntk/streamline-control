@@ -1,9 +1,6 @@
 use druid::commands::{CLOSE_WINDOW, QUIT_APP};
 use druid::widget::{Button, Flex, Label};
-use druid::{
-    AppDelegate, AppLauncher, Command, Data, DelegateCtx, Env, ExtEventSink, Lens, Selector,
-    Target, Widget, WidgetExt, WindowDesc, WindowId,
-};
+use druid::{AppDelegate, AppLauncher, Command, Data, DelegateCtx, Env, ExtEventSink, Lens, Selector, Target, Widget, WidgetExt, WindowDesc, WindowId, Handled};
 
 use crate::update::{do_update, fetch_is_new, ReleaseStatus};
 use crate::server::start_server;
@@ -77,18 +74,18 @@ fn ui_builder() -> impl Widget<GUIState> {
         Button::new("Quit")
             .padding(5.0)
             .on_click(|ctx, _data: &mut GUIState, _env| {
-                let cmd = Command::new(OPEN_QUIT_CONFIRM, ());
-                ctx.submit_command(cmd, None);
+                let cmd = Command::new(OPEN_QUIT_CONFIRM, (), Target::Auto);
+                ctx.submit_command(cmd);
             });
 
     let check_button = Button::new(|data: &GUIState, _env: &Env| data.update_button.to_string())
         .on_click(|ctx, data: &mut GUIState, _env| {
             if data.found_update {
-                let cmd = Command::new(START_DO_UPDATE, ());
-                ctx.submit_command(cmd, None);
+                let cmd = Command::new(START_DO_UPDATE, (), Target::Auto);
+                ctx.submit_command(cmd);
             } else {
-                let cmd = Command::new(START_UPDATE_CHECK, ());
-                ctx.submit_command(cmd, None);
+                let cmd = Command::new(START_UPDATE_CHECK, (), Target::Auto);
+                ctx.submit_command(cmd);
             }
         })
         .padding(5.0);
@@ -127,7 +124,7 @@ impl AppDelegate<GUIState> for Delegate {
         cmd: &Command,
         data: &mut GUIState,
         _env: &Env,
-    ) -> bool {
+    ) -> Handled {
         debug!("{:?}, {:?}", cmd, target);
         if cmd.is(START_UPDATE_CHECK) {
             data.feedback = "Checking For Updates...".into();
@@ -148,20 +145,20 @@ impl AppDelegate<GUIState> for Delegate {
         } else if cmd.is(OPEN_QUIT_CONFIRM) {
             let tx = self.shutdown_signal.take();
             tx.unwrap().send(()).expect("Error when sending shutdown signal");
-            let new_cmd = Command::new(QUIT_APP, ());
-            ctx.submit_command(new_cmd, None);
+            let new_cmd = Command::new(QUIT_APP, (), Target::Auto);
+            ctx.submit_command(new_cmd);
         } else if let Some(addr) = cmd.get(SERVER_START) {
             data.status = format!("Server started on port {}", addr.port());
             data.url = Some(format!("http://localhost:{}/", addr.port()));
         } else if cmd.is(CLOSE_WINDOW) {
             // TODO: This doesn't work. Try a workaround later.
             if Target::Window(self.main_window) == target {
-                let new_cmd = Command::new(OPEN_QUIT_CONFIRM, ());
-                ctx.submit_command(new_cmd, None);
-                return false;
+                let new_cmd = Command::new(OPEN_QUIT_CONFIRM, (), Target::Auto);
+                ctx.submit_command(new_cmd);
+                return Handled::No;
             }
         }
-        true
+        return Handled::Yes;
     }
 
 }
@@ -169,11 +166,11 @@ fn check_updates(sink: ExtEventSink) {
     thread::spawn(move || {
         let up_to_date = fetch_is_new();
         match up_to_date {
-            Ok(ReleaseStatus::UpToDate) => sink.submit_command(NO_UPDATE, (), None),
+            Ok(ReleaseStatus::UpToDate) => sink.submit_command(NO_UPDATE, (), Target::Auto),
             Ok(ReleaseStatus::NewVersion(release)) => {
-                sink.submit_command(UPDATE_FOUND, release.version, None)
+                sink.submit_command(UPDATE_FOUND, release.version, Target::Auto)
             }
-            Err(err) => sink.submit_command(UPDATE_ERROR, err.to_string(), None),
+            Err(err) => sink.submit_command(UPDATE_ERROR, err.to_string(), Target::Auto),
         }
     });
 }
@@ -182,8 +179,8 @@ fn wrapped_do_update(sink: ExtEventSink) {
     thread::spawn(move || {
         let has_updated = do_update();
         match has_updated {
-            Ok(()) => sink.submit_command(UPDATE_FINISHED, (), None),
-            Err(err) => sink.submit_command(UPDATE_ERROR, err.to_string(), None),
+            Ok(()) => sink.submit_command(UPDATE_FINISHED, (), Target::Auto),
+            Err(err) => sink.submit_command(UPDATE_ERROR, err.to_string(), Target::Auto),
         }
     });
 }
