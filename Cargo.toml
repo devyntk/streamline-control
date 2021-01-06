@@ -31,7 +31,7 @@ refinery = { version = "0.5", features = ["rusqlite"] }
 rust-embed="5.7"
 mime_guess = "2"
 self_update = "0.16"
-webbrowser = "0.5"
+webbrowser = "0.5.4"
 port_scanner = "0.1"
 app_dirs2 = "2"
 flexi_logger = "0.15"

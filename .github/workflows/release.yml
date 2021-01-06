@@ -1,0 +1,102 @@
+name: Build and Release
+
+on:
+  release:
+    types: created
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+              sudo apt update
+              sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-dev libgtk-3-dev libssl1.0-dev -y
+              which cargo-make || cargo install cargo-make
+              cargo install wasm-pack
+
+      - name: Build
+        run: cargo make build_release
+
+      - name: Rename binary
+        run: mv target/release/streamline-control "target/release/streamline-control-linux"
+
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: target/release/streamline-control-linux
+          asset_name: streamline-control-linux
+          asset_content_type: application/octet-stream
+
+  mac:
+    runs-on: macos-latest
+    steps:
+        - uses: actions/checkout@v2
+
+        - name: Install
+          run: which cargo-make || cargo install cargo-make
+
+        - name: Build
+          run: cargo make package
+
+        - name: Zip App
+          run: mv "target/release/bundle/osx/Streamline Control.app" . && zip -r streamline-control-mac.zip "Streamline Control.app"
+
+        - name: Get release
+          id: get_release
+          uses: bruceadams/get-release@v1.2.2
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        - name: Upload Release Asset
+          uses: actions/upload-release-asset@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ steps.get_release.outputs.upload_url }}
+            asset_path: streamline-control-mac.zip
+            asset_name: streamline-control-mac.zip
+            asset_content_type: application/octet-stream
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          curl --url https://win.rustup.rs/x86_64 --output rustup-init.exe
+          .\rustup-init.exe -y -t wasm32-unknown-unknown --default-toolchain stable-x86_64-pc-windows-msvc
+          RefreshEnv
+          cargo install cargo-make
+          cargo install wasm-pack
+
+      - name: Build release
+        run: cargo make build_release
+
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: target/release/streamline-control.exe
+          asset_name: streamline-control.exe
+          asset_content_type: application/octet-stream
