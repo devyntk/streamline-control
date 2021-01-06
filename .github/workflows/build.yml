@@ -11,12 +11,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/cache@v2
+      - name: Cargo Cache
+        uses: actions/cache@v2
         with:
           path: |
             ~/.cargo/
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Yarn Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            frontend/node_modules
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/frontend/yarn.lock') }}
 
       - name: Install dependencies
         run: |
@@ -66,12 +74,20 @@ jobs:
     steps:
         - uses: actions/checkout@v2
 
-        - uses: actions/cache@v2
+        - name: Cargo Cache
+          uses: actions/cache@v2
           with:
             path: |
               ~/.cargo/
               target
             key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+        - name: Yarn Cache
+          uses: actions/cache@v2
+          with:
+            path: |
+              frontend/node_modules
+            key: ${{ runner.os }}-cargo-${{ hashFiles('**/frontend/yarn.lock') }}
 
         - name: Install Cargo-Make
           uses: davidB/rust-cargo-make@v1
@@ -118,12 +134,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/cache@v2
+      - name: Cargo Cache
+        uses: actions/cache@v2
         with:
           path: |
             ~/.cargo/
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Yarn Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            frontend/node_modules
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/frontend/yarn.lock') }}
 
       - name: Install dependencies
         run: |
