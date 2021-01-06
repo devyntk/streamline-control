@@ -20,13 +20,11 @@ jobs:
               sudo apt update
               sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-dev libgtk-3-dev libssl1.0-dev -y
 
-      - uses: actions-rs/install@v0.1
-        with:
-          crate: cargo-make
-          version: latest
-          use-tool-cache: true
+      - name: Install Cargo-Make
+        uses: davidB/rust-cargo-make@v1
 
-      - uses: actions-rs/install@v0.1
+      - name: Install Wasm-Pack
+        uses: actions-rs/install@v0.1
         with:
           crate: wasm-pack
           version: latest
@@ -54,13 +52,11 @@ jobs:
               target
             key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-        - uses: actions-rs/install@v0.1
-          with:
-            crate: cargo-make
-            version: latest
-            use-tool-cache: true
+        - name: Install Cargo-Make
+          uses: davidB/rust-cargo-make@v1
 
-        - uses: actions-rs/install@v0.1
+        - name: Install Wasm-Pack
+          uses: actions-rs/install@v0.1
           with:
             crate: wasm-pack
             version: latest
@@ -96,13 +92,11 @@ jobs:
           .\rustup-init.exe -y -t wasm32-unknown-unknown --default-toolchain stable-x86_64-pc-windows-msvc
           RefreshEnv
 
-      - uses: actions-rs/install@v0.1
-        with:
-          crate: cargo-make
-          version: latest
-          use-tool-cache: true
+      - name: Install Cargo-Make
+        uses: davidB/rust-cargo-make@v1
 
-      - uses: actions-rs/install@v0.1
+      - name: Install Wasm-Pack
+        uses: actions-rs/install@v0.1
         with:
           crate: wasm-pack
           version: latest
