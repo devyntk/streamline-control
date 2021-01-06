@@ -15,15 +15,14 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            ~/.cargo/
-            target
+                ~/.cargo/
+                target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Yarn Cache
         uses: actions/cache@v2
         with:
-          path: |
-            frontend/node_modules
+          path: frontend/node_modules
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/frontend/yarn.lock') }}
 
       - name: Install dependencies
@@ -78,15 +77,14 @@ jobs:
           uses: actions/cache@v2
           with:
             path: |
-              ~/.cargo/
-              target
+                  ~/.cargo/
+                  target
             key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
         - name: Yarn Cache
           uses: actions/cache@v2
           with:
-            path: |
-              frontend/node_modules
+            path: frontend/node_modules
             key: ${{ runner.os }}-yarn-${{ hashFiles('**/frontend/yarn.lock') }}
 
         - name: Install Cargo-Make
@@ -99,8 +97,15 @@ jobs:
             version: latest
             use-tool-cache: true
 
+        - name: Install Cargo-Bundle
+          uses: actions-rs/install@v0.1
+          with:
+            crate: cargo-bundle
+            version: latest
+            use-tool-cache: true
+
         - name: Build
-          run: cargo make package
+          run: cargo make build_release
 
         - name: Zip App
           run: mv "target/release/bundle/osx/Streamline Control.app" . && zip -r streamline-control-mac.zip "Streamline Control.app"
@@ -138,15 +143,14 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            ~/.cargo/
-            target
+                ~/.cargo/
+                target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Yarn Cache
         uses: actions/cache@v2
         with:
-          path: |
-            frontend/node_modules
+          path: frontend/node_modules
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/frontend/yarn.lock') }}
 
       - name: Install dependencies
