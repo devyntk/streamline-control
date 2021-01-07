@@ -9,6 +9,8 @@ use app_dirs2::{app_root, AppDataType};
 use rusqlite::Connection;
 use crate::APP_INFO;
 use log::{error, debug};
+use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+use sqlx::{Sqlite, Error, Pool};
 
 mod embedded {
     use refinery::embed_migrations;
@@ -37,7 +39,7 @@ pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
     };
     db_url.push("streamline.db");
 
-    let mut db_config = match Connection::open(db_url){
+    let mut db_config = match Connection::open(db_url.clone()){
         Ok(db) => {db}
         Err(error) => {
             publish_error(error.to_string(), sink);
@@ -52,6 +54,18 @@ pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
             return
         }
     }
+
+    let db_options = SqliteConnectOptions::new()
+        .filename(db_url);
+
+    let pool = match SqlitePoolOptions::new()
+        .connect_with(db_options).await {
+        Ok(pool) => {pool}
+        Err(error) => {
+            publish_error(error.to_string(), sink);
+            return
+        }
+    };
 
     let static_route = path("static").and(path::tail()).and_then(static_serve);
     let dist_route = path("dist").and(path::tail()).and_then(dist_serve);
@@ -98,6 +112,7 @@ pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
 
     server_handle.await.expect("Error starting server thread");
 
+    pool.close().await;
 }
 
 #[derive(RustEmbed)]
