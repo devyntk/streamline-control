@@ -7,7 +7,7 @@ pub enum ReleaseStatus {
 
 pub fn fetch_is_new() -> Result<ReleaseStatus, Box<dyn (::std::error::Error)>> {
     let releases = self_update::backends::github::ReleaseList::configure()
-        .repo_owner("bkeeneykid")
+        .repo_owner("devyntk")
         .repo_name("streamline-control")
         .build()?
         .fetch()?;
@@ -30,7 +30,7 @@ pub fn fetch_is_new() -> Result<ReleaseStatus, Box<dyn (::std::error::Error)>> {
 
 pub fn do_update() -> Result<(), Box<dyn (::std::error::Error)>> {
     self_update::backends::github::Update::configure()
-        .repo_owner("bkeeneykid")
+        .repo_owner("devyntk")
         .repo_name("streamline-control")
         .build()?
         .update()?;

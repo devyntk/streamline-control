@@ -1,11 +1,11 @@
 [package]
 name = "streamline-control"
 version = "0.0.13"
-authors = ["bkeeneykid <bkeeneykid@me.com>"]
+authors = ["devyntk <bkeeneykid@me.com>"]
 edition = "2018"
 description = "An event management system for FIRST Tech Challenge Events"
 license = "MIT"
-repository = "https://github.com/bkeeneykid/streamline-control/"
+repository = "https://github.com/devyntk/streamline-control/"
 
 [workspace]
 members = [
