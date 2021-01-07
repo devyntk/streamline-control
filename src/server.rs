@@ -8,6 +8,7 @@ use rust_embed::RustEmbed;
 use app_dirs2::{app_root, AppDataType};
 use rusqlite::Connection;
 use crate::APP_INFO;
+use log::error;
 
 mod embedded {
     use refinery::embed_migrations;
@@ -22,9 +23,16 @@ pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
     db_url.push("streamline.db");
 
     let mut db_config = Connection::open(db_url).expect("Unable to open database");
-    embedded::migrations::runner().run(&mut db_config).expect("Unable to migrate DB");
+    match embedded::migrations::runner().run(&mut db_config) {
+        Ok(_) => {}
+        Err(error) => {
+            error!("{}", error.to_string());
+            sink.submit_command(UPDATE_STATUS, error.to_string(), Target::Auto)
+                .expect("Error sending GUI update");
+            return
+        }
+    }
 
-    // GET /hello/warp => 200 OK with body "Hello,include!(concat!(env!("OUT_DIR"), "/templates.rs")); warp!"
     let static_route = path("static").and(path::tail()).and_then(static_serve);
     let dist_route = path("dist").and(path::tail()).and_then(dist_serve);
 

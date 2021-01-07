@@ -135,6 +135,8 @@ impl AppDelegate<GUIState> for Delegate {
             data.feedback = format!("New Version Found: {}", version);
             data.found_update = true;
             data.update_button = format!("Update to {}", version);
+        } else if let Some(msg) = cmd.get(UPDATE_STATUS) {
+            data.feedback = format!("{}", msg);
         } else if let Some(err) = cmd.get(UPDATE_ERROR) {
             data.feedback = format!("Error when checking updates: {}", err);
         } else if cmd.is(START_DO_UPDATE) {

@@ -5,7 +5,7 @@ CREATE TABLE user (
                       pw text
 );
 
-CREATE TABLE group (
+CREATE TABLE user_group (
                        id integer PRIMARY KEY AUTOINCREMENT,
                        name text
 );

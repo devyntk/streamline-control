@@ -11,7 +11,7 @@ mod update;
 mod server;
 mod dns;
 
-pub const APP_INFO: AppInfo = AppInfo{name: "Streamline Control", author: "bkeeneykid"};
+pub const APP_INFO: AppInfo = AppInfo{name: "Streamline Control", author: "devyntk"};
 
 fn main() {
 
