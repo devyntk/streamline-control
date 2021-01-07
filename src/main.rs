@@ -15,11 +15,12 @@ pub const APP_INFO: AppInfo = AppInfo{name: "Streamline Control", author: "devyn
 
 fn main() {
 
-    let log_dir = app_dir(AppDataType::UserConfig, &APP_INFO, "log/");
+    let log_dir = app_dir(AppDataType::UserConfig, &APP_INFO, "log/")
+        .expect("Error getting log directory");
 
     Logger::with_env_or_str("debug")
         .log_to_file()
-        .directory(log_dir.expect("Error getting log directory"))
+        .directory(log_dir)
         .duplicate_to_stdout(Duplicate::Debug)
         .start()
         .unwrap();

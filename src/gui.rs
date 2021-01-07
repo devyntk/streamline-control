@@ -35,6 +35,7 @@ pub fn run_ui() {
         found_update: false,
         update_button: "Check for Updates".into(),
         url: None,
+        ready_to_quit: false
     };
 
     let app = AppLauncher::with_window(main_window);
@@ -62,6 +63,7 @@ struct GUIState {
     found_update: bool,
     update_button: String,
     url: Option<String>,
+    ready_to_quit: bool
 }
 
 fn ui_builder() -> impl Widget<GUIState> {
@@ -73,9 +75,14 @@ fn ui_builder() -> impl Widget<GUIState> {
     let quit_button =
         Button::new("Quit")
             .padding(5.0)
-            .on_click(|ctx, _data: &mut GUIState, _env| {
-                let cmd = Command::new(OPEN_QUIT_CONFIRM, (), Target::Auto);
-                ctx.submit_command(cmd);
+            .on_click(|ctx, data: &mut GUIState, _env| {
+                if data.ready_to_quit {
+                    let cmd = Command::new(OPEN_QUIT_CONFIRM, (), Target::Auto);
+                    ctx.submit_command(cmd);
+                } else {
+                    let cmd = Command::new(CLOSE_WINDOW, (), Target::Auto);
+                    ctx.submit_command(cmd);
+                }
             });
 
     let check_button = Button::new(|data: &GUIState, _env: &Env| data.update_button.to_string())
@@ -155,14 +162,16 @@ impl AppDelegate<GUIState> for Delegate {
             data.status = format!("Server started on port {}", addr.port());
             data.url = Some(format!("http://localhost:{}/", addr.port()));
         } else if cmd.is(CLOSE_WINDOW) {
-            // TODO: This doesn't work. Try a workaround later.
             if Target::Window(self.main_window) == target {
-                let new_cmd = Command::new(OPEN_QUIT_CONFIRM, (), Target::Auto);
-                ctx.submit_command(new_cmd);
-                return Handled::No;
+                // let new_cmd = Command::new(OPEN_QUIT_CONFIRM, (), Target::Auto);
+                // ctx.submit_command(new_cmd);
+                data.status = "Are you sure you want to quit the app?".into();
+                data.feedback = "Click quit again to confirm.".into();
+                data.ready_to_quit = true;
+                return Handled::Yes
             }
         }
-        return Handled::Yes;
+        Handled::No
     }
 
 }

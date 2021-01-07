@@ -8,7 +8,7 @@ use rust_embed::RustEmbed;
 use app_dirs2::{app_root, AppDataType};
 use rusqlite::Connection;
 use crate::APP_INFO;
-use log::error;
+use log::{error, debug};
 
 mod embedded {
     use refinery::embed_migrations;
@@ -26,7 +26,10 @@ fn publish_error(error: String, sink: ExtEventSink){
 pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
 
     let mut db_url = match app_root(AppDataType::UserConfig, &APP_INFO) {
-        Ok(db) => {db}
+        Ok(db) => {
+            debug!("Location of user data: {:#?}",db);
+            db
+        }
         Err(error) => {
             publish_error(error.to_string(), sink);
             return
