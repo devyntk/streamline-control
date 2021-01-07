@@ -47,8 +47,7 @@ struct Model {
 
 // ------ Context ------
 
-pub struct Context {
-}
+pub struct Context {}
 
 // ------ PageId ------
 
@@ -56,7 +55,7 @@ pub struct Context {
 enum PageId {
     Login,
     Dash,
-    NotFound
+    NotFound,
 }
 
 impl PageId {
@@ -65,11 +64,9 @@ impl PageId {
         url.next_path_part();
 
         match url.next_path_part() {
-            None => {
-                match user {
-                    None => Self::Login,
-                    Some(_) => Self::Dash
-                }
+            None => match user {
+                None => Self::Login,
+                Some(_) => Self::Dash,
             },
             Some(LOGIN) => Self::Login,
             Some(DASH) => Self::Dash,
@@ -110,7 +107,6 @@ impl<'a> Urls<'a> {
     // }
 }
 
-
 // ------ ------
 //     View
 // ------ ------
@@ -119,13 +115,11 @@ impl<'a> Urls<'a> {
 #[allow(clippy::trivially_copy_pass_by_ref)]
 // `view` describes what to display.
 fn view(model: &Model) -> Vec<Node<Msg>> {
-    vec![
-        match model.page_id {
-            PageId::Login => div!["Login"],
-            PageId::Dash => div!["Dash"],
-            PageId::NotFound => div!["404"],
-        },
-    ]
+    vec![match model.page_id {
+        PageId::Login => div!["Login"],
+        PageId::Dash => div!["Dash"],
+        PageId::NotFound => div!["404"],
+    }]
 }
 
 // ------ ------

@@ -46,7 +46,7 @@ pub enum Command {
         /// Show each name once, rather than every time it is received.
         // #[structopt(long = "once")]
         show_once: bool,
-    }
+    },
 }
 
 pub fn run(args: Opt) -> io::Result<()> {
@@ -76,11 +76,15 @@ pub fn run(args: Opt) -> io::Result<()> {
                 }
             };
             println!("{}", found_addr.ip());
-        },
+        }
         Command::List { show_once } => {
             let sock = UdpSocket::bind((args.host, args.port))?;
             sock.join_multicast_v4(&args.multicast_group, &args.host)?; // TODO IPv6
-            let mut seen = if show_once { Some(HashSet::new()) } else { None };
+            let mut seen = if show_once {
+                Some(HashSet::new())
+            } else {
+                None
+            };
             let mut buf = vec![0; 1024];
             loop {
                 let addr = read_from(&sock, &mut buf)?.ip();
@@ -88,7 +92,9 @@ pub fn run(args: Opt) -> io::Result<()> {
                     Ok(s) => s,
                     Err(_) => continue,
                 };
-                if !message.starts_with("findme:name=") { continue; }
+                if !message.starts_with("findme:name=") {
+                    continue;
+                }
                 let name = &message[12..];
                 // Insert name if we care about deduping, otherwise just print
                 let print = match seen {
@@ -100,13 +106,14 @@ pub fn run(args: Opt) -> io::Result<()> {
                     println!("{} {}", addr, name);
                 }
             }
-        },
+        }
     };
     Ok(())
 }
 
 // Part of the error message returned from peek_from/recv_from on Windows when the buffer is too small for the datagram
-const TOO_SMALL_ERRMSG: &str = "the buffer used to receive a datagram into was smaller than the datagram itself";
+const TOO_SMALL_ERRMSG: &str =
+    "the buffer used to receive a datagram into was smaller than the datagram itself";
 
 // Read a datagram into buf without truncating, set buf's len to the size of the dgram, and return the sender's address
 fn read_from(sock: &UdpSocket, buf: &mut Vec<u8>) -> io::Result<SocketAddr> {
@@ -115,14 +122,20 @@ fn read_from(sock: &UdpSocket, buf: &mut Vec<u8>) -> io::Result<SocketAddr> {
         // message="A message sent on a datagram socket was larger than the internal message buffer..."
         // Linux: if buf is too small, writes what it can and returns Ok(..) normally
         match sock.peek_from(buf) {
-            Ok((written, peer_addr)) if written < buf.len() => { // guard: ensure we didn't truncate (Linux)
+            Ok((written, peer_addr)) if written < buf.len() => {
+                // guard: ensure we didn't truncate (Linux)
                 sock.recv_from(buf)?; // Remove packet from queue
                 buf.truncate(written);
                 return Ok(peer_addr);
-            },
+            }
             // Re-raise errors, except for ones caused by needing to resize on Windows
-            Err(e) if e.kind() != io::ErrorKind::Other || !e.to_string().contains(TOO_SMALL_ERRMSG) => Err(e)?,
-            _ => {},
+            Err(e)
+                if e.kind() != io::ErrorKind::Other
+                    || !e.to_string().contains(TOO_SMALL_ERRMSG) =>
+            {
+                Err(e)?
+            }
+            _ => {}
         }
         // If we have the entire datagram or an error, we've already returned. We need to retry with a bigger buffer.
         buf.resize(buf.len() * 2, 0);

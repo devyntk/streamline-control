@@ -38,6 +38,7 @@ log = "0.4"
 simple_logger = "1.6.0"
 mime = "0.3.0"
 syn = "=1.0.57" # temporary pin so rust-embed can compile
+clap = "3.0.0-beta.2"
 
 [dependencies.rusqlite]
 version = "0.24"

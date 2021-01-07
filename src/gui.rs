@@ -1,14 +1,17 @@
 use druid::commands::{CLOSE_WINDOW, QUIT_APP};
 use druid::widget::{Button, Flex, Label};
-use druid::{AppDelegate, AppLauncher, Command, Data, DelegateCtx, Env, ExtEventSink, Lens, Selector, Target, Widget, WidgetExt, WindowDesc, WindowId, Handled};
+use druid::{
+    AppDelegate, AppLauncher, Command, Data, DelegateCtx, Env, ExtEventSink, Handled, Lens,
+    Selector, Target, Widget, WidgetExt, WindowDesc, WindowId,
+};
 
-use crate::update::{do_update, fetch_is_new, ReleaseStatus};
 use crate::server::start_server;
+use crate::update::{do_update, fetch_is_new, ReleaseStatus};
 
+use log::debug;
+use std::net::SocketAddr;
 use std::thread;
 use tokio::sync::oneshot::{channel, Sender};
-use std::net::SocketAddr;
-use log::debug;
 
 const START_UPDATE_CHECK: Selector = Selector::new("streamline-control.start-check");
 const UPDATE_FOUND: Selector<String> = Selector::new("streamline-control.update-found");
@@ -35,15 +38,13 @@ pub fn run_ui() {
         found_update: false,
         update_button: "Check for Updates".into(),
         url: None,
-        ready_to_quit: false
+        ready_to_quit: false,
     };
 
     let app = AppLauncher::with_window(main_window);
     let handle = app.get_external_handle();
 
-    thread::spawn(move || {
-        start_server(handle, rx)
-    });
+    thread::spawn(move || start_server(Some(handle), rx));
 
     let delegate = Delegate {
         eventsink: app.get_external_handle(),
@@ -63,7 +64,7 @@ struct GUIState {
     found_update: bool,
     update_button: String,
     url: Option<String>,
-    ready_to_quit: bool
+    ready_to_quit: bool,
 }
 
 fn ui_builder() -> impl Widget<GUIState> {
@@ -100,7 +101,7 @@ fn ui_builder() -> impl Widget<GUIState> {
     let open_button = Button::new("Open Browser")
         .on_click(move |_ctx, data: &mut GUIState, _env| match &data.url {
             Some(url) => {
-                if webbrowser::open(url.as_str()).is_err(){
+                if webbrowser::open(url.as_str()).is_err() {
                     data.feedback = "Unable to Open Browser".into();
                 }
             }
@@ -120,7 +121,7 @@ fn ui_builder() -> impl Widget<GUIState> {
 struct Delegate {
     eventsink: ExtEventSink,
     main_window: WindowId,
-    shutdown_signal: Option<Sender<()>>
+    shutdown_signal: Option<Sender<()>>,
 }
 
 impl AppDelegate<GUIState> for Delegate {
@@ -154,7 +155,9 @@ impl AppDelegate<GUIState> for Delegate {
         } else if cmd.is(OPEN_QUIT_CONFIRM) {
             if data.url.is_some() {
                 let tx = self.shutdown_signal.take();
-                tx.unwrap().send(()).expect("Error when sending shutdown signal");
+                tx.unwrap()
+                    .send(())
+                    .expect("Error when sending shutdown signal");
             }
             let new_cmd = Command::new(QUIT_APP, (), Target::Auto);
             ctx.submit_command(new_cmd);
@@ -168,12 +171,11 @@ impl AppDelegate<GUIState> for Delegate {
                 data.status = "Are you sure you want to quit the app?".into();
                 data.feedback = "Click quit again to confirm.".into();
                 data.ready_to_quit = true;
-                return Handled::Yes
+                return Handled::Yes;
             }
         }
         Handled::No
     }
-
 }
 fn check_updates(sink: ExtEventSink) {
     thread::spawn(move || {
