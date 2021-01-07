@@ -145,8 +145,10 @@ impl AppDelegate<GUIState> for Delegate {
         } else if cmd.is(UPDATE_FINISHED) {
             data.feedback = "Update Finished. Please restart the app. ".into();
         } else if cmd.is(OPEN_QUIT_CONFIRM) {
-            let tx = self.shutdown_signal.take();
-            tx.unwrap().send(()).expect("Error when sending shutdown signal");
+            if data.url.is_some() {
+                let tx = self.shutdown_signal.take();
+                tx.unwrap().send(()).expect("Error when sending shutdown signal");
+            }
             let new_cmd = Command::new(QUIT_APP, (), Target::Auto);
             ctx.submit_command(new_cmd);
         } else if let Some(addr) = cmd.get(SERVER_START) {

@@ -15,20 +15,37 @@ mod embedded {
     embed_migrations!();
 }
 
+fn publish_error(error: String, sink: ExtEventSink){
+    error!("{}", error);
+    sink.submit_command(UPDATE_STATUS, error, Target::Auto)
+        .expect("Error sending GUI update");
+
+}
+
 #[tokio::main]
 pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
 
-    let mut db_url = app_root(AppDataType::UserConfig, &APP_INFO)
-        .expect("Unable to get DB location");
+    let mut db_url = match app_root(AppDataType::UserConfig, &APP_INFO) {
+        Ok(db) => {db}
+        Err(error) => {
+            publish_error(error.to_string(), sink);
+            return
+        }
+    };
     db_url.push("streamline.db");
 
-    let mut db_config = Connection::open(db_url).expect("Unable to open database");
+    let mut db_config = match Connection::open(db_url){
+        Ok(db) => {db}
+        Err(error) => {
+            publish_error(error.to_string(), sink);
+            return
+        }
+    };
+
     match embedded::migrations::runner().run(&mut db_config) {
         Ok(_) => {}
         Err(error) => {
-            error!("{}", error.to_string());
-            sink.submit_command(UPDATE_STATUS, error.to_string(), Target::Auto)
-                .expect("Error sending GUI update");
+            publish_error(error.to_string(), sink);
             return
         }
     }
@@ -50,28 +67,33 @@ pub async fn start_server(sink: ExtEventSink, rx: Receiver<()>) {
 
     let mut ports: Vec<u16> = local_ports_available(vec![3030,8888,8080,80]);
 
-    let server_result = warp::serve(routes)
-        .try_bind_with_graceful_shutdown(
-            ([127, 0, 0, 1], ports.pop().expect("No socket address to bind to")), async {
-            rx.await.ok();
-        });
-
-    let server_handle;
-    match server_result {
-        Ok((addr, future)) => {
-            server_handle = Some(tokio::task::spawn(future));
-            sink.submit_command(SERVER_START, addr, Target::Auto)
-                .expect("Error sending GUI update");
-        }
-        Err(error) => {
-            sink.submit_command(UPDATE_STATUS, error.to_string(), Target::Auto)
-                .expect("Error sending GUI update");
+    let port = match ports.pop() {
+        Some(num) => {num}
+        None => {
+            publish_error("No open ports to bind to!".to_string(), sink);
             return;
         }
-    }
+    };
 
-    server_handle.expect("No server future found").await
-        .expect("Error starting server thread");
+    let server_result = warp::serve(routes)
+        .try_bind_with_graceful_shutdown(
+            ([127, 0, 0, 1], port),
+            async { rx.await.ok();}
+        );
+
+    let server_handle = match server_result {
+        Ok((addr, future)) => {
+            sink.submit_command(SERVER_START, addr, Target::Auto)
+                .expect("Error sending GUI update");
+            tokio::task::spawn(future)
+        }
+        Err(error) => {
+            publish_error(error.to_string(), sink);
+            return;
+        }
+    };
+
+    server_handle.await.expect("Error starting server thread");
 
 }
 
