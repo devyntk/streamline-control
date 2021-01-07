@@ -20,8 +20,12 @@ CREATE TABLE group_users
 (
     user_id  integer,
     group_id integer,
-    FOREIGN KEY (user_id) REFERENCES user (id),
+    FOREIGN KEY (user_id) REFERENCES user (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     FOREIGN KEY (group_id) REFERENCES  user_group(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE group_permissions
@@ -29,6 +33,8 @@ CREATE TABLE group_permissions
     group_id integer,
     perm_id  integer,
     FOREIGN KEY (group_id) REFERENCES  user_group(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE event
@@ -43,8 +49,12 @@ CREATE TABLE user_events
 (
     user_id  integer,
     event_id integer,
-    FOREIGN KEY (user_id) REFERENCES user (id),
+    FOREIGN KEY (user_id) REFERENCES user (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     FOREIGN KEY (event_id) REFERENCES event (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE session
@@ -54,8 +64,12 @@ CREATE TABLE session
     event_id integer,
     token    text,
     csrf     text,
-    FOREIGN KEY (user_id) REFERENCES user (id),
+    FOREIGN KEY (user_id) REFERENCES user (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE ,
     FOREIGN KEY (event_id) REFERENCES event (id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE song
@@ -92,6 +106,8 @@ CREATE TABLE playlist_entry
     FOREIGN KEY (song_uri) REFERENCES song(uri),
     FOREIGN KEY (added_by) REFERENCES user(id),
     FOREIGN KEY (playlist) REFERENCES playlist(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE match
@@ -105,7 +121,9 @@ CREATE TABLE match
     match_ms_offset integer,
     finish_song     text,
     post_song       text,
-    FOREIGN KEY (event) REFERENCES event(id),
+    FOREIGN KEY (event) REFERENCES event(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     FOREIGN KEY (intro_song) REFERENCES song(uri),
     FOREIGN KEY (warmup_song) REFERENCES song(uri),
     FOREIGN KEY (match_song) REFERENCES song(uri),
