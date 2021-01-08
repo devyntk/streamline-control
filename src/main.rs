@@ -53,7 +53,12 @@ fn main() {
     thread::spawn(move || dns::run(dnsargs));
 
     if matches.is_present("headless") {
-        let (_, rx) = channel();
+        let (tx, rx) = channel();
+        let mut shutdown_signal = Some(tx);
+        ctrlc::set_handler(move || {
+            let tx = shutdown_signal.take();
+            tx.unwrap().send(()).expect("Error sending shutdown signal");
+        }).expect("Error setting Ctrl-C handler");
         start_server(None, rx);
     } else {
         gui::run_ui();

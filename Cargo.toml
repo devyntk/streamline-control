@@ -21,7 +21,7 @@ identifier = "com.github.streamline-control"
 shared = { path = "shared" }
 
 druid = "0.7"
-tokio = { version = "0.2", features = ["macros", "sync", "rt-threaded"] }
+tokio = { version = "0.2", features = ["macros", "sync", "rt-threaded", "time"] }
 async-std = "1.6"
 warp = "0.2"
 sqlx = { version = "0.4.2", default-features = false, features = [ "runtime-tokio-native-tls", "macros" , "sqlite"] }
@@ -39,6 +39,7 @@ simple_logger = "1.6.0"
 mime = "0.3.0"
 syn = "=1.0.57" # temporary pin so rust-embed can compile
 clap = "3.0.0-beta.2"
+ctrlc = "3.1.7"
 
 [dependencies.rusqlite]
 version = "0.24"

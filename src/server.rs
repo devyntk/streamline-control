@@ -2,7 +2,7 @@ use crate::gui::{SERVER_START, UPDATE_STATUS};
 use crate::APP_INFO;
 use app_dirs2::{app_root, AppDataType};
 use druid::{ExtEventSink, Target};
-use log::{debug, error};
+use log::{debug, error, info};
 use port_scanner::local_ports_available;
 use rusqlite::Connection;
 use rust_embed::RustEmbed;
@@ -91,11 +91,12 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: Receiver<()>) {
         warp::serve(routes)
             .try_bind_with_graceful_shutdown(
                 ([127, 0, 0, 1], port),
-                async { rx.await.ok(); }
+                async { rx.await.ok();}
         );
 
     let server_handle = match server_result {
         Ok((addr, future)) => {
+            info!("Server started at http://{}", addr);
             if sink.is_some() {
                 sink.unwrap()
                     .submit_command(SERVER_START, addr, Target::Auto)
