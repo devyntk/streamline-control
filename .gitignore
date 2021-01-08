@@ -2,3 +2,5 @@ target/
 debug/
 pkg/
 .idea/
+
+css_classes.rs

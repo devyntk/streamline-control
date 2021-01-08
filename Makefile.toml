@@ -19,6 +19,14 @@ cd frontend
 yarn install
 ''']
 
+[tasks.generate_css]
+description = "Generate CSS classes needed for frontend compile"
+script = [
+'''
+cd frontend
+yarn run generate:css_classes
+''']
+
 [tasks.build_frontend]
 description = "Build with wasm-pack"
 script = [
@@ -26,7 +34,7 @@ script = [
 cd frontend
 yarn run build
 ''']
-dependencies = ["update_yarn"]
+dependencies = ["update_yarn", "generate_css"]
 
 [tasks.build_release]
 command = "cargo"
@@ -40,7 +48,7 @@ script = [
 cd frontend
 yarn run build
 ''']
-dependencies = ["update_yarn"]
+dependencies = ["update_yarn", "generate_css"]
 
 [tasks.package]
 description = "Package for release using cargo-bundle"
