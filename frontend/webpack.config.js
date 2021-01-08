@@ -37,15 +37,7 @@ module.exports = (env, argv) => {
                         }
                     },
                     {
-                        loader: "postcss-loader",
-                        options: {
-                            config: {
-                                // Path to postcss.config.js.
-                                path: __dirname,
-                                // Pass mode into `postcss.config.js` (see more info in that file).
-                                ctx: { mode: argv.mode }
-                            }
-                        }
+                        loader: "postcss-loader"
                     },
                     // Compiles Sass to CSS
                     "sass-loader"
@@ -64,18 +56,6 @@ module.exports = (env, argv) => {
         performance: {
             // Don't break compilation because of WASM file bigger than 244 KB.
             hints: false
-        },
-        optimization: {
-            splitChunks: {
-                cacheGroups: {
-                    styles: {
-                        name: 'styles',
-                        test: /\.css$/,
-                        chunks: 'all',
-                        enforce: true,
-                    },
-                },
-            },
-        },
+        }
     }
 };

@@ -38,15 +38,7 @@ module.exports = (env, argv) => {
                             }
                         },
                         {
-                            loader: "postcss-loader",
-                            options: {
-                                config: {
-                                    // Path to postcss.config.js.
-                                    path: __dirname,
-                                    // Pass mode into `postcss.config.js` (see more info in that file).
-                                    ctx: { mode: argv.mode }
-                                }
-                            }
+                            loader: "postcss-loader"
                         },
                         // Compiles Sass to CSS
                         "sass-loader"
