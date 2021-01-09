@@ -16,6 +16,7 @@ use std::process::{Command, Stdio};
 use std::env::var_os;
 #[cfg(debug_assertions)]
 use std::path::Path;
+use std::process::Child;
 
 mod api;
 mod dns;
@@ -80,7 +81,7 @@ fn main() {
         let (tx, rx) = channel();
         let mut shutdown_signal = Some(tx);
 
-        let mut frontend = None;
+        let mut frontend: Option<Child> = None;
         #[cfg(debug_assertions)] {
             let dir_string = var_os("CARGO_MANIFEST_DIR").expect("Can't find cargo dir. Make sure to run this using 'cargo run'.");
 

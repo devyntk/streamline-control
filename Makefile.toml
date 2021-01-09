@@ -8,24 +8,23 @@ default_to_workspace = false
 [tasks.build]
 clear = true
 run_task = [
-    { name = "build_frontend_release"},
     { name = "package", condition = { platforms = ["mac"] } },
     { name = "build_release", condition = { platforms = ["linux", "windows"] } }
 ]
 
 [tasks.run]
 clear = true
-run_task = [
-    { name = "update_yarn", condition = { files_not_exist = ["${CARGO_MAKE_WORKING_DIRECTORY}/frontend/node_modules/.yarn-integrity"]}},
-    { name = "generate_css", condition = { files_not_exist = ["${CARGO_MAKE_WORKING_DIRECTORY}/frontend/src/generated/css_classes.rs"]}},
-    { name = "watch" }
+depends = [
+    "update_yarn",
+    "generate_css",
+    "watch"
 ]
 
 [tasks.run_silent]
-run_task = [
-    { name = "update_yarn", condition = { files_not_exist = ["${CARGO_MAKE_WORKING_DIRECTORY}/frontend/node_modules/.yarn-integrity"]}},
-    { name = "generate_css", condition = { files_not_exist = ["${CARGO_MAKE_WORKING_DIRECTORY}/frontend/src/generated/css_classes.rs"]}},
-    { name = "watch_silent" }
+depends = [
+    "update_yarn",
+    "generate_css",
+    "watch_silent"
 ]
 
 # *************************** #
@@ -70,6 +69,7 @@ script = [
 cd frontend
 yarn install
 ''']
+condition = { files_not_exist = ["${CARGO_MAKE_WORKING_DIRECTORY}/frontend/node_modules/.yarn-integrity"], fail_message = "Yarn already updated"}
 
 [tasks.generate_css]
 description = "Generate CSS classes needed for frontend compile"
@@ -78,6 +78,7 @@ script = [
 cd frontend
 yarn run generate:css_classes
 ''']
+condition = { files_not_exist = ["${CARGO_MAKE_WORKING_DIRECTORY}/frontend/src/generated/css_classes.rs"], fail_message = "CSS Classes Already Generated"}
 dependencies = ["update_yarn"]
 
 [tasks.build_frontend]
