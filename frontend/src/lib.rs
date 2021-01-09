@@ -6,8 +6,8 @@
 use shared::LoggedUser;
 
 use seed::{prelude::*, *};
-mod page;
 mod generated;
+mod page;
 
 const LOGIN: &str = "login";
 const DASH: &str = "dash";

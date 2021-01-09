@@ -8,6 +8,14 @@ use clap::{crate_authors, crate_version, App, Arg};
 use flexi_logger::{Duplicate, Logger};
 use std::thread;
 use tokio::sync::oneshot::channel;
+use log::info;
+
+#[cfg(debug_assertions)]
+use std::process::{Command, Stdio};
+#[cfg(debug_assertions)]
+use std::env::var_os;
+#[cfg(debug_assertions)]
+use std::path::Path;
 
 mod api;
 mod dns;
@@ -21,16 +29,31 @@ pub const APP_INFO: AppInfo = AppInfo {
 };
 
 fn main() {
-    let matches = App::new("Streamline Control")
+    let app = App::new("Streamline Control")
         .version(crate_version!())
         .author(crate_authors!())
         .arg(
             Arg::new("headless")
                 .about("Skip running the GUI and run headless")
                 .short('c')
-                .long("console"),
+                .long("console")
+        );
+
+    #[cfg(debug_assertions)]
+    let app = app.arg(
+        Arg::new("watch-frontend")
+            .about("Launch a frontend watch process")
+            .requires("headless")
+            .long("watch-frontend")
         )
-        .get_matches();
+        .arg(
+        Arg::new("silent-watch")
+            .about("Silence output from the frontend watch process")
+            .requires("watch-frontend")
+            .long("silent-watch")
+        );
+
+    let matches = app.get_matches();
 
     let log_dir =
         app_dir(AppDataType::UserConfig, &APP_INFO, "log/").expect("Error getting log directory");
@@ -50,15 +73,47 @@ fn main() {
             name: Some("streamline-control".parse().unwrap()),
         },
     };
+
     thread::spawn(move || dns::run(dnsargs));
 
     if matches.is_present("headless") {
         let (tx, rx) = channel();
         let mut shutdown_signal = Some(tx);
+
+        let mut frontend = None;
+        #[cfg(debug_assertions)] {
+            let dir_string = var_os("CARGO_MANIFEST_DIR").expect("Can't find cargo dir. Make sure to run this using 'cargo run'.");
+
+            if matches.is_present("watch-frontend") {
+                info!("Launching frontend watcher.");
+                let mut process = Command::new("yarn");
+
+                let mut process = process.current_dir(Path::new(&dir_string).join("frontend"))
+                    .args(&["run", "watch"]);
+
+                if matches.is_present("silent-watch"){
+                    info!("Frontend watcher will be silent. Remove the '--silent-watch' flag to see output");
+                    process = process.stdout(Stdio::null())
+                        .stderr(Stdio::null());
+                }
+
+                frontend = Some(process.spawn().expect("Could not launch frontend watcher"))
+
+            }
+        }
+
         ctrlc::set_handler(move || {
-            let tx = shutdown_signal.take();
-            tx.unwrap().send(()).expect("Error sending shutdown signal");
+            #[cfg(debug_assertions)] {
+                let frontend = frontend.take();
+                if let Some(mut ps) = frontend {
+                    ps.kill().expect("Unable to kill frontned");
+                }
+            }
+
+            let signal = shutdown_signal.take();
+            signal.unwrap().send(()).expect("Error sending shutdown signal");
         }).expect("Error setting Ctrl-C handler");
+
         start_server(None, rx);
     } else {
         gui::run_ui();

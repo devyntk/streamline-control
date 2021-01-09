@@ -17,6 +17,10 @@ members = [
 name = "Streamline Control"
 identifier = "com.github.streamline-control"
 
+[profile.release.package.frontend]
+opt-level = 'z'
+codegen-units = 1
+
 [dependencies]
 shared = { path = "shared" }
 

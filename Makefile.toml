@@ -1,15 +1,67 @@
 [config]
 default_to_workspace = false
 
-[tasks.run]
-command = "cargo"
-args = ["run"]
-dependencies = ["build_frontend"]
+# *************************** #
+#            Flows            #
+# *************************** #
 
 [tasks.build]
+clear = true
+run_task = [
+    { name = "build_frontend_release"},
+    { name = "package", condition = { platforms = ["mac"] } },
+    { name = "build_release", condition = { platforms = ["linux", "windows"] } }
+]
+
+[tasks.run]
+clear = true
+run_task = [
+    { name = "update_yarn", condition = { files_not_exist = ["${CARGO_MAKE_WORKING_DIRECTORY}/frontend/node_modules/.yarn-integrity"]}},
+    { name = "generate_css", condition = { files_not_exist = ["${CARGO_MAKE_WORKING_DIRECTORY}/frontend/src/generated/css_classes.rs"]}},
+    { name = "watch" }
+]
+
+[tasks.run_silent]
+run_task = [
+    { name = "update_yarn", condition = { files_not_exist = ["${CARGO_MAKE_WORKING_DIRECTORY}/frontend/node_modules/.yarn-integrity"]}},
+    { name = "generate_css", condition = { files_not_exist = ["${CARGO_MAKE_WORKING_DIRECTORY}/frontend/src/generated/css_classes.rs"]}},
+    { name = "watch_silent" }
+]
+
+# *************************** #
+#       Backend Compile       #
+# *************************** #
+
+[tasks.build_release]
+command = "cargo"
+args = ["build", "--release"]
+dependencies = ["build_frontend_release"]
+
+[tasks.build_dev]
 command = "cargo"
 args = ["build"]
 dependencies = ["build_frontend"]
+
+[tasks.watch]
+command = "cargo"
+args = ["run", "--", "-c", "--watch-frontend"]
+watch = {ignore_pattern = "frontend/*"}
+
+[tasks.watch_silent]
+command = "cargo"
+args = ["run", "--", "-c", "--watch-frontend", "--silent-watch"]
+watch = {ignore_pattern = "frontend/*"}
+
+[tasks.package]
+description = "Package for release using cargo-bundle"
+install_crate = { crate_name = "cargo-bundle", binary = "cargo-bundle", test_arg = "-h" }
+command = "cargo"
+args = ["bundle", "--release"]
+dependencies = ["build_frontend_release"]
+
+# *************************** #
+#          Frontend           #
+# *************************** #
 
 [tasks.update_yarn]
 description = "Run initial yarn update/inistall"
@@ -26,20 +78,16 @@ script = [
 cd frontend
 yarn run generate:css_classes
 ''']
+dependencies = ["update_yarn"]
 
 [tasks.build_frontend]
 description = "Build with wasm-pack"
 script = [
 '''
 cd frontend
-yarn run build
+yarn run build_dev
 ''']
 dependencies = ["update_yarn", "generate_css"]
-
-[tasks.build_release]
-command = "cargo"
-args = ["build", "--release"]
-dependencies = ["build_frontend_release"]
 
 [tasks.build_frontend_release]
 description = "Build with wasm-pack"
@@ -50,9 +98,3 @@ yarn run build
 ''']
 dependencies = ["update_yarn", "generate_css"]
 
-[tasks.package]
-description = "Package for release using cargo-bundle"
-install_crate = { crate_name = "cargo-bundle", binary = "cargo-bundle", test_arg = "-h" }
-command = "cargo"
-args = ["bundle", "--release"]
-dependencies = ["build_frontend_release"]

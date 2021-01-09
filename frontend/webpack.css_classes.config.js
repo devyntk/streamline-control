@@ -1,5 +1,4 @@
 const path = require("path");
-const WebpackBar = require("webpackbar");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
@@ -10,13 +9,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 module.exports = (env, argv) => {
     return {
         entry: path.resolve(__dirname, "./js/index.css_classes.js"),
-        output: {
-            path: path.resolve(__dirname, "dist"),
-            filename: "css_classes.js",
-        },
         plugins: [
-            new WebpackBar(),
-            new CleanWebpackPlugin(),
             new MiniCssExtractPlugin({
                 filename: '[name].css',
                 chunkFilename: '[id].css',

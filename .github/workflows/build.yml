@@ -36,7 +36,7 @@ jobs:
           use-tool-cache: true
 
       - name: Build
-        run: cargo make build_release
+        run: cargo make build
 
       - name: Upload binary
         uses: actions/upload-artifact@v2
@@ -95,7 +95,7 @@ jobs:
             use-tool-cache: true
 
         - name: Build
-          run: cargo make package
+          run: cargo make build
 
         - name: Zip App
           run: mv "target/release/bundle/osx/Streamline Control.app" . && zip -r streamline-control-mac.zip "Streamline Control.app"
@@ -155,7 +155,7 @@ jobs:
           use-tool-cache: true
 
       - name: Build release
-        run: cargo make build_release
+        run: cargo make build
 
       - name: Upload binary
         uses: actions/upload-artifact@v2
