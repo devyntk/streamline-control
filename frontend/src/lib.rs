@@ -2,6 +2,7 @@
 //  - it's useful when you want to check your code with `cargo make verify`
 // but some rules are too "annoying" or are not applicable for your case.)
 #![allow(clippy::wildcard_imports)]
+#![allow(dead_code)]
 
 use shared::LoggedUser;
 
@@ -88,7 +89,7 @@ enum Msg {
 // `update` describes how to handle each `Msg`.
 fn update(msg: Msg, model: &mut Model, orders: &mut impl Orders<Msg>) {
     match msg {
-        Msg::UrlChanged(subs::UrlChanged(mut url)) => {
+        Msg::UrlChanged(subs::UrlChanged(url)) => {
             model.page_id = PageId::init(url, orders, model.user.as_ref());
         }
     }

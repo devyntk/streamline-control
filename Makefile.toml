@@ -5,6 +5,10 @@ default_to_workspace = false
 #            Flows            #
 # *************************** #
 
+
+[tasks.default]
+alias = "build"
+
 [tasks.build]
 clear = true
 run_task = [
