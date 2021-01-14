@@ -39,10 +39,15 @@ CREATE TABLE group_permissions
 
 CREATE TABLE event
 (
-    id    integer PRIMARY KEY,
-    name  text,
-    start datetime,
-    end   datetime
+    id              integer PRIMARY KEY,
+    name            text,
+    start           datetime,
+    end             datetime,
+    active          integer,
+    fields          integer,
+    divisions       integer,
+    music_type      integer,
+    stream_type     integer
 );
 
 CREATE TABLE user_events
@@ -64,6 +69,8 @@ CREATE TABLE session
     event_id integer,
     token    text,
     csrf     text,
+    last_ip  text,
+    ip_time  text,
     FOREIGN KEY (user_id) REFERENCES user (id)
         ON DELETE CASCADE
         ON UPDATE CASCADE ,

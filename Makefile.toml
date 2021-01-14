@@ -17,12 +17,7 @@ run_task = [
 ]
 
 [tasks.run]
-clear = true
-depends = [
-    "update_yarn",
-    "generate_css",
-    "watch"
-]
+run_task = { name = ["update_yarn", "generate_css", "watch"] }
 
 [tasks.run_silent]
 depends = [

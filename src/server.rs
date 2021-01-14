@@ -11,6 +11,7 @@ use sqlx::{Error, Pool, Sqlite};
 use tokio::sync::oneshot::Receiver;
 use warp::http::{header::HeaderValue, Response};
 use warp::{http::Uri, path, path::Tail, Filter, Rejection, Reply};
+use tokio::task::spawn_blocking;
 
 mod embedded {
     use refinery::embed_migrations;
@@ -48,7 +49,8 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: Receiver<()>) {
         }
     };
 
-    match embedded::migrations::runner().run(&mut db_config) {
+    let migrations_run = spawn_blocking(move || {embedded::migrations::runner().run(&mut db_config)});
+    match migrations_run.await {
         Ok(_) => {}
         Err(error) => {
             publish_error(error.to_string(), sink);
