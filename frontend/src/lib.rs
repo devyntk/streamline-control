@@ -6,14 +6,16 @@
 
 use shared::LoggedUser;
 
-use seed::{prelude::*, *};
 mod generated;
 mod page;
+
+use generated::css_classes::C;
+use seed::{prelude::*, *};
 
 const LOGIN: &str = "login";
 const DASH: &str = "dash";
 
-const STORAGE_KEY: &str = "robotgear_auth";
+const STORAGE_KEY: &str = "streamline_auth";
 
 // ------ ------
 //     Init
@@ -55,21 +57,17 @@ pub struct Context {}
 
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 enum PageId {
+    Loading,
     Login,
     Dash,
     NotFound,
 }
 
 impl PageId {
-    fn init(mut url: Url, _orders: &mut impl Orders<Msg>, user: Option<&LoggedUser>) -> Self {
-        // This is done to get rid of the leading /app on the URL
-        url.next_path_part();
+    fn init(mut url: Url, _orders: &mut impl Orders<Msg>, _user: Option<&LoggedUser>) -> Self {
 
         match url.next_path_part() {
-            None => match user {
-                None => Self::Login,
-                Some(_) => Self::Dash,
-            },
+            None => Self::Loading,
             Some(LOGIN) => Self::Login,
             Some(DASH) => Self::Dash,
             Some(_) => Self::NotFound,
@@ -113,14 +111,23 @@ impl<'a> Urls<'a> {
 //     View
 // ------ ------
 
-// (Remove the line below once your `Model` become more complex.)
-#[allow(clippy::trivially_copy_pass_by_ref)]
-// `view` describes what to display.
 fn view(model: &Model) -> Vec<Node<Msg>> {
     vec![match model.page_id {
         PageId::Login => div!["Login"],
         PageId::Dash => div!["Dash"],
         PageId::NotFound => div!["404"],
+        PageId::Loading => div![
+            C![
+                C.pageloader,
+                C.is_active
+            ],
+            span![
+                C![
+                    C.title,
+                ],
+                "Loading Streamline Control"
+            ]
+        ]
     }]
 }
 

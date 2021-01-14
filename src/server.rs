@@ -10,7 +10,7 @@ use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
 use sqlx::{Error, Pool, Sqlite};
 use tokio::sync::oneshot::Receiver;
 use warp::http::{header::HeaderValue, Response};
-use warp::{http::Uri, path, path::Tail, Filter, Rejection, Reply};
+use warp::{http::Uri, path, path::Tail, Filter, Rejection, Reply, get};
 use tokio::task::spawn_blocking;
 
 mod embedded {
@@ -71,13 +71,9 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: Receiver<()>) {
     let static_route = path("static").and(path::tail()).and_then(static_serve);
     let dist_route = path("dist").and(path::tail()).and_then(dist_serve);
 
-    let hello = warp::path!("hello" / String).map(|name| format!("Hello, {}!", name));
+    let app = get().and_then(serve_index);
 
-    let index = warp::path::end().map(|| warp::redirect(Uri::from_static("/app")));
-
-    let app = warp::path("app").and_then(serve_index);
-
-    let routes = static_route.or(dist_route).or(hello).or(index).or(app);
+    let routes = static_route.or(dist_route).or(app);
 
     let mut ports: Vec<u16> = local_ports_available(vec![3030, 8888, 8080, 80]);
 
