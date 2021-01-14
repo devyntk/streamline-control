@@ -9,9 +9,10 @@ use rust_embed::RustEmbed;
 use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
 use tokio::sync::oneshot::Receiver;
 use warp::http::{header::HeaderValue, Response};
-use warp::{path, path::Tail, Filter, Rejection, Reply, get};
+use warp::{path, path::Tail, path::peek, Filter, Rejection, Reply, get};
 use tokio::task::spawn_blocking;
-use crate::api::api_filter;
+use crate::api::{api_filter, handle_api_rejection};
+use warp::filters::path::Peek;
 
 mod embedded {
     use refinery::embed_migrations;
@@ -51,7 +52,15 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: Receiver<()>) {
 
     let migrations_run = spawn_blocking(move || {embedded::migrations::runner().run(&mut db_config)});
     match migrations_run.await {
-        Ok(_) => {}
+        Ok(migrations) => {
+            match migrations {
+                Ok(_) => {},
+                Err(error) => {
+                    publish_error(error.to_string(), sink);
+                    return;
+                }
+            }
+        }
         Err(error) => {
             publish_error(error.to_string(), sink);
             return;
@@ -71,12 +80,13 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: Receiver<()>) {
     let static_route = path("static").and(path::tail()).and_then(static_serve);
     let dist_route = path("dist").and(path::tail()).and_then(dist_serve);
 
-    let app = get().and_then(serve_index);
+    let app = get().and(peek()).and_then(serve_index);
 
     let routes = static_route
         .or(dist_route)
         .or(api_filter(pool.clone()))
-        .or(app);
+        .or(app)
+        .recover(handle_api_rejection);
 
     let mut ports: Vec<u16> = local_ports_available(vec![3030, 8888, 8080, 80]);
 
@@ -136,7 +146,10 @@ async fn dist_serve(path: Tail) -> Result<impl Reply, Rejection> {
     Ok(res)
 }
 
-async fn serve_index() -> Result<impl Reply, Rejection> {
+async fn serve_index(path: Peek) -> Result<impl Reply, Rejection> {
+    if path.segments().next() == Some("api") {
+        return Err(warp::reject::not_found())
+    }
     serve_impl("index.html")
 }
 
