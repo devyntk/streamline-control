@@ -1,3 +1,5 @@
+#![allow(unused_variables)]
+#![allow(dead_code)]
 // Code adapted from https://gitlab.com/open-sourceress/findme
 use std::{
     collections::HashSet,

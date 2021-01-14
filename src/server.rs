@@ -7,11 +7,11 @@ use port_scanner::local_ports_available;
 use rusqlite::Connection;
 use rust_embed::RustEmbed;
 use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-use sqlx::{Error, Pool, Sqlite};
 use tokio::sync::oneshot::Receiver;
 use warp::http::{header::HeaderValue, Response};
-use warp::{http::Uri, path, path::Tail, Filter, Rejection, Reply, get};
+use warp::{path, path::Tail, Filter, Rejection, Reply, get};
 use tokio::task::spawn_blocking;
+use crate::api::api_filter;
 
 mod embedded {
     use refinery::embed_migrations;
@@ -73,7 +73,10 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: Receiver<()>) {
 
     let app = get().and_then(serve_index);
 
-    let routes = static_route.or(dist_route).or(app);
+    let routes = static_route
+        .or(dist_route)
+        .or(api_filter(pool.clone()))
+        .or(app);
 
     let mut ports: Vec<u16> = local_ports_available(vec![3030, 8888, 8080, 80]);
 

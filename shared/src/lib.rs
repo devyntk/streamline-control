@@ -8,3 +8,9 @@ pub struct LoggedUser {
     username: String,
     token: String,
 }
+
+#[derive(Serialize, Deserialize)]
+#[allow(dead_code)]
+pub struct Status {
+    pub version: String
+}
