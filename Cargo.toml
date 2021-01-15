@@ -21,19 +21,24 @@ identifier = "com.github.streamline-control"
 opt-level = 'z'
 codegen-units = 1
 
-[dependencies]
-shared = { path = "shared" }
+[features]
+default = ["with-gui"]
+with-gui = ["druid", "self_update"]
 
-druid = "0.7"
+[dependencies]
+shared = { path = "./shared" }
+
+druid = { version = "0.7", optional = true }
 tokio = { version = "0.2", features = ["macros", "sync", "rt-threaded", "time"] }
 async-std = "1.6"
 warp = "0.2"
 sqlx = { version = "0.4.2", default-features = false, features = [ "runtime-tokio-native-tls", "macros" , "sqlite"] }
+reqwest = { version = "0.11", features = [ "native-tls-vendored" ]}
 
 refinery = { version = "0.5", features = ["rusqlite"] }
-rust-embed="5.7"
+rust-embed="5.8"
 mime_guess = "2"
-self_update = "0.16"
+self_update = { version = "0.16", optional = true}
 webbrowser = "0.5.4"
 port_scanner = "0.1"
 app_dirs2 = "2"
@@ -41,7 +46,6 @@ flexi_logger = "0.15"
 log = "0.4"
 simple_logger = "1.6.0"
 mime = "0.3.0"
-syn = "=1.0.57" # temporary pin so rust-embed can compile
 clap = "3.0.0-beta.2"
 ctrlc = "3.1.7"
 

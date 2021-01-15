@@ -19,6 +19,7 @@ pub fn api_filter(db: Pool<Sqlite>) -> impl Filter<Extract = impl warp::Reply, E
     path(API_PREFIX).and(
         status()
         .or(auth_filters(db.clone()))
+        .recover(handle_api_rejection)
     )
 
 }

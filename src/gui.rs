@@ -14,14 +14,15 @@ use std::thread;
 use tokio::sync::oneshot::{channel, Sender};
 
 const START_UPDATE_CHECK: Selector = Selector::new("streamline-control.start-check");
-const UPDATE_FOUND: Selector<String> = Selector::new("streamline-control.update-found");
+const UPDATE_FOUND: Selector < String > = Selector::new("streamline-control.update-found");
 const NO_UPDATE: Selector = Selector::new("streamline-control.no-update-found");
 const START_DO_UPDATE: Selector = Selector::new("streamline-control.do-updates");
 const UPDATE_FINISHED: Selector = Selector::new("streamline-control.update-finished");
-const UPDATE_ERROR: Selector<String> = Selector::new("streamline-control.update-error");
+const UPDATE_ERROR: Selector < String > = Selector::new("streamline-control.update-error");
 const OPEN_QUIT_CONFIRM: Selector = Selector::new("streamline-control.quit-confirm-open");
-pub const SERVER_START: Selector<SocketAddr> = Selector::new("streamline-control.server-start");
-pub const UPDATE_STATUS: Selector<String> = Selector::new("streamline-control.update-status");
+pub const SERVER_START: Selector < SocketAddr > = Selector::new("streamline-control.server-start");
+pub const UPDATE_STATUS: Selector < String > = Selector::new("streamline-control.update-status");
+
 
 pub fn run_ui() {
     let main_window_id = WindowId::next();
@@ -177,6 +178,7 @@ impl AppDelegate<GUIState> for Delegate {
         Handled::No
     }
 }
+
 fn check_updates(sink: ExtEventSink) {
     thread::spawn(move || {
         let up_to_date = fetch_is_new();

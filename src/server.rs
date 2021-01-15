@@ -1,7 +1,11 @@
+#[cfg(feature = "with-gui")]
 use crate::gui::{SERVER_START, UPDATE_STATUS};
 use crate::APP_INFO;
 use app_dirs2::{app_root, AppDataType};
+#[cfg(feature = "with-gui")]
 use druid::{ExtEventSink, Target};
+#[cfg(not(feature="with-gui"))]
+use crate::ExtEventSink;
 use log::{debug, error, info};
 use port_scanner::local_ports_available;
 use rusqlite::Connection;
@@ -21,6 +25,7 @@ mod embedded {
 
 fn publish_error(error: String, sink: Option<ExtEventSink>) {
     error!("{}", error);
+    #[cfg(feature = "with-gui")]
     if sink.is_some() {
         sink.unwrap()
             .submit_command(UPDATE_STATUS, error, Target::Auto)
@@ -85,8 +90,8 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: Receiver<()>) {
     let routes = static_route
         .or(dist_route)
         .or(api_filter(pool.clone()))
-        .or(app)
-        .recover(handle_api_rejection);
+        .or(app);
+        // .recover(handle_api_rejection);
 
     let mut ports: Vec<u16> = local_ports_available(vec![3030, 8888, 8080, 80]);
 
@@ -108,6 +113,7 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: Receiver<()>) {
     let server_handle = match server_result {
         Ok((addr, future)) => {
             info!("Server started at http://{}", addr);
+            #[cfg(feature = "with-gui")]
             if sink.is_some() {
                 sink.unwrap()
                     .submit_command(SERVER_START, addr, Target::Auto)
@@ -147,9 +153,9 @@ async fn dist_serve(path: Tail) -> Result<impl Reply, Rejection> {
 }
 
 async fn serve_index(path: Peek) -> Result<impl Reply, Rejection> {
-    if path.segments().next() == Some("api") {
-        return Err(warp::reject::not_found())
-    }
+    // if path.segments().next() == Some("api") {
+    //     return Err(warp::reject::not_found())
+    // }
     serve_impl("index.html")
 }
 
