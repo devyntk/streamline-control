@@ -42,7 +42,7 @@ self_update = { version = "0.16", optional = true}
 webbrowser = "0.5.4"
 port_scanner = "0.1"
 app_dirs2 = "2"
-flexi_logger = "0.15"
+flexi_logger = "0.17"
 log = "0.4"
 simple_logger = "1.6.0"
 mime = "0.3.0"
