@@ -38,7 +38,7 @@ reqwest = { version = "0.11", features = [ "native-tls-vendored" ]}
 refinery = { version = "0.5", features = ["rusqlite"] }
 rust-embed="5.8"
 mime_guess = "2"
-self_update = { version = "0.16", optional = true}
+self_update = { version = "0.23", optional = true}
 webbrowser = "0.5.4"
 port_scanner = "0.1"
 app_dirs2 = "2"
