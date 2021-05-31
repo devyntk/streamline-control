@@ -27,7 +27,7 @@
     "sass": "^1.32.5",
     "sass-loader": "^11.0.1",
     "style-loader": "^2.0.0",
-    "webpack": "^5.12.1",
+    "webpack": "^5.38.1",
     "webpack-cli": "^4.4.0",
     "webpack-merge": "^5.7.3"
   }
