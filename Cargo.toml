@@ -29,20 +29,20 @@ with-gui = ["druid", "self_update"]
 shared = { path = "./shared" }
 
 druid = { version = "0.7", optional = true }
-tokio = { version = "0.2", features = ["macros", "sync", "rt-threaded", "time"] }
+tokio = { version = "1", features = ["full"] }
 async-std = "1.9"
-warp = "0.2"
-sqlx = { version = "0.4.2", default-features = false, features = [ "runtime-tokio-native-tls", "macros" , "sqlite"] }
+warp = "0.3"
+sqlx = { version = "0.5", default-features = false, features = [ "runtime-tokio-native-tls", "macros" , "sqlite"] }
 reqwest = { version = "0.11", features = [ "native-tls-vendored" ]}
 
 refinery = { version = "0.5", features = ["rusqlite"] }
 rust-embed="5.8"
 mime_guess = "2"
-self_update = { version = "0.23", optional = true}
+self_update = { version = "0.27", optional = true}
 webbrowser = "0.5.4"
 port_scanner = "0.1"
 app_dirs2 = "2"
-flexi_logger = "0.17"
+flexi_logger = "0.18"
 log = "0.4"
 simple_logger = "1.6.0"
 mime = "0.3.0"

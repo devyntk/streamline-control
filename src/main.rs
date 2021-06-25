@@ -1,7 +1,7 @@
 use crate::server::start_server;
 use app_dirs2::*;
 use clap::{crate_authors, crate_version, App, Arg, ArgMatches};
-use flexi_logger::{Duplicate, Logger};
+use flexi_logger::{Duplicate, Logger, FileSpec};
 use std::thread;
 use tokio::sync::oneshot::channel;
 use log::info;
@@ -114,9 +114,10 @@ fn start_logging_dns() {
     let log_dir =
         app_dir(AppDataType::UserConfig, &APP_INFO, "log/").expect("Error getting log directory");
 
-    Logger::with_env_or_str("debug")
-        .log_to_file()
-        .directory(log_dir)
+    Logger::try_with_env_or_str("debug")
+        .expect("Cannot setup logger!")
+        .log_to_file(
+            FileSpec::default().directory(log_dir))
         .duplicate_to_stdout(Duplicate::Debug)
         .start()
         .unwrap();
