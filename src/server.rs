@@ -15,7 +15,7 @@ use tokio::sync::{oneshot, broadcast};
 use warp::http::{header::HeaderValue, Response};
 use warp::{path, path::Tail, path::peek, Filter, Rejection, Reply, get};
 use tokio::task::spawn_blocking;
-use crate::api::{api_filter, handle_api_rejection};
+use crate::api::api_filter;
 use warp::filters::path::Peek;
 use sqlx::{Pool, Sqlite};
 use std::sync::Arc;
@@ -102,13 +102,12 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: oneshot::Receiver<()>)
     let static_route = path("static").and(path::tail()).and_then(static_serve);
     let dist_route = path("dist").and(path::tail()).and_then(dist_serve);
 
-    let app = get().and(peek()).and_then(serve_index);
+    let app = get().and_then(serve_index);
 
     let routes = static_route
         .or(dist_route)
         .or(api_filter(state.clone()))
         .or(app);
-        // .recover(handle_api_rejection);
 
     let mut ports: Vec<u16> = local_ports_available(vec![3030, 8888, 8080, 80]);
 
@@ -174,10 +173,7 @@ async fn dist_serve(path: Tail) -> Result<impl Reply, Rejection> {
     Ok(res)
 }
 
-async fn serve_index(path: Peek) -> Result<impl Reply, Rejection> {
-    // if path.segments().next() == Some("api") {
-    //     return Err(warp::reject::not_found())
-    // }
+async fn serve_index() -> Result<impl Reply, Rejection> {
     serve_impl("index.html")
 }
 

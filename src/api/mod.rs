@@ -42,6 +42,7 @@ async fn get_status() -> Result<impl Reply, Infallible>{
 pub async fn handle_api_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
     let code;
     let message;
+    let string_msg;
 
     if err.is_not_found() {
         code = StatusCode::NOT_FOUND;
@@ -51,11 +52,8 @@ pub async fn handle_api_rejection(err: Rejection) -> Result<impl Reply, Infallib
         // We can use the cause to analyze the error and customize the error message
         message = match e.source() {
             Some(cause) => {
-                if cause.to_string().contains("denom") {
-                    "FIELD_ERROR: denom"
-                } else {
-                    "BAD_REQUEST"
-                }
+                string_msg = format!("ERROR: {}", cause.to_string());
+                &*string_msg
             }
             None => "BAD_REQUEST",
         };
