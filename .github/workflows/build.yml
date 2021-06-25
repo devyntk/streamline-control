@@ -11,6 +11,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install stable rust
+        uses: actions-rs/toolchain@v1
+        with:
+          target: wasm32-unknown-unknown
+
+      - uses: jetli/wasm-pack-action@v0.3.0
+
       - name: Cargo Cache
         uses: Swatinem/rust-cache@v1
 
@@ -23,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: |
               sudo apt update
-              sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-dev libgtk-3-dev libssl1.0-dev -y
+              sudo apt install gtk+3.0 libpango1.0-dev libatk1.0-dev libgtk-3-dev libssl-dev -y
 
       - name: Install Cargo-Make
         uses: davidB/rust-cargo-make@v1
@@ -67,6 +74,13 @@ jobs:
     runs-on: macos-latest
     steps:
         - uses: actions/checkout@v2
+
+        - name: Install stable rust
+          uses: actions-rs/toolchain@v1
+          with:
+            target: wasm32-unknown-unknown
+
+        - uses: jetli/wasm-pack-action@v0.3.0
 
         - name: Cargo Cache
           uses: Swatinem/rust-cache@v1
@@ -128,6 +142,13 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
+
+      - name: Install stable rust
+        uses: actions-rs/toolchain@v1
+        with:
+          target: wasm32-unknown-unknown
+
+      - uses: jetli/wasm-pack-action@v0.3.0
 
       - name: Cargo Cache
         uses: Swatinem/rust-cache@v1
