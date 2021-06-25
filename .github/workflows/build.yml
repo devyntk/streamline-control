@@ -7,18 +7,19 @@ on:
 
 jobs:
   linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
 
       - name: Install stable rust
-        uses: actions-rs/toolchain@v1
+        uses: actions-rs/toolchain@v1.0.6
         with:
           target: wasm32-unknown-unknown
           toolchain: stable
+          override: true
 
       - name: Cargo Cache
-        uses: Swatinem/rust-cache@v1
+        uses: Swatinem/rust-cache@v1.3.0
 
       - name: Yarn Cache
         uses: actions/cache@v2.1.4
@@ -29,13 +30,13 @@ jobs:
       - name: Install dependencies
         run: |
               sudo apt update
-              sudo apt install libpango-dev libatk1.0-dev libgtk-3-dev libssl-dev -y
+              sudo apt install libpango1.0-dev libatk1.0-dev libgtk-3-dev libssl-dev -y
 
       - name: Install Cargo-Make
-        uses: davidB/rust-cargo-make@v1
+        uses: davidB/rust-cargo-make@v1.6.0
 
       - name: Install Wasm-Pack
-        uses: actions-rs/install@v0.1
+        uses: actions-rs/install@v0.1.2
         with:
           crate: wasm-pack
           version: latest
@@ -70,18 +71,19 @@ jobs:
 
 
   mac:
-    runs-on: macos-latest
+    runs-on: macos-10.15
     steps:
         - uses: actions/checkout@v2
 
         - name: Install stable rust
-          uses: actions-rs/toolchain@v1
+          uses: actions-rs/toolchain@v1.0.6
           with:
             target: wasm32-unknown-unknown
             toolchain: stable
+            override: true
 
         - name: Cargo Cache
-          uses: Swatinem/rust-cache@v1
+          uses: Swatinem/rust-cache@v1.3.0
 
         - name: Yarn Cache
           uses: actions/cache@v2.1.4
@@ -90,7 +92,7 @@ jobs:
             key: ${{ runner.os }}-yarn-${{ hashFiles('**/frontend/yarn.lock') }}
 
         - name: Install Cargo-Make
-          uses: davidB/rust-cargo-make@v1
+          uses: davidB/rust-cargo-make@v1.6.0
 
         - name: Install Wasm-Pack
           uses: actions-rs/install@v0.1
@@ -100,7 +102,7 @@ jobs:
             use-tool-cache: true
 
         - name: Install Cargo-Bundle
-          uses: actions-rs/install@v0.1
+          uses: actions-rs/install@v0.1.2
           with:
             crate: cargo-bundle
             version: latest
@@ -137,18 +139,19 @@ jobs:
             asset_content_type: application/octet-stream
 
   windows:
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
       - uses: actions/checkout@v2
 
       - name: Install stable rust
-        uses: actions-rs/toolchain@v1
+        uses: actions-rs/toolchain@v1.0.6
         with:
           target: wasm32-unknown-unknown
           toolchain: stable
+          override: true
 
       - name: Cargo Cache
-        uses: Swatinem/rust-cache@v1
+        uses: Swatinem/rust-cache@v1.3.0
 
       - name: Yarn Cache
         uses: actions/cache@v2.1.4
@@ -163,10 +166,10 @@ jobs:
           RefreshEnv
 
       - name: Install Cargo-Make
-        uses: davidB/rust-cargo-make@v1
+        uses: davidB/rust-cargo-make@v1.6.0
 
       - name: Install Wasm-Pack
-        uses: actions-rs/install@v0.1
+        uses: actions-rs/install@v0.1.2
         with:
           crate: wasm-pack
           version: latest
