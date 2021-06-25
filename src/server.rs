@@ -11,12 +11,25 @@ use port_scanner::local_ports_available;
 use rusqlite::Connection;
 use rust_embed::RustEmbed;
 use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-use tokio::sync::oneshot::Receiver;
+use tokio::sync::{oneshot, broadcast};
 use warp::http::{header::HeaderValue, Response};
 use warp::{path, path::Tail, path::peek, Filter, Rejection, Reply, get};
 use tokio::task::spawn_blocking;
 use crate::api::{api_filter, handle_api_rejection};
 use warp::filters::path::Peek;
+use sqlx::{Pool, Sqlite};
+use std::sync::Arc;
+
+#[derive(Clone, Debug)]
+pub struct SharedState {
+    pub pool: Pool<Sqlite>,
+    pub tx: broadcast::Sender<SharedMessage>
+}
+
+#[derive(Clone, Debug, Copy)]
+pub enum SharedMessage {
+    Exit
+}
 
 mod embedded {
     use refinery::embed_migrations;
@@ -34,7 +47,7 @@ fn publish_error(error: String, sink: Option<ExtEventSink>) {
 }
 
 #[tokio::main]
-pub async fn start_server(sink: Option<ExtEventSink>, rx: Receiver<()>) {
+pub async fn start_server(sink: Option<ExtEventSink>, rx: oneshot::Receiver<()>) {
     let mut db_url = match app_root(AppDataType::UserConfig, &APP_INFO) {
         Ok(db) => {
             debug!("Location of user data: {:#?}", db);
@@ -82,6 +95,10 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: Receiver<()>) {
         }
     };
 
+    let (tx , _rx) = broadcast::channel(10);
+
+    let state = Arc::new(SharedState{ pool, tx });
+
     let static_route = path("static").and(path::tail()).and_then(static_serve);
     let dist_route = path("dist").and(path::tail()).and_then(dist_serve);
 
@@ -89,7 +106,7 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: Receiver<()>) {
 
     let routes = static_route
         .or(dist_route)
-        .or(api_filter(pool.clone()))
+        .or(api_filter(state.clone()))
         .or(app);
         // .recover(handle_api_rejection);
 
@@ -103,11 +120,16 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: Receiver<()>) {
         }
     };
 
+    let tx_clone = state.tx.clone();
     let server_result =
         warp::serve(routes)
             .try_bind_with_graceful_shutdown(
                 ([127, 0, 0, 1], port),
-                async { rx.await.ok();}
+                async move {
+                    rx.await.ok();
+                    tx_clone.clone().send(SharedMessage::Exit)
+                        .expect("Error sending exit message");
+                }
         );
 
     let server_handle = match server_result {
@@ -129,7 +151,7 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: Receiver<()>) {
 
     server_handle.await.expect("Error starting server thread");
 
-    pool.close().await;
+    state.pool.close().await;
 }
 
 #[derive(RustEmbed)]

@@ -7,18 +7,20 @@ use std::convert::Infallible;
 use warp::reply::json;
 use clap::crate_version;
 use crate::api::auth::auth_filters;
+use crate::server::SharedState;
 use warp::http::StatusCode;
 use std::error::Error;
+use std::sync::Arc;
 
 
 fn with_db(db: Pool<Sqlite>) -> impl Filter<Extract = (Pool<Sqlite>,), Error = std::convert::Infallible> + Clone {
     warp::any().map(move || db.clone())
 }
 
-pub fn api_filter(db: Pool<Sqlite>) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
+pub fn api_filter(state: Arc<SharedState>) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
     path(API_PREFIX).and(
         status()
-        .or(auth_filters(db.clone()))
+        .or(auth_filters(state.pool.clone()))
         .recover(handle_api_rejection)
     )
 
