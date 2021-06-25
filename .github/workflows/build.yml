@@ -15,6 +15,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           target: wasm32-unknown-unknown
+          toolchain: stable
 
       - uses: jetli/wasm-pack-action@v0.3.0
 
@@ -79,6 +80,7 @@ jobs:
           uses: actions-rs/toolchain@v1
           with:
             target: wasm32-unknown-unknown
+            toolchain: stable
 
         - uses: jetli/wasm-pack-action@v0.3.0
 
@@ -147,6 +149,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           target: wasm32-unknown-unknown
+          toolchain: stable
 
       - uses: jetli/wasm-pack-action@v0.3.0
 
