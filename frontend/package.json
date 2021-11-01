@@ -10,7 +10,7 @@
     "generate:css_classes": "webpack --config webpack.css_classes.config.js --mode=development --stats summary"
   },
   "devDependencies": {
-    "@wasm-tool/wasm-pack-plugin": "^1.4.0",
+    "@wasm-tool/wasm-pack-plugin": "^1.6.0",
     "autoprefixer": "^10.2.6",
     "bulma": "^0.9.3",
     "bulma-pageloader": "https://github.com/devyntk/bulma-pageloader.git#patch-1",
