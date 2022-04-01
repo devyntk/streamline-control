@@ -16,7 +16,7 @@
     "bulma-pageloader": "https://github.com/devyntk/bulma-pageloader.git#patch-1",
     "clean-webpack-plugin": "^4.0.0-alpha.0",
     "copy-webpack-plugin": "^9.0.1",
-    "css-loader": "^5.2.6",
+    "css-loader": "^6.7.1",
     "cssnano": "^5.0.6",
     "mini-css-extract-plugin": "^2.0.0",
     "postcss": "^8.3.5",
