@@ -16,7 +16,7 @@ crate-type = ["cdylib"]
 wasm-bindgen-test = "0.3"
 
 [dependencies]
-seed = { version = "0.8" }
+seed = { version = "0.9" }
 
 shared = { path = "../shared" }
 
