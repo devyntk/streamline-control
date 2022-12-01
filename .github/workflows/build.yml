@@ -19,7 +19,7 @@ jobs:
           override: true
 
       - name: Cargo Cache
-        uses: Swatinem/rust-cache@v1.3.0
+        uses: Swatinem/rust-cache@v2.2.0
 
       - name: Yarn Cache
         uses: actions/cache@v2.1.6
@@ -83,7 +83,7 @@ jobs:
             override: true
 
         - name: Cargo Cache
-          uses: Swatinem/rust-cache@v1.3.0
+          uses: Swatinem/rust-cache@v2.2.0
 
         - name: Yarn Cache
           uses: actions/cache@v2.1.6
@@ -151,7 +151,7 @@ jobs:
           override: true
 
       - name: Cargo Cache
-        uses: Swatinem/rust-cache@v1.3.0
+        uses: Swatinem/rust-cache@v2.2.0
 
       - name: Yarn Cache
         uses: actions/cache@v2.1.6
