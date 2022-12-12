@@ -9,17 +9,8 @@ repository = "https://github.com/deyvntk/streamline-control/"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[lib]
-crate-type = ["cdylib"]
-
-[dev-dependencies]
-wasm-bindgen-test = "0.3"
 
 [dependencies]
-seed = { version = "0.8" }
+yew = { version = "0.20.0", features = ["csr"] }
 
 shared = { path = "../shared" }
-
-
-[package.metadata.wasm-pack.profile.release]
-wasm-opt = ['-Os']

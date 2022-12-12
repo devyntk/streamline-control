@@ -1,0 +1,5 @@
+[build]
+target = "index.html"
+dist = "../web_dist"
+# The public URL from which assets are to be served.
+public_url = "/"

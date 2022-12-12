@@ -17,7 +17,7 @@ use std::process::Child;
 #[cfg(feature = "with-gui")]
 use druid::ExtEventSink;
 
-mod api;
+// mod api;
 mod dns;
 mod server;
 
