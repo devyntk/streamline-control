@@ -48,7 +48,7 @@ log = "0.4"
 mime = "0.3.0"
 clap = {version = "3.2.23", features=["cargo"] }
 ctrlc = "3.1.9"
-argon2 = "0.2"
+argon2 = "0.4"
 rand_core = { version = "0.6", features = ["std"] }
 
 lexical-core = "0.7.6" # pin for compiling on latest stable
