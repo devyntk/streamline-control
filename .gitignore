@@ -3,4 +3,4 @@ debug/
 pkg/
 .idea/
 
-css_classes.rs
+web_dist/

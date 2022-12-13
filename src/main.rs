@@ -38,7 +38,7 @@ fn main() {
         .author(crate_authors!())
         .arg(
             Arg::new("headless")
-                .about("Skip running the GUI and run headless")
+                .help("Skip running the GUI and run headless")
                 .short('c')
                 .long("console")
         );
@@ -46,13 +46,13 @@ fn main() {
     #[cfg(debug_assertions)]
     let app = app.arg(
         Arg::new("watch-frontend")
-            .about("Launch a frontend watch process")
+            .help("Launch a frontend watch process")
             .requires("headless")
             .long("watch-frontend")
         )
         .arg(
         Arg::new("silent-watch")
-            .about("Silence output from the frontend watch process")
+            .help("Silence output from the frontend watch process")
             .requires("watch-frontend")
             .long("silent-watch")
         );
@@ -150,7 +150,7 @@ fn main() {
             .long("watch-frontend")
     ).arg(
         Arg::new("silent-watch")
-            .about("Silence output from the frontend watch process")
+            .help("Silence output from the frontend watch process")
             .requires("watch-frontend")
             .long("silent-watch")
         );

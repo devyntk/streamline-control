@@ -27,11 +27,6 @@ pub enum SharedMessage {
     Exit
 }
 
-mod embedded {
-    use refinery::embed_migrations;
-    embed_migrations!();
-}
-
 fn publish_error(error: String, sink: Option<ExtEventSink>) {
     error!("{}", error);
     #[cfg(feature = "with-gui")]
@@ -56,7 +51,7 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: oneshot::Receiver<()>)
     };
     db_url.push("streamline.db");
 
-    let db_options = SqliteConnectOptions::new().filename(db_url);
+    let db_options = SqliteConnectOptions::new().filename(db_url).create_if_missing(true);
 
     let pool = match SqlitePoolOptions::new().connect_with(db_options).await {
         Ok(pool) => pool,
@@ -83,10 +78,10 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: oneshot::Receiver<()>)
             return;
         }
     };
-
+    let addr = &([127, 0, 0, 1], port).into();
     let tx_clone = state.tx.clone();
     let server =
-        axum::Server::bind(&([127, 0, 0, 1], port).into()).serve(app)
+        axum::Server::bind(addr).serve(app.into_make_service())
             .with_graceful_shutdown(
                 async move {
                     rx.await.ok();
@@ -94,12 +89,12 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: oneshot::Receiver<()>)
                         .expect("Error sending exit message");
                 },
             );
-    
+
     info!("Server started at http://localhost:{}", port);
     #[cfg(feature = "with-gui")]
     if sink.is_some() {
         sink.unwrap()
-            .submit_command(SERVER_START, addr, Target::Auto)
+            .submit_command(SERVER_START, *addr, Target::Auto)
             .expect("Error sending GUI update");
     }
     server.await.expect("Cannot await server");
