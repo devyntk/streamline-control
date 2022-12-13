@@ -1,4 +1,0 @@
-[build]
-target = "index.html"
-dist = "../web_dist"
-public_url = "/assets/"

@@ -146,7 +146,7 @@ fn main() {
     #[cfg(debug_assertions)]
     let app = app.arg(
         Arg::new("watch-frontend")
-            .about("Launch a frontend watch process")
+            .help("Launch a frontend watch process")
             .long("watch-frontend")
     ).arg(
         Arg::new("silent-watch")
