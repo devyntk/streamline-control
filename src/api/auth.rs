@@ -1,75 +1,103 @@
-use warp::{Filter, get, Reply};
-use std::convert::Infallible;
-use sqlx::{Pool, Sqlite, Row};
-use crate::api::with_db;
-use shared::{AUTH_PREFIX, TOKEN_PREFIX, LOGIN_PREFIX, UserLogin, LoginResult, LoggedUser};
+use crate::api::types::{LoggedUser, LoginResult, UserLogin};
+use crate::api::AppError;
+use crate::server::SharedState;
+use anyhow::anyhow;
 use argon2::{
     password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
-    Argon2
+    Argon2,
 };
+use axum::debug_handler;
+use axum::extract::State;
+use axum::http::{Request, StatusCode};
+use axum::middleware::{from_fn_with_state, Next};
+use axum::response::{IntoResponse, Response};
+use axum::routing::{get, post};
+use axum::{http, Extension, Json, Router};
 use rand_core::OsRng;
+use sqlx::{Pool, Row, Sqlite};
+use std::convert::Infallible;
 
-pub fn auth_filters(db: Pool<Sqlite>) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    check_token(db.clone())
-        .or(login(db.clone()))
+pub fn auth_routes(state: SharedState) -> Router {
+    Router::new()
+        .route("/login", post(login_handler))
+        .route("/user", get(current_user_handler))
+        .route_layer(from_fn_with_state(state.clone(), auth))
+        .with_state(state)
 }
 
-fn check_token(db: Pool<Sqlite>) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    warp::path(AUTH_PREFIX)
-        .and(warp::path(TOKEN_PREFIX))
-        .and(warp::path!(String))
-        .and(with_db(db))
-        .and(get())
-        .and_then(check_token_handler)
+async fn auth<B>(
+    State(state): State<SharedState>,
+    mut req: Request<B>,
+    next: Next<B>,
+) -> Result<Response, StatusCode> {
+    let auth_header = req
+        .headers()
+        .get(http::header::AUTHORIZATION)
+        .and_then(|header| header.to_str().ok());
+
+    let auth_header = if let Some(auth_header) = auth_header {
+        auth_header
+    } else {
+        return Err(StatusCode::UNAUTHORIZED);
+    };
+
+    if let Some(current_user) = authorize_current_user(auth_header, state.pool).await {
+        // insert the current user into a request extension so the handler can
+        // extract it
+        req.extensions_mut().insert(current_user);
+        Ok(next.run(req).await)
+    } else {
+        Err(StatusCode::UNAUTHORIZED)
+    }
 }
 
-async fn check_token_handler(token: String, db: Pool<Sqlite>) -> Result<impl Reply, Infallible> {
-    Ok(warp::reply::json(&token))
+async fn authorize_current_user(auth_token: &str, db: Pool<Sqlite>) -> Option<LoggedUser> {
+    Some(LoggedUser {
+        id: 0,
+        display_name: "".to_owned(),
+        username: "".to_owned(),
+        token: "".to_owned(),
+    })
 }
 
-fn login(db: Pool<Sqlite>) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    warp::path(AUTH_PREFIX)
-        .and(warp::path(LOGIN_PREFIX))
-        .and(warp::body::json())
-        .and(with_db(db))
-        .and(get())
-        .and_then(login_handler)
-}
-
-async fn login_handler(login: UserLogin, db: Pool<Sqlite>) -> Result<impl Reply, Infallible> {
+async fn login_handler(
+    State(state): State<SharedState>,
+    Json(login): Json<UserLogin>,
+) -> Result<impl IntoResponse, AppError> {
     let user = sqlx::query("SELECT id, display_name, username, pw FROM user WHERE username = ?")
         .bind(login.username)
-        .fetch_one(&db)
-        .await;
+        .fetch_one(&state.pool)
+        .await?;
 
-    match user {
-        Ok(row) => {
-            let pw = row.get("pw");
-            let hash = PasswordHash::new(pw).expect("Cannot get DB Hash");
+    let pw = user.get("pw");
+    let hash = PasswordHash::new(pw).expect("Cannot get DB Hash");
 
-            let argon2 = Argon2::default();
-            match argon2.verify_password(login.password.as_ref(), &hash) {
-                Ok(_) => {
-                    // PW okay, get token
-                    Ok(warp::reply::json(&LoginResult::Ok(LoggedUser{
-                        id: 0,
-                        display_name: row.get("display_name"),
-                        username: row.get("username"),
-                        token: "".to_string()
-                    })))
-                }
-                Err(_) => {
-                    Ok(warp::reply::json(&LoginResult::IncorrectAuth))
-                }
-            }
+    let argon2 = Argon2::default();
+    match argon2.verify_password(login.password.as_ref(), &hash) {
+        Ok(_) => {
+            return Ok((
+                StatusCode::OK,
+                Json(serde_json::json!(LoginResult::Ok(LoggedUser {
+                    id: 0,
+                    display_name: user.get("display_name"),
+                    username: user.get("username"),
+                    token: "".to_owned(),
+                }))),
+            ));
         }
         Err(_) => {
-            Ok(warp::reply::json(&LoginResult::IncorrectAuth))
+            return Ok((
+                StatusCode::UNAUTHORIZED,
+                Json(serde_json::json!({ "status": "Incorrect password" })),
+            ))
         }
     }
 }
 
-#[derive(Debug)]
-struct AuthFailed {}
-
-impl warp::reject::Reject for AuthFailed {}
+#[debug_handler]
+async fn current_user_handler(
+    Extension(current_user): Extension<LoggedUser>,
+    State(state): State<SharedState>,
+) -> Result<impl IntoResponse, StatusCode> {
+    return Ok(Json(current_user));
+}

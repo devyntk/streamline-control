@@ -1,79 +1,50 @@
 mod auth;
+mod types;
 
-use sqlx::{Pool, Sqlite};
-use warp::{Filter, get, Reply, path, Rejection};
-use shared::{Status, API_PREFIX, ErrorMessage};
-use std::convert::Infallible;
-use warp::reply::json;
-use clap::crate_version;
-use crate::api::auth::auth_filters;
+use crate::api::types::{ErrorMessage, Status};
 use crate::server::SharedState;
-use warp::http::StatusCode;
+use axum::http::StatusCode;
+use axum::response::{IntoResponse, Response};
+use axum::{Json, Router};
+use sqlx::{Pool, Sqlite};
+use std::convert::Infallible;
 use std::error::Error;
 use std::sync::Arc;
 
-
-fn with_db(db: Pool<Sqlite>) -> impl Filter<Extract = (Pool<Sqlite>,), Error = std::convert::Infallible> + Clone {
-    warp::any().map(move || db.clone())
+pub fn api_routes(state: SharedState) -> Router {
+    Router::new()
+        .nest("/auth", auth::auth_routes(state.clone()))
+        .fallback(api_fallback)
 }
 
-pub fn api_filter(state: Arc<SharedState>) -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
-    path(API_PREFIX).and(
-        status()
-        .or(auth_filters(state.pool.clone()))
-        .recover(handle_api_rejection)
+async fn api_fallback() -> (StatusCode, Json<serde_json::Value>) {
+    (
+        StatusCode::NOT_FOUND,
+        Json(serde_json::json!({ "status": "Not Found" })),
     )
-
 }
 
-fn status() -> impl Filter<Extract = impl warp::Reply, Error = Rejection> + Clone {
-    warp::path!("status")
-        .and(get())
-        .and_then(get_status)
-}
+// Make our own error that wraps `anyhow::Error`.
+struct AppError(anyhow::Error);
 
-async fn get_status() -> Result<impl Reply, Infallible>{
-    let status = Status {
-        version: crate_version!().into()
-    };
-    Ok(json(&status))
-}
-
-pub async fn handle_api_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
-    let code;
-    let message;
-    let string_msg;
-
-    if err.is_not_found() {
-        code = StatusCode::NOT_FOUND;
-        message = "NOT_FOUND";
-    } else if let Some(e) = err.find::<warp::filters::body::BodyDeserializeError>() {
-        // This error happens if the body could not be deserialized correctly
-        // We can use the cause to analyze the error and customize the error message
-        message = match e.source() {
-            Some(cause) => {
-                string_msg = format!("ERROR: {}", cause.to_string());
-                &*string_msg
-            }
-            None => "BAD_REQUEST",
-        };
-        code = StatusCode::BAD_REQUEST;
-    } else if let Some(_) = err.find::<warp::reject::MethodNotAllowed>() {
-        // We can handle a specific error, here METHOD_NOT_ALLOWED,
-        // and render it however we want
-        code = StatusCode::METHOD_NOT_ALLOWED;
-        message = "METHOD_NOT_ALLOWED";
-    } else {
-        // We should have expected this... Just log and say its a 500
-        eprintln!("unhandled rejection: {:?}", err);
-        code = StatusCode::INTERNAL_SERVER_ERROR;
-        message = "UNHANDLED_REJECTION";
+// Tell axum how to convert `AppError` into a response.
+impl IntoResponse for AppError {
+    fn into_response(self) -> Response {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Something went wrong: {}", self.0),
+        )
+            .into_response()
     }
+}
 
-    let json = warp::reply::json(&ErrorMessage {
-        code: code.as_u16(),
-        message: message.into(),
-    });
-
-    Ok(warp::reply::with_status(json, code))
+// This enables using `?` on functions that return `Result<_, anyhow::Error>` to turn them into
+// `Result<_, AppError>`. That way you don't need to do that manually.
+impl<E> From<E> for AppError
+where
+    E: Into<anyhow::Error>,
+{
+    fn from(err: E) -> Self {
+        Self(err.into())
+    }
 }

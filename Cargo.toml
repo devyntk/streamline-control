@@ -7,52 +7,37 @@ description = "An event management system for FIRST Tech Challenge Events"
 license = "MIT"
 repository = "https://github.com/devyntk/streamline-control/"
 
-[workspace]
-members = [
-    "frontend",
-    "shared"
-]
-
 [package.metadata.bundle]
 name = "Streamline Control"
 identifier = "com.github.streamline-control"
-
-[profile.release.package.frontend]
-opt-level = 'z'
-codegen-units = 1
 
 [features]
 default = ["with-gui"]
 with-gui = ["druid", "self_update"]
 
 [dependencies]
-shared = { path = "./shared" }
-
 druid = { version = "0.7", optional = true }
 tokio = { version = "1.7", features = ["full"] }
-axum = { version = "0.6" }
-sqlx = { version = "0.5", default-features = false, features = [ "runtime-tokio-native-tls", "macros" , "sqlite"] }
+axum = { version = "0.6.2", features = ["macros"] }
+sqlx = { version = "0.6.2", default-features = false, features = [ "runtime-tokio-native-tls", "macros" , "sqlite"] }
 reqwest = { version = "0.11", features = [ "native-tls-vendored" ]}
 
 axum-extra = { version = "0.4.2", features = ["spa"] }
 tower = "^0.4"
 tower-http = { version = "^0.3", features = ["full"] }
-rust-embed="5.9"
+rust-embed= "6.4.2"
 mime_guess = "2"
 self_update = { version = "0.27", optional = true}
-webbrowser = "0.5.4"
+webbrowser = "0.8.4"
 port_scanner = "0.1"
 app_dirs2 = "2"
-flexi_logger = "0.18"
+flexi_logger = "0.24.2"
 log = "0.4"
 mime = "0.3.0"
-clap = {version = "3.2.23", features=["cargo"] }
+clap = {version = "4.0", features=["derive"] }
 ctrlc = "3.1.9"
-argon2 = "0.2"
+argon2 = "0.4.1"
 rand_core = { version = "0.6", features = ["std"] }
-
-lexical-core = "0.7.6" # pin for compiling on latest stable
-
-[dependencies.rusqlite]
-version = "0.24"
-features = ["bundled"]
+anyhow = "1.0.68"
+serde = {version = "1.0.150", features = ["derive"] }
+serde_json = "1.0.91"
