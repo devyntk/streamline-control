@@ -4,12 +4,17 @@ use crate::gui::{SERVER_START, UPDATE_STATUS};
 use crate::ExtEventSink;
 use crate::{api, APP_INFO};
 use app_dirs2::{app_root, AppDataType};
-use axum_extra::routing::SpaRouter;
+use axum::{
+    body::{boxed, Full},
+    http::{header, StatusCode, Uri},
+    response::Response,
+};
 use biscuit_auth::KeyPair;
 #[cfg(feature = "with-gui")]
 use druid::{ExtEventSink, Target};
-use log::{debug, error, info};
+use log::{error, info};
 use port_scanner::local_ports_available;
+use rust_embed::RustEmbed;
 use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
 use sqlx::{Pool, Sqlite};
 use std::fs;
@@ -30,6 +35,7 @@ pub enum SharedMessage {
     Exit,
 }
 
+#[allow(unused_variables)]
 fn publish_error(error: String, sink: Option<ExtEventSink>) {
     error!("{}", error);
     #[cfg(feature = "with-gui")]
@@ -80,9 +86,9 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: oneshot::Receiver<()>)
     let state = SharedState { pool, tx, key };
 
     let app = axum::Router::new()
-        .merge(SpaRouter::new("/assets", "frontend/dist"))
         .layer(ServiceBuilder::new().layer(TraceLayer::new_for_http()))
-        .nest("/api", api::api_routes(state.clone()));
+        .nest("/api", api::api_routes(state.clone()))
+        .fallback(static_handler);
 
     let mut ports: Vec<u16> = local_ports_available(vec![3030, 8888, 8080, 80]);
 
@@ -115,4 +121,56 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: oneshot::Receiver<()>)
     server.await.expect("Cannot await server");
 
     state.clone().pool.close().await;
+}
+
+#[derive(RustEmbed)]
+#[folder = "frontend/dist"]
+struct Assets;
+
+async fn static_handler(uri: Uri) -> Response {
+    let path = uri.path().trim_start_matches('/');
+
+    if path.is_empty() || path == "index.html" {
+        return index_html().await;
+    }
+
+    match Assets::get(path) {
+        Some(content) => {
+            let body = boxed(Full::from(content.data));
+            let mime = mime_guess::from_path(path).first_or_octet_stream();
+
+            Response::builder()
+                .header(header::CONTENT_TYPE, mime.as_ref())
+                .body(body)
+                .unwrap()
+        }
+        None => {
+            if path.contains('.') {
+                return not_found().await;
+            }
+
+            index_html().await
+        }
+    }
+}
+
+async fn index_html() -> Response {
+    match Assets::get("index.html") {
+        Some(content) => {
+            let body = boxed(Full::from(content.data));
+
+            Response::builder()
+                .header(header::CONTENT_TYPE, "text/html")
+                .body(body)
+                .unwrap()
+        }
+        None => not_found().await,
+    }
+}
+
+async fn not_found() -> Response {
+    Response::builder()
+        .status(StatusCode::NOT_FOUND)
+        .body(boxed(Full::from("404")))
+        .unwrap()
 }

@@ -13,8 +13,7 @@ use axum::response::{IntoResponse, Response};
 use axum::routing::{get, post};
 use axum::{http, Extension, Json, Router};
 use biscuit_auth::Biscuit;
-use serde::{Deserialize, Serialize};
-use sqlx::{Pool, Row, Sqlite};
+use sqlx::{Error, Row};
 
 pub fn auth_routes(state: SharedState) -> Router {
     Router::new()
@@ -42,7 +41,7 @@ async fn auth<B>(
         return Err(StatusCode::UNAUTHORIZED);
     };
 
-    if let Some(current_user) = authorize_current_user(auth_header, state.pool).await {
+    if let Ok(current_user) = Biscuit::from_base64(auth_header, |_| state.key.public()) {
         // insert the current user into a request extension so the handler can
         // extract it
         req.extensions_mut().insert(current_user);
@@ -52,23 +51,32 @@ async fn auth<B>(
     }
 }
 
-async fn authorize_current_user(auth_token: &str, db: Pool<Sqlite>) -> Option<LoggedUser> {
-    Some(LoggedUser {
-        id: 0,
-        display_name: "".to_owned(),
-        username: "".to_owned(),
-        token: "".to_owned(),
-    })
-}
-
 async fn login_handler(
     State(state): State<SharedState>,
     Json(login): Json<UserLogin>,
 ) -> Result<impl IntoResponse, AppError> {
-    let user = sqlx::query("SELECT id, display_name, username, pw FROM user WHERE username = ?")
-        .bind(login.username)
-        .fetch_one(&state.pool)
-        .await?;
+    let user_res =
+        sqlx::query("SELECT id, display_name, username, pw FROM user WHERE username = ?")
+            .bind(login.username)
+            .fetch_one(&state.pool)
+            .await;
+
+    let user = match user_res {
+        Ok(user) => user,
+        Err(Error::RowNotFound) => {
+            return Ok((
+                StatusCode::UNAUTHORIZED,
+                Json(serde_json::json!({ "error": "Incorrect username" })),
+            ));
+        }
+        Err(err) => {
+            log::error!("Error while fetching password: {:?}", err);
+            return Ok((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({ "error": "Internal error" })),
+            ));
+        }
+    };
 
     let pw = user.get("pw");
     let hash = PasswordHash::new(pw).expect("Cannot get DB Hash");
@@ -102,8 +110,7 @@ async fn login_handler(
 
 #[debug_handler]
 async fn current_user_handler(
-    Extension(current_user): Extension<LoggedUser>,
-    State(state): State<SharedState>,
+    Extension(current_user): Extension<Biscuit>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    return Ok(Json(current_user));
+    return Ok(current_user.print());
 }

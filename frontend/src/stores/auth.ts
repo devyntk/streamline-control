@@ -4,6 +4,8 @@ import { persist, createJSONStorage, devtools } from "zustand/middleware";
 
 interface AuthState {
   sessionKey: string | null;
+  logout: () => void;
+  login: (key: string) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -12,6 +14,7 @@ export const useAuthStore = create<AuthState>()(
       (set) => ({
         sessionKey: null,
         logout: () => set((state) => ({ sessionKey: null })),
+        login: (key: string) => set(() => ({ sessionKey: key })),
       }),
       { name: "sc-auth-storage" }
     )

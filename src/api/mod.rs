@@ -1,15 +1,10 @@
 mod auth;
 mod types;
 
-use crate::api::types::{ErrorMessage, Status};
 use crate::server::SharedState;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::{Json, Router};
-use sqlx::{Pool, Sqlite};
-use std::convert::Infallible;
-use std::error::Error;
-use std::sync::Arc;
 
 pub fn api_routes(state: SharedState) -> Router {
     Router::new()

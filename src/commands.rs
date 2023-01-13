@@ -3,7 +3,7 @@ use argon2::password_hash::SaltString;
 use argon2::{Argon2, PasswordHasher};
 use clap::Subcommand;
 use rand_core::OsRng;
-use sqlx::{Executor, Pool, Sqlite};
+use sqlx::{Pool, Sqlite};
 
 #[derive(Subcommand, Clone)]
 pub enum Commands {

@@ -20,7 +20,7 @@ export default function Dashboard() {
   const auth = useAuthStore();
   const navigate = useNavigate();
   useEffect(() => {
-    if (auth.sessionKey == null) {
+    if (auth.sessionKey === null) {
       navigate("/login");
     }
   }, [auth.sessionKey]);
@@ -47,7 +47,13 @@ export default function Dashboard() {
           <Sidenav.Body>
             <Nav>
               <Nav.Item>Home</Nav.Item>
-              <Nav.Item>Logout</Nav.Item>
+              <Nav.Item
+                onClick={() => {
+                  auth.logout();
+                }}
+              >
+                Logout
+              </Nav.Item>
             </Nav>
           </Sidenav.Body>
         </Sidenav>
