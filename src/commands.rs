@@ -23,7 +23,7 @@ async fn add_new_user(username: String, password: String, db: Pool<Sqlite>) -> a
     let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::default();
     let password_hash = argon2.hash_password(password.as_ref(), &salt).unwrap();
-    sqlx::query("INSERT INTO user (username, pw) VALUES ( ?1 ?2)")
+    sqlx::query("INSERT INTO user (username, pw) VALUES ( ?, ?)")
         .bind(username)
         .bind(password_hash.to_string())
         .execute(&db)

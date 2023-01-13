@@ -43,8 +43,9 @@ pub async fn get_pool() -> anyhow::Result<Pool<Sqlite>> {
     let db_options = SqliteConnectOptions::new()
         .filename(db_url)
         .create_if_missing(true);
-
-    Ok(SqlitePoolOptions::new().connect_with(db_options).await?)
+    let pool = SqlitePoolOptions::new().connect_with(db_options).await?;
+    sqlx::migrate!("./migrations").run(&pool).await?;
+    Ok(pool)
 }
 
 #[tokio::main]

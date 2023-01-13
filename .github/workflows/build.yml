@@ -9,20 +9,19 @@ jobs:
   linux:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install stable rust
         uses: actions-rs/toolchain@v1.0.7
         with:
-          target: wasm32-unknown-unknown
           toolchain: stable
           override: true
 
       - name: Cargo Cache
-        uses: Swatinem/rust-cache@v1.3.0
+        uses: Swatinem/rust-cache@v2.2.0
 
       - name: Yarn Cache
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v3.2.2
         with:
           path: frontend/node_modules
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/frontend/yarn.lock') }}
@@ -33,14 +32,7 @@ jobs:
               sudo apt install libpango1.0-dev libatk1.0-dev libgtk-3-dev libssl-dev -y
 
       - name: Install Cargo-Make
-        uses: davidB/rust-cargo-make@v1.6.0
-
-      - name: Install Wasm-Pack
-        uses: actions-rs/install@v0.1.2
-        with:
-          crate: wasm-pack
-          version: latest
-          use-tool-cache: true
+        uses: davidB/rust-cargo-make@v1.9.0
 
       - name: Build
         run: cargo make build
@@ -54,7 +46,7 @@ jobs:
       - name: Get release
         if: ${{ github.event_name == 'release' }}
         id: get_release
-        uses: bruceadams/get-release@v1.2.2
+        uses: bruceadams/get-release@v1.3.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -73,33 +65,25 @@ jobs:
   mac:
     runs-on: macos-10.15
     steps:
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v3
 
         - name: Install stable rust
           uses: actions-rs/toolchain@v1.0.7
           with:
-            target: wasm32-unknown-unknown
             toolchain: stable
             override: true
 
         - name: Cargo Cache
-          uses: Swatinem/rust-cache@v1.3.0
+          uses: Swatinem/rust-cache@v2.2.0
 
         - name: Yarn Cache
-          uses: actions/cache@v2.1.6
+          uses: actions/cache@v3.2.2
           with:
             path: frontend/node_modules
             key: ${{ runner.os }}-yarn-${{ hashFiles('**/frontend/yarn.lock') }}
 
         - name: Install Cargo-Make
-          uses: davidB/rust-cargo-make@v1.6.0
-
-        - name: Install Wasm-Pack
-          uses: actions-rs/install@v0.1
-          with:
-            crate: wasm-pack
-            version: latest
-            use-tool-cache: true
+          uses: davidB/rust-cargo-make@v1.9.0
 
         - name: Install Cargo-Bundle
           uses: actions-rs/install@v0.1.2
@@ -123,7 +107,7 @@ jobs:
         - name: Get release
           if: ${{ github.event_name == 'release' }}
           id: get_release
-          uses: bruceadams/get-release@v1.2.2
+          uses: bruceadams/get-release@v1.3.2
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -141,17 +125,16 @@ jobs:
   windows:
     runs-on: windows-2019
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install stable rust
         uses: actions-rs/toolchain@v1.0.7
         with:
-          target: wasm32-unknown-unknown
           toolchain: stable
           override: true
 
       - name: Cargo Cache
-        uses: Swatinem/rust-cache@v1.3.0
+        uses: Swatinem/rust-cache@v2.2.0
 
       - name: Yarn Cache
         uses: actions/cache@v2.1.6
@@ -162,18 +145,11 @@ jobs:
       - name: Install dependencies
         run: |
           curl --url https://win.rustup.rs/x86_64 --output rustup-init.exe
-          .\rustup-init.exe -y -t wasm32-unknown-unknown --default-toolchain stable-x86_64-pc-windows-msvc
+          .\rustup-init.exe -y --default-toolchain stable-x86_64-pc-windows-msvc
           RefreshEnv
 
       - name: Install Cargo-Make
-        uses: davidB/rust-cargo-make@v1.6.0
-
-      - name: Install Wasm-Pack
-        uses: actions-rs/install@v0.1.2
-        with:
-          crate: wasm-pack
-          version: latest
-          use-tool-cache: true
+        uses: davidB/rust-cargo-make@v1.9.0
 
       - name: Build release
         run: cargo make build
@@ -187,7 +163,7 @@ jobs:
       - name: Get release
         if: ${{ github.event_name == 'release' }}
         id: get_release
-        uses: bruceadams/get-release@v1.2.2
+        uses: bruceadams/get-release@v1.3.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

@@ -17,9 +17,9 @@ with-gui = ["druid", "self_update"]
 
 [dependencies]
 druid = { version = "0.7", optional = true }
-tokio = { version = "1.7", features = ["full"] }
+tokio = { version = "1.23.1", features = ["full"] }
 axum = { version = "0.6.2", features = ["macros"] }
-sqlx = { version = "0.6.2", default-features = false, features = [ "runtime-tokio-native-tls", "macros" , "sqlite"] }
+sqlx = { version = "0.6.2", features = [ "runtime-tokio-native-tls", "sqlite"] }
 reqwest = { version = "0.11", features = [ "native-tls-vendored" ]}
 
 axum-extra = { version = "0.4.2", features = ["spa"] }
