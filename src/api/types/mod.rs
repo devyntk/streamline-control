@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct LoggedUser {
-    pub id: usize,
+    pub id: i64,
     pub display_name: String,
     pub username: String,
     pub token: String,
@@ -13,13 +13,6 @@ pub struct LoggedUser {
 pub struct UserLogin {
     pub username: String,
     pub password: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub enum LoginResult {
-    Ok(LoggedUser),
-    IncorrectAuth,
-    AuthFailed,
 }
 
 #[derive(Serialize, Deserialize)]

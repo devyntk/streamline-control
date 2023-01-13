@@ -38,7 +38,7 @@ jobs:
         run: cargo make build
 
       - name: Upload binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           path: target/release/streamline-control
           name: streamline-control-linux
@@ -99,7 +99,7 @@ jobs:
           run: mv "target/release/bundle/osx/Streamline Control.app" . && zip -r streamline-control-mac.zip "Streamline Control.app"
 
         - name: Upload binary
-          uses: actions/upload-artifact@v2
+          uses: actions/upload-artifact@v3
           with:
             path: streamline-control-mac.zip
             name: streamline-control-mac.zip
@@ -155,7 +155,7 @@ jobs:
         run: cargo make build
 
       - name: Upload binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           path: target/release/streamline-control.exe
           name: streamline-control.exe

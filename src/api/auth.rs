@@ -1,9 +1,8 @@
-use crate::api::types::{LoggedUser, LoginResult, UserLogin};
+use crate::api::types::{LoggedUser, UserLogin};
 use crate::api::AppError;
 use crate::server::SharedState;
-use anyhow::anyhow;
 use argon2::{
-    password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
+    password_hash::{PasswordHash, PasswordVerifier},
     Argon2,
 };
 use axum::debug_handler;
@@ -13,15 +12,17 @@ use axum::middleware::{from_fn_with_state, Next};
 use axum::response::{IntoResponse, Response};
 use axum::routing::{get, post};
 use axum::{http, Extension, Json, Router};
-use rand_core::OsRng;
+use biscuit_auth::Biscuit;
+use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Row, Sqlite};
-use std::convert::Infallible;
 
 pub fn auth_routes(state: SharedState) -> Router {
     Router::new()
         .route("/login", post(login_handler))
-        .route("/user", get(current_user_handler))
-        .route_layer(from_fn_with_state(state.clone(), auth))
+        .route(
+            "/user",
+            get(current_user_handler).route_layer(from_fn_with_state(state.clone(), auth)),
+        )
         .with_state(state)
 }
 
@@ -75,21 +76,26 @@ async fn login_handler(
     let argon2 = Argon2::default();
     match argon2.verify_password(login.password.as_ref(), &hash) {
         Ok(_) => {
+            let username = user.get("username");
+            let builder = Biscuit::builder(&state.key);
+            let token = builder.build()?.to_base64()?;
+
             return Ok((
                 StatusCode::OK,
-                Json(serde_json::json!(LoginResult::Ok(LoggedUser {
-                    id: 0,
+                Json(serde_json::json!(LoggedUser {
+                    id: user.get("id"),
                     display_name: user.get("display_name"),
-                    username: user.get("username"),
-                    token: "".to_owned(),
-                }))),
+                    username,
+                    token,
+                })),
             ));
         }
-        Err(_) => {
+        Err(err) => {
+            log::warn!("{}", err);
             return Ok((
                 StatusCode::UNAUTHORIZED,
-                Json(serde_json::json!({ "status": "Incorrect password" })),
-            ))
+                Json(serde_json::json!({ "error": "Incorrect password" })),
+            ));
         }
     }
 }

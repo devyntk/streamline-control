@@ -5,12 +5,15 @@ use crate::ExtEventSink;
 use crate::{api, APP_INFO};
 use app_dirs2::{app_root, AppDataType};
 use axum_extra::routing::SpaRouter;
+use biscuit_auth::KeyPair;
 #[cfg(feature = "with-gui")]
 use druid::{ExtEventSink, Target};
-use log::{error, info};
+use log::{debug, error, info};
 use port_scanner::local_ports_available;
 use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
 use sqlx::{Pool, Sqlite};
+use std::fs;
+use std::sync::Arc;
 use tokio::sync::{broadcast, oneshot};
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
@@ -19,6 +22,7 @@ use tower_http::trace::TraceLayer;
 pub struct SharedState {
     pub pool: Pool<Sqlite>,
     pub tx: broadcast::Sender<SharedMessage>,
+    pub key: Arc<KeyPair>,
 }
 
 #[derive(Clone, Debug, Copy)]
@@ -60,7 +64,20 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: oneshot::Receiver<()>)
 
     let (tx, _rx) = broadcast::channel(10);
 
-    let state = SharedState { pool, tx };
+    let mut key_path = app_root(AppDataType::UserConfig, &APP_INFO).unwrap();
+    key_path.push("key");
+
+    let kp: ed25519_dalek::Keypair = if key_path.is_file() {
+        let file = fs::read(key_path).unwrap();
+        ed25519_dalek::Keypair::from_bytes(&file).unwrap()
+    } else {
+        let kp = ed25519_dalek::Keypair::generate(&mut rand_old::OsRng);
+        fs::write(key_path, kp.to_bytes()).unwrap();
+        kp
+    };
+    let key = Arc::new(KeyPair { kp });
+
+    let state = SharedState { pool, tx, key };
 
     let app = axum::Router::new()
         .merge(SpaRouter::new("/assets", "frontend/dist"))
