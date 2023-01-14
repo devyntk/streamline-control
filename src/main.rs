@@ -9,14 +9,13 @@ use crate::commands::{handle_command, Commands};
 #[cfg(feature = "with-gui")]
 use druid::ExtEventSink;
 
-// mod api;
-mod dns;
-mod server;
-
 mod api;
 mod commands;
+mod dns;
 #[cfg(feature = "with-gui")]
 mod gui;
+mod interfaces;
+mod server;
 #[cfg(feature = "with-gui")]
 mod update;
 

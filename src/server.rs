@@ -2,7 +2,11 @@
 use crate::gui::{SERVER_START, UPDATE_STATUS};
 #[cfg(not(feature = "with-gui"))]
 use crate::ExtEventSink;
-use crate::{api, APP_INFO};
+use crate::{
+    api,
+    interfaces::ftclive::messages::{FTCLiveBroadcastMessage, FTCLiveRequest},
+    APP_INFO,
+};
 use app_dirs2::{app_root, AppDataType};
 use axum::{
     body::{boxed, Full},
@@ -19,15 +23,16 @@ use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
 use sqlx::{Pool, Sqlite};
 use std::fs;
 use std::sync::Arc;
-use tokio::sync::{broadcast, oneshot};
+use tokio::sync::{broadcast, mpsc, oneshot};
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
 
 #[derive(Clone, Debug)]
 pub struct SharedState {
     pub pool: Pool<Sqlite>,
-    pub tx: broadcast::Sender<SharedMessage>,
     pub key: Arc<KeyPair>,
+    pub sk_rx: flume::Receiver<FTCLiveBroadcastMessage>,
+    pub sk_tx: flume::Sender<FTCLiveRequest>,
 }
 
 #[derive(Clone, Debug, Copy)]
@@ -83,7 +88,14 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: oneshot::Receiver<()>)
     };
     let key = Arc::new(KeyPair { kp });
 
-    let state = SharedState { pool, tx, key };
+    let (sk_rx, sk_tx) = crate::interfaces::ftclive::init().await;
+
+    let state = SharedState {
+        pool,
+        key,
+        sk_rx,
+        sk_tx,
+    };
 
     let app = axum::Router::new()
         .layer(ServiceBuilder::new().layer(TraceLayer::new_for_http()))
@@ -100,7 +112,7 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: oneshot::Receiver<()>)
         }
     };
     let addr = &([127, 0, 0, 1], port).into();
-    let tx_clone = state.clone().tx;
+    let tx_clone = tx.clone();
     let server = axum::Server::bind(addr)
         .serve(app.into_make_service())
         .with_graceful_shutdown(async move {
