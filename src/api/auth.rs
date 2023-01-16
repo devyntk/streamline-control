@@ -5,7 +5,6 @@ use argon2::{
     password_hash::{PasswordHash, PasswordVerifier},
     Argon2,
 };
-use axum::debug_handler;
 use axum::extract::State;
 use axum::http::{Request, StatusCode};
 use axum::middleware::{from_fn_with_state, Next};
@@ -25,7 +24,7 @@ pub fn auth_routes(state: SharedState) -> Router {
         .with_state(state)
 }
 
-async fn auth<B>(
+pub async fn auth<B>(
     State(state): State<SharedState>,
     mut req: Request<B>,
     next: Next<B>,
@@ -39,6 +38,11 @@ async fn auth<B>(
         auth_header
     } else {
         return Err(StatusCode::UNAUTHORIZED);
+    };
+
+    let auth_header = match auth_header.strip_prefix("Bearer ") {
+        None => auth_header,
+        Some(res) => res,
     };
 
     if let Ok(current_user) = Biscuit::from_base64(auth_header, |_| state.key.public()) {

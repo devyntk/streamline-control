@@ -19,29 +19,30 @@ with-gui = ["druid", "self_update"]
 druid = { version = "0.7", optional = true }
 tokio = { version = "1.23.1", features = ["full"] }
 axum = { version = "0.6.2", features = ["macros"] }
-sqlx = { version = "0.6.2", features = [ "runtime-tokio-native-tls", "sqlite"] }
-reqwest = { version = "0.11", features = [ "native-tls-vendored" ]}
+sqlx = { version = "0.6.2", features = ["runtime-tokio-native-tls", "sqlite"] }
+reqwest = { version = "0.11", features = ["native-tls-vendored", "json"] }
 
 axum-extra = { version = "0.4.2", features = ["spa"] }
 tower = "^0.4"
 tower-http = { version = "^0.3", features = ["full"] }
-rust-embed= "6.4.2"
+rust-embed = "6.4.2"
 mime_guess = "2"
-self_update = { version = "0.27", optional = true}
+self_update = { version = "0.27", optional = true }
 webbrowser = "0.8.4"
 port_scanner = "0.1"
 app_dirs2 = "2"
 flexi_logger = "0.24.2"
 log = "0.4"
 mime = "0.3.0"
-clap = {version = "4.0", features=["derive"] }
+clap = { version = "4.0", features = ["derive"] }
 ctrlc = "3.1.9"
 argon2 = "0.4.1"
 rand_core = { version = "0.6", features = ["std"] }
 anyhow = "1.0.68"
-serde = {version = "1.0.150", features = ["derive"] }
+serde = { version = "1.0.150", features = ["derive"] }
 serde_json = "1.0.91"
 biscuit-auth = "2.2.0"
 ed25519-dalek = "1.0.1"
-rand_old = { package = "rand_core", features = ["std"], version= "0.5"}
+rand_old = { package = "rand_core", features = ["std"], version = "0.5" }
 flume = "0.10.14"
+url = "2.3.1"

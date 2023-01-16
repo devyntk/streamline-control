@@ -1,4 +1,5 @@
 mod auth;
+mod scoring;
 pub(crate) mod state;
 mod types;
 
@@ -21,6 +22,7 @@ pub fn app_router(state: SharedState) -> Router {
 pub fn api_routes(state: SharedState) -> Router {
     Router::new()
         .nest("/auth", auth::auth_routes(state.clone()))
+        .nest("/scoring", scoring::scoring_routes(state.clone()))
         .fallback(api_fallback)
 }
 

@@ -1,7 +1,13 @@
+use reqwest::Client;
+use std::fmt::Debug;
+use std::future::Future;
 use tokio::spawn;
+use tokio::sync::oneshot::Sender;
+use url::Url;
 
 use self::messages::{FTCLiveBroadcastMessage, FTCLiveRequest};
 
+mod connection;
 pub mod messages;
 
 pub async fn init() -> (
@@ -18,11 +24,43 @@ pub async fn init() -> (
     return (public_rx, public_tx);
 }
 
+async fn wrap_response<R: Debug>(func: impl Future<Output = R>, sender: Sender<R>) {
+    sender
+        .send(func.await)
+        .expect("Failed to return FTC live message");
+}
+
 async fn listener(
-    mut private_rx: flume::Receiver<FTCLiveRequest>,
-    private_tx: flume::Sender<FTCLiveBroadcastMessage>,
+    private_rx: flume::Receiver<FTCLiveRequest>,
+    _private_tx: flume::Sender<FTCLiveBroadcastMessage>,
 ) {
-    while let Ok(msg) = private_rx.recv_async().await {
-        log::debug!("{:?}", msg);
+    let client = Client::new();
+    let mut url = Url::parse("http://localhost").unwrap();
+    loop {
+        match private_rx.recv_async().await {
+            Ok(FTCLiveRequest::GetEvents(sender)) => {
+                wrap_response(
+                    connection::get_event_codes(url.clone(), client.clone()),
+                    sender,
+                )
+                .await
+            }
+            Ok(FTCLiveRequest::SetUrl(new_url, sender)) => {
+                wrap_response(
+                    async {
+                        let res =
+                            connection::get_event_codes(new_url.clone(), client.clone()).await;
+                        url = new_url;
+                        res
+                    },
+                    sender,
+                )
+                .await
+            }
+            Err(_) => {
+                log::info!("All FTC Live request senders were dropped, killing listener");
+                return;
+            }
+        }
     }
 }
