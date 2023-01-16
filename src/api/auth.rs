@@ -1,6 +1,6 @@
+use crate::api::state::SharedState;
 use crate::api::types::{LoggedUser, UserLogin};
 use crate::api::AppError;
-use crate::server::SharedState;
 use argon2::{
     password_hash::{PasswordHash, PasswordVerifier},
     Argon2,
@@ -108,7 +108,6 @@ async fn login_handler(
     }
 }
 
-#[debug_handler]
 async fn current_user_handler(
     Extension(current_user): Extension<Biscuit>,
 ) -> Result<impl IntoResponse, StatusCode> {

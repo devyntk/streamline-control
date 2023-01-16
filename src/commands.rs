@@ -1,4 +1,4 @@
-use crate::server::get_pool;
+use crate::api::state::get_pool;
 use argon2::password_hash::SaltString;
 use argon2::{Argon2, PasswordHasher};
 use clap::Subcommand;

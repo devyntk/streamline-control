@@ -14,7 +14,7 @@ mod commands;
 mod dns;
 #[cfg(feature = "with-gui")]
 mod gui;
-mod interfaces;
+mod services;
 mod server;
 #[cfg(feature = "with-gui")]
 mod update;

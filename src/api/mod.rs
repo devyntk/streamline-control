@@ -1,10 +1,22 @@
 mod auth;
+pub(crate) mod state;
 mod types;
 
-use crate::server::SharedState;
-use axum::http::StatusCode;
+use crate::api::state::SharedState;
+use axum::body::{boxed, Full};
+use axum::http::{header, StatusCode, Uri};
 use axum::response::{IntoResponse, Response};
 use axum::{Json, Router};
+use rust_embed::RustEmbed;
+use tower::ServiceBuilder;
+use tower_http::trace::TraceLayer;
+
+pub fn app_router(state: SharedState) -> Router {
+    Router::new()
+        .layer(ServiceBuilder::new().layer(TraceLayer::new_for_http()))
+        .nest("/api", api_routes(state.clone()))
+        .fallback(static_handler)
+}
 
 pub fn api_routes(state: SharedState) -> Router {
     Router::new()
@@ -42,4 +54,56 @@ where
     fn from(err: E) -> Self {
         Self(err.into())
     }
+}
+
+#[derive(RustEmbed)]
+#[folder = "frontend/dist"]
+struct Assets;
+
+async fn static_handler(uri: Uri) -> Response {
+    let path = uri.path().trim_start_matches('/');
+
+    if path.is_empty() || path == "index.html" {
+        return index_html().await;
+    }
+
+    match Assets::get(path) {
+        Some(content) => {
+            let body = boxed(Full::from(content.data));
+            let mime = mime_guess::from_path(path).first_or_octet_stream();
+
+            Response::builder()
+                .header(header::CONTENT_TYPE, mime.as_ref())
+                .body(body)
+                .unwrap()
+        }
+        None => {
+            if path.contains('.') {
+                return not_found().await;
+            }
+
+            index_html().await
+        }
+    }
+}
+
+async fn index_html() -> Response {
+    match Assets::get("index.html") {
+        Some(content) => {
+            let body = boxed(Full::from(content.data));
+
+            Response::builder()
+                .header(header::CONTENT_TYPE, "text/html")
+                .body(body)
+                .unwrap()
+        }
+        None => not_found().await,
+    }
+}
+
+async fn not_found() -> Response {
+    Response::builder()
+        .status(StatusCode::NOT_FOUND)
+        .body(boxed(Full::from("404")))
+        .unwrap()
 }
