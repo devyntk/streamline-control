@@ -18,7 +18,7 @@ with-gui = ["druid", "self_update"]
 [dependencies]
 druid = { version = "0.7", optional = true }
 tokio = { version = "1.23.1", features = ["full"] }
-axum = { version = "0.6.2", features = ["macros"] }
+axum = { version = "0.6.2", features = ["macros", "ws"] }
 sqlx = { version = "0.6.2", features = ["runtime-tokio-native-tls", "sqlite"] }
 reqwest = { version = "0.11", features = ["native-tls-vendored", "json"] }
 
@@ -48,3 +48,4 @@ flume = "0.10.14"
 url = "2.3.1"
 tokio-tungstenite = "0.18.0"
 futures = "0.3.25"
+chrono = { version = "0.4.23", features = ["serde"] }

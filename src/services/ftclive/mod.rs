@@ -33,11 +33,12 @@ async fn wrap_response<R: Debug>(func: impl Future<Output = R>, sender: Sender<R
 
 async fn listener(
     private_rx: flume::Receiver<FTCLiveRequest>,
-    _private_tx: flume::Sender<FTCLiveBroadcastMessage>,
+    private_tx: flume::Sender<FTCLiveBroadcastMessage>,
 ) {
     let client = Client::new();
     let mut url = Url::parse("http://localhost").unwrap();
     let mut event_code = "".to_string();
+    let mut ws_handle = None;
     loop {
         match private_rx.recv_async().await {
             Ok(FTCLiveRequest::GetEvents(sender)) => {
@@ -62,16 +63,33 @@ async fn listener(
             Ok(FTCLiveRequest::SetEventCode(new_event_code, sender)) => {
                 wrap_response(
                     async {
+                        let res = connection::get_event_details(
+                            url.clone(),
+                            client.clone(),
+                            new_event_code.clone(),
+                        )
+                        .await;
                         event_code = new_event_code;
-                        Ok(())
+                        res
                     },
                     sender,
                 )
                 .await
             }
-
             Ok(FTCLiveRequest::ConnectWebsocket(sender)) => {
-                wrap_response(stream::connect_ws(url.clone(), event_code.clone()), sender).await
+                wrap_response(
+                    stream::connect_ws(
+                        url.clone(),
+                        event_code.clone(),
+                        &mut ws_handle,
+                        private_tx.clone(),
+                    ),
+                    sender,
+                )
+                .await
+            }
+            Ok(FTCLiveRequest::CheckWebsocket(sender)) => {
+                wrap_response(async { return Ok(ws_handle.is_some()) }, sender).await
             }
             Err(_) => {
                 log::info!("All FTC Live request senders were dropped, killing listener");
