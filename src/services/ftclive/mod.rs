@@ -9,6 +9,7 @@ use self::messages::{FTCLiveBroadcastMessage, FTCLiveRequest};
 
 mod connection;
 pub mod messages;
+mod stream;
 
 pub async fn init() -> (
     flume::Receiver<FTCLiveBroadcastMessage>,
@@ -36,6 +37,7 @@ async fn listener(
 ) {
     let client = Client::new();
     let mut url = Url::parse("http://localhost").unwrap();
+    let mut event_code = "".to_string();
     loop {
         match private_rx.recv_async().await {
             Ok(FTCLiveRequest::GetEvents(sender)) => {
@@ -56,6 +58,20 @@ async fn listener(
                     sender,
                 )
                 .await
+            }
+            Ok(FTCLiveRequest::SetEventCode(new_event_code, sender)) => {
+                wrap_response(
+                    async {
+                        event_code = new_event_code;
+                        Ok(())
+                    },
+                    sender,
+                )
+                .await
+            }
+
+            Ok(FTCLiveRequest::ConnectWebsocket(sender)) => {
+                wrap_response(stream::connect_ws(url.clone(), event_code.clone()), sender).await
             }
             Err(_) => {
                 log::info!("All FTC Live request senders were dropped, killing listener");
