@@ -11,11 +11,12 @@ use druid::ExtEventSink;
 
 mod api;
 mod commands;
+mod config;
 mod dns;
 #[cfg(feature = "with-gui")]
 mod gui;
-mod services;
 mod server;
+mod services;
 #[cfg(feature = "with-gui")]
 mod update;
 

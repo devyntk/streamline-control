@@ -44,7 +44,7 @@ pub async fn get_state() -> anyhow::Result<SharedState> {
     };
     let key = Arc::new(KeyPair { kp });
 
-    let (sk_rx, sk_tx) = crate::services::ftclive::init().await;
+    let (sk_rx, sk_tx) = crate::services::ftclive::init(pool.clone()).await;
 
     Ok(SharedState {
         pool,
