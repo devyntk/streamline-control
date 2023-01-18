@@ -1,7 +1,9 @@
 use crate::api::auth::auth;
 use crate::api::state::SharedState;
 use crate::api::AppError;
+use crate::services::ftclive::messages::FTCLiveBroadcastMessage::Close;
 use crate::services::ftclive::messages::{FTCLiveBroadcastMessage, FTCLiveRequest};
+use axum::extract::ws::CloseFrame;
 use axum::{
     extract::{
         ws::{Message, WebSocket},
@@ -13,6 +15,7 @@ use axum::{
     Json, Router,
 };
 use serde_json::json;
+use std::borrow::Cow;
 use tokio::sync::oneshot::channel;
 use url::Url;
 
@@ -76,8 +79,19 @@ async fn connect_scoring_ws(
 async fn handle_scoring_ws(mut socket: WebSocket, sk_tx: flume::Receiver<FTCLiveBroadcastMessage>) {
     loop {
         let sk_msg = sk_tx.recv_async().await.unwrap();
+        if let Close(message) = sk_msg {
+            socket
+                .send(Message::Close(Some(CloseFrame {
+                    code: 1000,
+                    reason: Cow::from(message),
+                })))
+                .await
+                .expect("Unable to send FTCLive WS close message");
+            return;
+        }
         socket
             .send(Message::Text(serde_json::to_string(&sk_msg).unwrap()))
-            .await;
+            .await
+            .expect("Unable to send FTCLive WS message");
     }
 }

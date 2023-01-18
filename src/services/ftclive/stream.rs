@@ -3,7 +3,7 @@ use flume::Sender;
 use futures::prelude::*;
 use tokio::net::TcpStream;
 use tokio::task::JoinHandle;
-use tokio_tungstenite::tungstenite::Message::Text;
+use tokio_tungstenite::tungstenite::Message::{Close, Text};
 use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
 use url::Url;
 
@@ -15,7 +15,7 @@ pub(crate) async fn connect_ws(
 ) -> anyhow::Result<()> {
     let mut url = base_url.clone();
     url.set_path("/api/v2/stream/");
-    url.set_scheme("ws");
+    url.set_scheme("ws").expect("Known good WS scheme failed");
     url.query_pairs_mut().append_pair("code", &event_code);
 
     let (ws_stream, _) = connect_async(url).await?;
@@ -43,6 +43,15 @@ async fn handle_stream(
                 .send_async(FTCLiveBroadcastMessage::FieldUpdate(dec_msg))
                 .await
                 .unwrap();
+        } else if let Some(Ok(Close(Some(frame)))) = msg {
+            log::warn!("Close frame recieved from FTCLive WS: {:?}", frame);
+            private_tx
+                .send_async(FTCLiveBroadcastMessage::Close(
+                    frame.reason.parse().unwrap(),
+                ))
+                .await
+                .unwrap();
+            return;
         }
     }
 }

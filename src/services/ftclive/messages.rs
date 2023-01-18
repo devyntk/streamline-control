@@ -36,6 +36,7 @@ pub struct FieldUpdate {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum FTCLiveBroadcastMessage {
     FieldUpdate(FieldUpdate),
+    Close(String),
 }
 
 #[derive(Deserialize, Serialize, Debug)]
