@@ -1,4 +1,5 @@
 mod auth;
+mod obs;
 mod scoring;
 pub(crate) mod state;
 mod types;
@@ -23,6 +24,7 @@ pub fn api_routes(state: SharedState) -> Router {
     Router::new()
         .nest("/auth", auth::auth_routes(state.clone()))
         .nest("/scoring", scoring::scoring_routes(state.clone()))
+        .nest("/obs", obs::obs_routes(state.clone()))
         .fallback(api_fallback)
 }
 

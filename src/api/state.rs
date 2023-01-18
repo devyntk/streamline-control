@@ -1,4 +1,5 @@
 use crate::services::ftclive::messages::{FTCLiveBroadcastMessage, FTCLiveRequest};
+use crate::services::obs::messages::OBSRequestMessage;
 use crate::APP_INFO;
 use app_dirs2::{app_root, AppDataType};
 use axum::extract::FromRef;
@@ -14,6 +15,7 @@ pub struct SharedState {
     pub key: Arc<KeyPair>,
     pub sk_rx: flume::Receiver<FTCLiveBroadcastMessage>,
     pub sk_tx: flume::Sender<FTCLiveRequest>,
+    pub obs_tx: flume::Sender<OBSRequestMessage>,
 }
 
 pub async fn get_pool() -> anyhow::Result<Pool<Sqlite>> {
@@ -45,11 +47,13 @@ pub async fn get_state() -> anyhow::Result<SharedState> {
     let key = Arc::new(KeyPair { kp });
 
     let (sk_rx, sk_tx) = crate::services::ftclive::init(pool.clone()).await;
+    let obs_tx = crate::services::obs::init(pool.clone()).await;
 
     Ok(SharedState {
         pool,
         key,
         sk_rx,
         sk_tx,
+        obs_tx,
     })
 }
