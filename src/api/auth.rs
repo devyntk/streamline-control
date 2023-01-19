@@ -1,18 +1,24 @@
-use crate::api::state::SharedState;
-use crate::api::types::{LoggedUser, UserLogin};
-use crate::api::AppError;
 use argon2::{
     password_hash::{PasswordHash, PasswordVerifier},
     Argon2,
 };
-use axum::extract::State;
-use axum::http::{Request, StatusCode};
-use axum::middleware::{from_fn_with_state, Next};
-use axum::response::{IntoResponse, Response};
-use axum::routing::{get, post};
-use axum::{http, Extension, Json, Router};
+use axum::{
+    extract::State,
+    http,
+    http::{Request, StatusCode},
+    middleware::{from_fn_with_state, Next},
+    response::{IntoResponse, Response},
+    routing::{get, post},
+    Extension, Json, Router,
+};
 use biscuit_auth::Biscuit;
 use sqlx::{Error, Row};
+
+use crate::api::{
+    state::SharedState,
+    types::{LoggedUser, UserLogin},
+    AppError,
+};
 
 pub fn auth_routes(state: SharedState) -> Router {
     Router::new()

@@ -1,8 +1,11 @@
-use crate::config::Config;
-use crate::services::obs::messages::{ConnectInfo, OBSRequestMessage, OBSRequestMessage::*};
 use obws::Client;
 use sqlx::{Pool, Sqlite};
 use tokio::spawn;
+
+use crate::{
+    config::Config,
+    services::obs::messages::{ConnectInfo, OBSRequestMessage, OBSRequestMessage::*},
+};
 
 pub mod messages;
 

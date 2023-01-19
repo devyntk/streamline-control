@@ -1,12 +1,8 @@
-use crate::api::auth::auth;
-use crate::api::state::SharedState;
-use crate::api::AppError;
-use crate::services::ftclive::messages::FTCLiveBroadcastMessage::Close;
-use crate::services::ftclive::messages::{FTCLiveBroadcastMessage, FTCLiveRequest};
-use axum::extract::ws::CloseFrame;
+use std::borrow::Cow;
+
 use axum::{
     extract::{
-        ws::{Message, WebSocket},
+        ws::{CloseFrame, Message, WebSocket},
         State, WebSocketUpgrade,
     },
     middleware::from_fn_with_state,
@@ -15,9 +11,15 @@ use axum::{
     Json, Router,
 };
 use serde_json::json;
-use std::borrow::Cow;
 use tokio::sync::oneshot::channel;
 use url::Url;
+
+use crate::{
+    api::{auth::auth, state::SharedState, AppError},
+    services::ftclive::messages::{
+        FTCLiveBroadcastMessage, FTCLiveBroadcastMessage::Close, FTCLiveRequest,
+    },
+};
 
 pub fn scoring_routes(state: SharedState) -> Router {
     Router::new()

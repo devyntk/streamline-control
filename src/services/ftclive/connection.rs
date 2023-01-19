@@ -1,7 +1,8 @@
-use crate::services::ftclive::messages::EventDetails;
 use reqwest::Client;
 use serde::Deserialize;
 use url::Url;
+
+use crate::services::ftclive::messages::EventDetails;
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]

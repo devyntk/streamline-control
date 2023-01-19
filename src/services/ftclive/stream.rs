@@ -1,11 +1,14 @@
-use crate::services::ftclive::messages::{FTCLiveBroadcastMessage, FieldUpdate};
 use flume::Sender;
 use futures::prelude::*;
-use tokio::net::TcpStream;
-use tokio::task::JoinHandle;
-use tokio_tungstenite::tungstenite::Message::{Close, Text};
-use tokio_tungstenite::{connect_async, MaybeTlsStream, WebSocketStream};
+use tokio::{net::TcpStream, task::JoinHandle};
+use tokio_tungstenite::{
+    connect_async,
+    tungstenite::Message::{Close, Text},
+    MaybeTlsStream, WebSocketStream,
+};
 use url::Url;
+
+use crate::services::ftclive::messages::{FTCLiveBroadcastMessage, FieldUpdate};
 
 pub(crate) async fn connect_ws(
     base_url: Url,

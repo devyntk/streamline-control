@@ -1,7 +1,5 @@
 use anyhow::Result;
-use obws::client::ConnectConfig;
-use obws::requests::EventSubscription;
-use obws::responses::scenes::Scenes;
+use obws::{client::ConnectConfig, requests::EventSubscription, responses::scenes::Scenes};
 use serde::{Deserialize, Serialize};
 use tokio::sync::oneshot::Sender;
 

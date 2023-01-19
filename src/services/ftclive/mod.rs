@@ -1,13 +1,12 @@
-use crate::config::Config;
+use std::{fmt::Debug, future::Future};
+
 use reqwest::Client;
 use sqlx::{Pool, Sqlite};
-use std::fmt::Debug;
-use std::future::Future;
-use tokio::spawn;
-use tokio::sync::oneshot::Sender;
+use tokio::{spawn, sync::oneshot::Sender};
 use url::Url;
 
 use self::messages::{FTCLiveBroadcastMessage, FTCLiveRequest};
+use crate::config::Config;
 
 mod connection;
 pub mod messages;

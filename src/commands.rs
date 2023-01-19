@@ -1,9 +1,9 @@
-use crate::api::state::get_pool;
-use argon2::password_hash::SaltString;
-use argon2::{Argon2, PasswordHasher};
+use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use clap::Subcommand;
 use rand_core::OsRng;
 use sqlx::{Pool, Sqlite};
+
+use crate::api::state::get_pool;
 
 #[derive(Subcommand, Clone)]
 pub enum Commands {

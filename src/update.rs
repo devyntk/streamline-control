@@ -1,4 +1,4 @@
-use self_update::{update::Release, cargo_crate_version};
+use self_update::{cargo_crate_version, update::Release};
 
 pub enum ReleaseStatus {
     NewVersion(Release),

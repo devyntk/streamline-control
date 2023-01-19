@@ -1,28 +1,28 @@
-use druid::commands::{CLOSE_WINDOW, QUIT_APP};
-use druid::widget::{Button, Flex, Label};
+use std::{net::SocketAddr, thread};
+
 use druid::{
+    commands::{CLOSE_WINDOW, QUIT_APP},
+    widget::{Button, Flex, Label},
     AppDelegate, AppLauncher, Command, Data, DelegateCtx, Env, ExtEventSink, Handled, Lens,
     Selector, Target, Widget, WidgetExt, WindowDesc, WindowId,
 };
-
-use crate::server::start_server;
-use crate::update::{do_update, fetch_is_new, ReleaseStatus};
-
 use log::debug;
-use std::net::SocketAddr;
-use std::thread;
 use tokio::sync::oneshot::{channel, Sender};
 
+use crate::{
+    server::start_server,
+    update::{do_update, fetch_is_new, ReleaseStatus},
+};
+
 const START_UPDATE_CHECK: Selector = Selector::new("streamline-control.start-check");
-const UPDATE_FOUND: Selector < String > = Selector::new("streamline-control.update-found");
+const UPDATE_FOUND: Selector<String> = Selector::new("streamline-control.update-found");
 const NO_UPDATE: Selector = Selector::new("streamline-control.no-update-found");
 const START_DO_UPDATE: Selector = Selector::new("streamline-control.do-updates");
 const UPDATE_FINISHED: Selector = Selector::new("streamline-control.update-finished");
-const UPDATE_ERROR: Selector < String > = Selector::new("streamline-control.update-error");
+const UPDATE_ERROR: Selector<String> = Selector::new("streamline-control.update-error");
 const OPEN_QUIT_CONFIRM: Selector = Selector::new("streamline-control.quit-confirm-open");
-pub const SERVER_START: Selector < SocketAddr > = Selector::new("streamline-control.server-start");
-pub const UPDATE_STATUS: Selector < String > = Selector::new("streamline-control.update-status");
-
+pub const SERVER_START: Selector<SocketAddr> = Selector::new("streamline-control.server-start");
+pub const UPDATE_STATUS: Selector<String> = Selector::new("streamline-control.update-status");
 
 pub fn run_ui() {
     let main_window_id = WindowId::next();

@@ -1,14 +1,14 @@
-use crate::api::app_router;
-use crate::api::state::get_state;
-#[cfg(feature = "with-gui")]
-use crate::gui::{SERVER_START, UPDATE_STATUS};
-#[cfg(not(feature = "with-gui"))]
-use crate::ExtEventSink;
 #[cfg(feature = "with-gui")]
 use druid::{ExtEventSink, Target};
 use log::{error, info};
 use port_scanner::local_ports_available;
 use tokio::sync::{broadcast, oneshot};
+
+use crate::api::{app_router, state::get_state};
+#[cfg(feature = "with-gui")]
+use crate::gui::{SERVER_START, UPDATE_STATUS};
+#[cfg(not(feature = "with-gui"))]
+use crate::ExtEventSink;
 
 #[derive(Clone, Debug, Copy)]
 pub enum SharedMessage {

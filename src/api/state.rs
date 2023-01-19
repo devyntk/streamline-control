@@ -1,13 +1,21 @@
-use crate::services::ftclive::messages::{FTCLiveBroadcastMessage, FTCLiveRequest};
-use crate::services::obs::messages::OBSRequestMessage;
-use crate::APP_INFO;
+use std::{fs, sync::Arc};
+
 use app_dirs2::{app_root, AppDataType};
 use axum::extract::FromRef;
 use biscuit_auth::KeyPair;
-use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-use sqlx::{Pool, Sqlite};
-use std::fs;
-use std::sync::Arc;
+use sqlx::{
+    sqlite::{SqliteConnectOptions, SqlitePoolOptions},
+    Pool, Sqlite,
+};
+
+use crate::{
+    controllers::obs_scenes::messages::OBSSceneRequest,
+    services::{
+        ftclive::messages::{FTCLiveBroadcastMessage, FTCLiveRequest},
+        obs::messages::OBSRequestMessage,
+    },
+    APP_INFO,
+};
 
 #[derive(Clone, Debug, FromRef)]
 pub struct SharedState {
@@ -16,6 +24,7 @@ pub struct SharedState {
     pub sk_rx: flume::Receiver<FTCLiveBroadcastMessage>,
     pub sk_tx: flume::Sender<FTCLiveRequest>,
     pub obs_tx: flume::Sender<OBSRequestMessage>,
+    pub obs_scene_tx: flume::Sender<OBSSceneRequest>,
 }
 
 pub async fn get_pool() -> anyhow::Result<Pool<Sqlite>> {
@@ -48,6 +57,7 @@ pub async fn get_state() -> anyhow::Result<SharedState> {
 
     let (sk_rx, sk_tx) = crate::services::ftclive::init(pool.clone()).await;
     let obs_tx = crate::services::obs::init(pool.clone()).await;
+    let obs_scene_tx = crate::controllers::obs_scenes::init(pool.clone()).await;
 
     Ok(SharedState {
         pool,
@@ -55,5 +65,6 @@ pub async fn get_state() -> anyhow::Result<SharedState> {
         sk_rx,
         sk_tx,
         obs_tx,
+        obs_scene_tx,
     })
 }

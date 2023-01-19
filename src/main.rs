@@ -1,17 +1,21 @@
-use crate::server::start_server;
+use std::thread;
+
 use app_dirs2::*;
 use clap::Parser;
-use flexi_logger::{Duplicate, FileSpec, Logger};
-use std::thread;
-use tokio::sync::oneshot::channel;
-
-use crate::commands::{handle_command, Commands};
 #[cfg(feature = "with-gui")]
 use druid::ExtEventSink;
+use flexi_logger::{Duplicate, FileSpec, Logger};
+use tokio::sync::oneshot::channel;
+
+use crate::{
+    commands::{handle_command, Commands},
+    server::start_server,
+};
 
 mod api;
 mod commands;
 mod config;
+mod controllers;
 mod dns;
 #[cfg(feature = "with-gui")]
 mod gui;

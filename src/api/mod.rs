@@ -4,14 +4,17 @@ mod scoring;
 pub(crate) mod state;
 mod types;
 
-use crate::api::state::SharedState;
-use axum::body::{boxed, Full};
-use axum::http::{header, StatusCode, Uri};
-use axum::response::{IntoResponse, Response};
-use axum::{Json, Router};
+use axum::{
+    body::{boxed, Full},
+    http::{header, StatusCode, Uri},
+    response::{IntoResponse, Response},
+    Json, Router,
+};
 use rust_embed::RustEmbed;
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
+
+use crate::api::state::SharedState;
 
 pub fn app_router(state: SharedState) -> Router {
     Router::new()
