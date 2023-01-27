@@ -9,9 +9,9 @@ import {
 } from "rsuite";
 import ArrowLeftLineIcon from "@rsuite/icons/ArrowLeftLine";
 import ArrowRightLineIcon from "@rsuite/icons/ArrowRightLine";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router";
-import { Link } from "react-router-dom";
+import { Link, NavLinkProps, NavLink } from "react-router-dom";
 import { useAuthStore } from "../stores/auth";
 
 export default function Dashboard() {
@@ -46,7 +46,12 @@ export default function Dashboard() {
         >
           <Sidenav.Body>
             <Nav>
-              <Nav.Item>Home</Nav.Item>
+              <Nav.Item to="/" as={NavLink}>
+                Home
+              </Nav.Item>
+              <Nav.Item to="/status" as={NavLink}>
+                Status
+              </Nav.Item>
               <Nav.Item
                 onClick={() => {
                   auth.logout();
@@ -71,8 +76,7 @@ export default function Dashboard() {
       </Sidebar>
 
       <Container>
-        {/*<Header />*/}
-        <Content>
+        <Content style={{ backgroundColor: "#f5f8fa" }}>
           <Outlet />
         </Content>
       </Container>

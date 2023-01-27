@@ -60,7 +60,7 @@ pub async fn start_server(sink: Option<ExtEventSink>, rx: oneshot::Receiver<()>)
         });
 
     info!("Server started at http://localhost:{}", port);
-    println!("Server started!");
+    println!("Server started at http://localhost:{}", port);
     #[cfg(feature = "with-gui")]
     if sink.is_some() {
         sink.unwrap()

@@ -37,9 +37,7 @@ export default function Login() {
             <Form.Control name="username" />
           </Form.Group>
           <Form.Group controlId="password">
-            <Form.ControlLabel>
-              <span>Password</span>
-            </Form.ControlLabel>
+            <Form.ControlLabel>Password</Form.ControlLabel>
             <Form.Control name="password" type="password" />
           </Form.Group>
           <Form.Group>
@@ -53,7 +51,7 @@ export default function Login() {
                       password: form.password,
                     })
                     .then((response) => {
-                      auth.login(response.token);
+                      auth.login(response.data.token);
                       navigate("/");
                     });
                 }}

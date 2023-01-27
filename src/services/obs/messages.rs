@@ -35,4 +35,5 @@ pub enum OBSRequestMessage {
     GetConnectInfo(Sender<Result<ConnectInfo>>),
     Connect(Sender<Result<()>>),
     GetScenes(Sender<obws::Result<Scenes>>),
+    SetScene(String, Sender<obws::Result<()>>),
 }

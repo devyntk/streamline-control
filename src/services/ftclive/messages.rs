@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::oneshot::Sender;
 use url::Url;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Hash, Eq, PartialEq)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum FieldUpdateType {
     MatchLoad,
@@ -19,9 +19,9 @@ pub enum FieldUpdateType {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FieldUpdatePayload {
-    number: u32,
-    field: u32,
-    short_name: String,
+    pub number: u32,
+    pub field: u32,
+    pub short_name: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -29,8 +29,8 @@ pub struct FieldUpdatePayload {
 pub struct FieldUpdate {
     #[serde(deserialize_with = "ts_milliseconds::deserialize")]
     update_time: DateTime<Utc>,
-    payload: FieldUpdatePayload,
-    update_type: FieldUpdateType,
+    pub payload: FieldUpdatePayload,
+    pub update_type: FieldUpdateType,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

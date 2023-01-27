@@ -57,7 +57,8 @@ pub async fn get_state() -> anyhow::Result<SharedState> {
 
     let (sk_rx, sk_tx) = crate::services::ftclive::init(pool.clone()).await;
     let obs_tx = crate::services::obs::init(pool.clone()).await;
-    let obs_scene_tx = crate::controllers::obs_scenes::init(pool.clone()).await;
+    let obs_scene_tx =
+        crate::controllers::obs_scenes::init(pool.clone(), sk_rx.clone(), obs_tx.clone()).await;
 
     Ok(SharedState {
         pool,

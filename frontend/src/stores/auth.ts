@@ -16,7 +16,10 @@ export const useAuthStore = create<AuthState>()(
         logout: () => set((state) => ({ sessionKey: null })),
         login: (key: string) => set(() => ({ sessionKey: key })),
       }),
-      { name: "sc-auth-storage" }
+      {
+        name: "sc-auth-storage",
+        storage: createJSONStorage(() => sessionStorage),
+      }
     )
   )
 );

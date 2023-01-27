@@ -39,7 +39,7 @@ ctrlc = "3.1.9"
 argon2 = "0.4.1"
 rand_core = { version = "0.6", features = ["std"] }
 anyhow = "1.0.68"
-serde = { version = "1.0.150", features = ["derive"] }
+serde = { version = "1.0.150", features = ["derive", "rc"] }
 serde_json = "1.0.91"
 biscuit-auth = "2.2.0"
 ed25519-dalek = "1.0.1"

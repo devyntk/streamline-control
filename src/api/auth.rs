@@ -65,11 +65,10 @@ async fn login_handler(
     State(state): State<SharedState>,
     Json(login): Json<UserLogin>,
 ) -> Result<impl IntoResponse, AppError> {
-    let user_res =
-        sqlx::query("SELECT id, display_name, username, pw FROM user WHERE username = ?")
-            .bind(login.username)
-            .fetch_one(&state.pool)
-            .await;
+    let user_res = sqlx::query("SELECT id, username, pw FROM user WHERE username = ?")
+        .bind(login.username)
+        .fetch_one(&state.pool)
+        .await;
 
     let user = match user_res {
         Ok(user) => user,
@@ -98,22 +97,21 @@ async fn login_handler(
             let builder = Biscuit::builder(&state.key);
             let token = builder.build()?.to_base64()?;
 
-            return Ok((
+            Ok((
                 StatusCode::OK,
                 Json(serde_json::json!(LoggedUser {
                     id: user.get("id"),
-                    display_name: user.get("display_name"),
                     username,
                     token,
                 })),
-            ));
+            ))
         }
         Err(err) => {
             log::warn!("{}", err);
-            return Ok((
+            Ok((
                 StatusCode::UNAUTHORIZED,
                 Json(serde_json::json!({ "error": "Incorrect password" })),
-            ));
+            ))
         }
     }
 }
@@ -121,5 +119,5 @@ async fn login_handler(
 async fn current_user_handler(
     Extension(current_user): Extension<Biscuit>,
 ) -> Result<impl IntoResponse, StatusCode> {
-    return Ok(current_user.print());
+    Ok(current_user.print())
 }

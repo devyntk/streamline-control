@@ -4,9 +4,6 @@ CREATE TABLE user
 (
     id           integer PRIMARY KEY,
     username     text,
-    display_name text,
-    email        text,
-    created      datetime,
     pw           text
 );
 

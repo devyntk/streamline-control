@@ -50,6 +50,15 @@ async fn listener(rx: flume::Receiver<OBSRequestMessage>, db: Pool<Sqlite>) -> a
                     sender.send(Err(obws::Error::Disconnected)).unwrap();
                 }
             }
+            Ok(SetScene(scene, sender)) => {
+                if let Some(client) = &client {
+                    sender
+                        .send(client.scenes().set_current_program_scene(&scene).await)
+                        .unwrap();
+                } else {
+                    sender.send(Err(obws::Error::Disconnected)).unwrap();
+                }
+            }
             Err(_) => {
                 log::info!("All OBS request senders were dropped, killing listener");
                 return Ok(());
