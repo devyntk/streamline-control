@@ -27,7 +27,7 @@ tower = "^0.4"
 tower-http = { version = "^0.3", features = ["full"] }
 rust-embed = "6.4.2"
 mime_guess = "2"
-self_update = { version = "0.27", optional = true }
+self_update = { version = "0.34", optional = true }
 webbrowser = "0.8.4"
 port_scanner = "0.1"
 app_dirs2 = "2"
