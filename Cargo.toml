@@ -16,7 +16,7 @@ default = ["with-gui"]
 with-gui = ["druid", "self_update"]
 
 [dependencies]
-druid = { version = "0.7", optional = true }
+druid = { version = "0.8", optional = true }
 tokio = { version = "1.23.1", features = ["full"] }
 axum = { version = "0.6.2", features = ["macros", "ws"] }
 sqlx = { version = "0.6.2", features = ["runtime-tokio-native-tls", "sqlite"] }
