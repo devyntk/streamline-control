@@ -26,7 +26,7 @@ pub const UPDATE_STATUS: Selector<String> = Selector::new("streamline-control.up
 
 pub fn run_ui() {
     let main_window_id = WindowId::next();
-    let mut main_window = WindowDesc::new(ui_builder)
+    let mut main_window = WindowDesc::new(ui_builder())
         .window_size((300.0, 160.0))
         .title("Streamline Server Control");
     main_window.id = main_window_id;
