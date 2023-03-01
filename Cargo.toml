@@ -34,7 +34,7 @@ app_dirs2 = "2"
 flexi_logger = "0.24.2"
 log = "0.4"
 mime = "0.3.0"
-clap = { version = "4.0", features = ["derive"] }
+clap = { version = "4.1", features = ["derive"] }
 ctrlc = "3.1.9"
 argon2 = "0.4.1"
 rand_core = { version = "0.6", features = ["std"] }
