@@ -47,6 +47,6 @@ rand_old = { package = "rand_core", features = ["std"], version = "0.5" }
 flume = "0.10.14"
 url = { version = "2.3.1", features = ["serde"] }
 tokio-tungstenite = "0.18.0"
-futures = "0.3.25"
+futures = "0.3.27"
 chrono = { version = "0.4.23", features = ["serde"] }
 obws = "0.10.0"
