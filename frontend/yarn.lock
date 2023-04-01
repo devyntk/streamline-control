@@ -2232,10 +2232,10 @@ postcss-nested@6.0.0:
   dependencies:
     postcss-selector-parser "^6.0.10"
 
-postcss-nesting@^11.0.0:
-  version "11.0.0"
-  resolved "https://registry.yarnpkg.com/postcss-nesting/-/postcss-nesting-11.0.0.tgz#cd5185e63d22302b7855d8ad0f51ece33e1cb5e3"
-  integrity sha512-Y+jmDpQuSSoM/Qq+rqDc4D3E8Cn84qUmJLFS/M5u0YgM+5adLi9qFApbz5XzjzXjGAzItTUCP7RikLGy06ebiA==
+postcss-nesting@^11.2.2:
+  version "11.2.2"
+  resolved "https://registry.yarnpkg.com/postcss-nesting/-/postcss-nesting-11.2.2.tgz#ddedfea5a1fdcd8d753298d82297ad15d5640c0f"
+  integrity sha512-aOTiUniAB1bcPE6GGiynWRa6PZFPhOTAm5q3q5cem6QeSijIHHkWr6gs65ukCZMXeak8yXeZVbBJET3VM+HlhA==
   dependencies:
     "@csstools/selector-specificity" "^2.0.0"
     postcss-selector-parser "^6.0.10"
