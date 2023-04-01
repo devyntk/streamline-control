@@ -21,7 +21,7 @@ jobs:
         uses: Swatinem/rust-cache@v2.2.0
 
       - name: Yarn Cache
-        uses: actions/cache@v3.2.3
+        uses: actions/cache@v3.3.1
         with:
           path: frontend/node_modules
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/frontend/yarn.lock') }}
@@ -77,7 +77,7 @@ jobs:
           uses: Swatinem/rust-cache@v2.2.0
 
         - name: Yarn Cache
-          uses: actions/cache@v3.2.3
+          uses: actions/cache@v3.3.1
           with:
             path: frontend/node_modules
             key: ${{ runner.os }}-yarn-${{ hashFiles('**/frontend/yarn.lock') }}
@@ -137,7 +137,7 @@ jobs:
         uses: Swatinem/rust-cache@v2.2.0
 
       - name: Yarn Cache
-        uses: actions/cache@v3.2.3
+        uses: actions/cache@v3.3.1
         with:
           path: frontend/node_modules
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/frontend/yarn.lock') }}
